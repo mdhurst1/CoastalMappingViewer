@@ -143,6 +143,21 @@ const VEDGE_COLOURS = [
   [2000, "#eeffe9"],
   [CURRENT_YEAR, "#006622"],
 ];
+
+// initiate legend items
+const LEGEND_ITEMS = [
+  {
+    type: "gradient",
+    title: "MHWS shorelines",
+    colours: MHWS_COLOURS,
+  },
+  {
+    type: "gradient",
+    title: "Vegetation edge",
+    colours: VEDGE_COLOURS,
+  },
+];
+
 /*
  * Create the map
  * --------------------------------------------------------------------------
@@ -217,7 +232,7 @@ function addMapControls(map) {
 
   // add legend
   map.addControl(
-    new LegendControl(MHWS_COLOURS),
+    new LegendControl(LEGEND_ITEMS),
     "bottom-right",
   );
 }
