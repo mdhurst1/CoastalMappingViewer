@@ -1,4 +1,5 @@
 @import "./styles/BasemapControl.css";
+@import "./styles/LegendControl.css";
 
 html,
 body {

@@ -202,11 +202,10 @@ function addMapControls(map) {
   // addLayerControl(map);
 
   // add legend
-  /*map.addControl(
-    new LegendControl(),
+  map.addControl(
+    new LegendControl(MHWS_COLOURS),
     "bottom-right",
   );
-  */
 }
 
 /*

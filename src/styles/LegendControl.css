@@ -17,14 +17,6 @@
   width: 100%;
   height: 6px;
   border-radius: 3px;
-
-  background: linear-gradient(
-    to right,
-    #3f3f3f 0%,
-    #a8cbff 56%,
-    #408dff 79%,
-    #0011a8 100%
-  );
 }
 
 .legend-labels {

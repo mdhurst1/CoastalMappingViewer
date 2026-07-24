@@ -6,9 +6,24 @@
 
 export default class LegendControl {
 
-  constructor() {
+  constructor(colours) {
+    this.colours = colours;
     this.map = undefined;
     this.container = undefined;
+  }
+
+  createGradient() {
+    const firstYear = this.colours[0][0];
+    const lastYear = this.colours[this.colours.length - 1][0];
+
+    const stops = this.colours.map(([year, colour]) => {
+      const position =
+        ((year - firstYear) / (lastYear - firstYear)) * 100;
+
+      return `${colour} ${position}%`;
+    });
+
+    return `linear-gradient(to right, ${stops.join(", ")})`;
   }
 
   onAdd(map) {
@@ -22,11 +37,12 @@ export default class LegendControl {
     // Legend title
     const title = document.createElement("div");
     title.className = "legend-title";
-    title.textContent = "MHWS shoreline";
+    title.textContent = "MHWS shorelines";
 
     // Colour gradient matching getMHWSPaint()
     const colourRamp = document.createElement("div");
     colourRamp.className = "legend-colour-ramp";
+    colourRamp.style.background = this.createGradient();
 
     // Year labels beneath the gradient
     const labels = document.createElement("div");
