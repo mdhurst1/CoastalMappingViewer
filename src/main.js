@@ -13,9 +13,12 @@ import "maplibre-gl/dist/maplibre-gl.css";
 // import application specific stylesheet
 import "./style.css";
 
-// import controls
+// import control tools
 import BasemapControl from "./controls/BasemapControl.js";
 import LegendControl from "./controls/LegendControl.js";
+
+// import layer tools
+import {addMHWSLayers, registerMHWSInteractions} from "./layers/MHWS.js";
 
 /* 
  * --------------------------------------------
@@ -209,68 +212,6 @@ function addMapControls(map) {
 }
 
 /*
- * Add MHWS Layer
- * --------------------------------------------------------------------------
- * Adds the Mean High Water Springs shoreline GeoJSON to the map.
- */
-
-// function to get MHWS colour based on year attribute
-function getMHWSPaint() {
-  const colourExpression = [
-    "interpolate",
-    ["linear"],
-    [
-      "to-number",
-      ["slice", ["get", "Date"], 0, 4],
-    ],
-  ];
-
-  MHWS_COLOURS.forEach(([year, colour]) => {
-    colourExpression.push(year, colour);
-  });
-
-  return {
-    "line-color": colourExpression,
-    "line-width": 2,
-  };
-}
-
-function addMHWSLayer(map) {
-  
-  // loop through MHWS Layers
-  MHWS_DATASETS.forEach((dataset) => {
-    
-    const sourceId = `${dataset.id}-source`;
-    const layerId = `${dataset.id}-line`;
-
-    // Register the GeoJSON file as a MapLibre data source if not already present
-    if (!map.getSource(sourceId)) {
-      map.addSource(sourceId, {
-        type: "geojson",
-        data: dataset.file,
-      });
-    }
-  
-
-    // Draw the shoreline source as a line layer if not already present
-    if (!map.getLayer(layerId)) {
-      map.addLayer({
-        id: layerId,
-        type: "line",
-        source: sourceId,
-
-        layout: {
-          "line-cap": "round",
-          "line-join": "round",
-        },
-
-        paint: getMHWSPaint(),
-      });
-    };
-  });
-}
-
-/*
  * Map event handlers
  * --------------------------------------------------------------------------
  */
@@ -279,7 +220,12 @@ function registerMapEvents(map) {
   map.on("style.load", () => {
     console.log("Map style loaded successfully");
 
-    addMHWSLayer(map);
+    addMHWSLayers(
+      map,
+      MHWS_DATASETS,
+      MHWS_COLOURS,
+      CURRENT_YEAR,
+    );
   });
 
   map.on("error", (event) => {
@@ -303,7 +249,11 @@ function initialiseApplication() {
 
   addMapControls(map);
   registerMapEvents(map);
-
+  registerMHWSInteractions(
+    map,
+    MHWS_DATASETS,
+    maplibregl.Popup,
+  );
   return map;
 }
 

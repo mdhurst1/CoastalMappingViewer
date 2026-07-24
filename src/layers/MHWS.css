@@ -1,0 +1,21 @@
+/* --------------------------------------------------------------------------
+ * MHWS popup
+ * -------------------------------------------------------------------------- */
+
+.mhws-popup {
+  min-width: 150px;
+}
+
+.mhws-popup > strong {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.mhws-popup p {
+  margin: 4px 0;
+}
+
+.mhws-popup p strong {
+  font-weight: 600;
+}
