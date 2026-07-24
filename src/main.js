@@ -14,7 +14,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import "./style.css";
 
 // import control tools
-import BasemapControl from "./controls/BasemapControl.js";
+import MapOptionsControl from "./controls/MapOptionsControl.js";
 import LegendControl from "./controls/LegendControl.js";
 
 // import layer tools
@@ -158,6 +158,23 @@ const LEGEND_ITEMS = [
   },
 ];
 
+const LAYER_GROUPS = {
+  mhws: {
+    name: "MHWS shorelines",
+    visible: true,
+    datasets: MHWS_DATASETS,
+    colours: MHWS_COLOURS,
+    addLayers: addMHWSLayers,
+  },
+
+  vegetation: {
+    name: "Vegetation edge",
+    visible: true,
+    datasets: VEDGE_DATASETS,
+    colours: VEDGE_COLOURS,
+    addLayers: addVEdgeLayers,
+  }
+};
 /*
  * Create the map
  * --------------------------------------------------------------------------
@@ -170,34 +187,6 @@ function createMap() {
     center: MAP_CONFIG.centre,
     zoom: MAP_CONFIG.zoom,
   });
-}
-
-
-/*
- * Set active basemap
- * --------------------------------------------------------------------------
- * Displays the selected basemap layer and hides all other basemap layers.
- *
- * Parameters
- * ----------
- * map : maplibregl.Map
- *    The MapLibre map instance.
- * BasemapName : 
- *    The name of othe basemap layer to get the style from
- */
-
-function setBasemap(map, BasemapName) {
-  
-  // get the map
-  const basemap = BASEMAPS[BasemapName];
-
-  // check it
-  if (!basemap) {
-    console.error('Unknown basemap: ${BasemapName}');
-  }
-
-  // set the map
-  map.setStyle(basemap.style);
 }
 
 
@@ -221,14 +210,18 @@ function addMapControls(map) {
     "bottom-left",
   );
 
-  // Basemap selector
-  map.addControl(
-    new BasemapControl(BASEMAPS, MAP_CONFIG.basemap),
-    "top-left",
+  // Map opttion selector for basemaps and layers
+  const mapOptionsControl = new MapOptionsControl(
+    BASEMAPS,
+    MAP_CONFIG.basemap,
+    LAYER_GROUPS,
+    () => applyLayerVisibility(map),
   );
 
-  // Layer selector (future)
-  // addLayerControl(map);
+  map.addControl(
+    mapOptionsControl,
+    "top-left",
+  );
 
   // add legend
   map.addControl(
@@ -244,32 +237,48 @@ function addMapControls(map) {
 
 function registerMapEvents(map) {
   map.on("style.load", () => {
-    console.log("Map style loaded successfully");
+  
+    Object.values(LAYER_GROUPS).forEach((group) => {
+      group.addLayers(
+        map,
+        group.datasets,
+        group.colours,
+        CURRENT_YEAR,
+      );
+    });
 
-    addMHWSLayers(
-      map,
-      MHWS_DATASETS,
-      MHWS_COLOURS,
-      CURRENT_YEAR,
-    );
-
-    addVEdgeLayers(
-      map,
-      VEDGE_DATASETS,
-      VEDGE_COLOURS,
-      CURRENT_YEAR,
-    );
-  });
-
-  map.on("error", (event) => {
-    console.error("MapLibre error event:", event);
-    console.error("Error:", event.error);
-    console.error("Source:", event.sourceId);
-    console.error("Tile:", event.tile);
+  applyLayerVisibility(map);
   });
 }
+/*
+ * Apply layer visibility
+ * --------------------------------------------------------------------------
+ * Applies the visibility settings stored in LAYER_GROUPS to all MapLibre
+ * layers belonging to each group.
+ */
 
+function applyLayerVisibility(map) {
+  Object.values(LAYER_GROUPS).forEach((group) => {
+    const visibility = group.visible
+      ? "visible"
+      : "none";
 
+    group.datasets.forEach((dataset) => {
+      const haloLayerId = `${dataset.id}-halo`;
+      const lineLayerId = `${dataset.id}-line`;
+
+      [haloLayerId, lineLayerId].forEach((layerId) => {
+        if (map.getLayer(layerId)) {
+          map.setLayoutProperty(
+            layerId,
+            "visibility",
+            visibility,
+          );
+        }
+      });
+    });
+  });
+}
 /*
  * Application initialisation
  * --------------------------------------------------------------------------
