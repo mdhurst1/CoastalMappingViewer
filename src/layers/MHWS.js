@@ -169,7 +169,7 @@ export function registerMHWSInteractions(map, datasets, PopupClass) {
         return;
       }
 
-      map.getCanvas().style.cursor = "pointer";
+      map.getCanvas().style.cursor = "crosshair";
 
       const nextHoveredFeature = {
         source: feature.source,
@@ -200,7 +200,7 @@ export function registerMHWSInteractions(map, datasets, PopupClass) {
     });
 
     map.on("mouseleave", layerId, () => {
-      map.getCanvas().style.cursor = "";
+      map.getCanvas().style.cursor = "move";
     });
 
     map.on("click", layerId, (event) => {
