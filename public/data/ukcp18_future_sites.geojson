@@ -1,0 +1,12 @@
+{
+"type": "FeatureCollection",
+"name": "ukcp18_future_sites",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "id": 0, "Name": "Eyemouth" }, "geometry": { "type": "Point", "coordinates": [ -2.090236435744716, 55.874971397759118 ] } },
+{ "type": "Feature", "properties": { "id": 1, "Name": "Portobello" }, "geometry": { "type": "Point", "coordinates": [ -3.10720043905734, 55.956890437785795 ] } },
+{ "type": "Feature", "properties": { "id": 2, "Name": "St. Andrews" }, "geometry": { "type": "Point", "coordinates": [ -2.785259049606978, 56.343177064339372 ] } },
+{ "type": "Feature", "properties": { "id": 3, "Name": "Montrose" }, "geometry": { "type": "Point", "coordinates": [ -2.447254926818559, 56.708767833929713 ] } },
+{ "type": "Feature", "properties": { "id": 4, "Name": "Aberdeen" }, "geometry": { "type": "Point", "coordinates": [ -2.074288852057475, 57.149432964689865 ] } }
+]
+}
