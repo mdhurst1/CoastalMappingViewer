@@ -15,6 +15,7 @@ import "./style.css";
 
 // import controls
 import BasemapControl from "./controls/BasemapControl.js";
+import LegendControl from "./controls/LegendControl.js";
 
 /* 
  * --------------------------------------------
@@ -119,6 +120,15 @@ const MHWS_DATASETS = [
   }
 ];
 
+// setup MHWS colour scheme
+const CURRENT_YEAR = new Date().getFullYear();
+const MHWS_COLOURS = [
+  [1900, "#3f3f3f"],
+  [1970, "#a8cbff"],
+  [2000, "#408dff"],
+  [CURRENT_YEAR, "#0011a8"],
+];
+
 /*
  * Create the map
  * --------------------------------------------------------------------------
@@ -190,6 +200,13 @@ function addMapControls(map) {
 
   // Layer selector (future)
   // addLayerControl(map);
+
+  // add legend
+  /*map.addControl(
+    new LegendControl(),
+    "bottom-right",
+  );
+  */
 }
 
 /*
@@ -200,18 +217,21 @@ function addMapControls(map) {
 
 // function to get MHWS colour based on year attribute
 function getMHWSPaint() {
-  return {
-    "line-color": [
-      "interpolate",
-      ["linear"],
-      ["to-number", ["slice", ["get", "Date"], 0, 4]],
-
-      1900, "#3f3f3f",
-      1970, "#a8cbff",
-      2000, "#408dff",
-      2026, "#0011a8",
+  const colourExpression = [
+    "interpolate",
+    ["linear"],
+    [
+      "to-number",
+      ["slice", ["get", "Date"], 0, 4],
     ],
+  ];
 
+  MHWS_COLOURS.forEach(([year, colour]) => {
+    colourExpression.push(year, colour);
+  });
+
+  return {
+    "line-color": colourExpression,
     "line-width": 2,
   };
 }
@@ -264,7 +284,10 @@ function registerMapEvents(map) {
   });
 
   map.on("error", (event) => {
-    console.error("MapLibre error:", event.error);
+    console.error("MapLibre error event:", event);
+    console.error("Error:", event.error);
+    console.error("Source:", event.sourceId);
+    console.error("Tile:", event.tile);
   });
 }
 
