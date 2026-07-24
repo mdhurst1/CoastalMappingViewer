@@ -54,6 +54,26 @@ const BASEMAP_STYLE = {
 };
 
 /*
+ * Declare datasets that will be plotted here
+ * --------------------------------------------------------------------------
+ */
+// MHWS datasets
+const MHWS_DATASETS = [
+  {
+    id: "MHWS 1890",
+    file: "/data/montrose_MHWS_1890.geojson",
+  },
+  {
+    id: "MHWS 1970",
+    file: "/data/montrose_MHWS_1970.geojson",
+  },
+  {
+    id: "MHWS LiDAR",
+    file: "/data/montrose_MHWS_Modern_LiDAR.geojson",
+  }
+];
+
+/*
  * Create the map
  * --------------------------------------------------------------------------
  */
@@ -90,6 +110,61 @@ function addMapControls(map) {
 }
 
 /*
+ * Add MHWS Layer
+ * --------------------------------------------------------------------------
+ * Adds the Mean High Water Springs shoreline GeoJSON to the map.
+ */
+
+// function to get MHWS colour based on year attribute
+function getMHWSPaint() {
+  return {
+    "line-color": [
+      "interpolate",
+      ["linear"],
+      ["to-number", ["slice", ["get", "Date"], 0, 4]],
+
+      1900, "#3f3f3f",
+      1970, "#a8cbff",
+      2000, "#408dff",
+      2026, "#0011a8",
+    ],
+
+    "line-width": 2,
+  };
+}
+
+function addMHWSLayer(map) {
+  
+  // loop through MHWS Layers
+  MHWS_DATASETS.forEach((dataset) => {
+    
+    const sourceId = `${dataset.id}-source`;
+    const layerId = `${dataset.id}-line`;
+
+    // Register the GeoJSON file as a MapLibre data source
+    map.addSource(sourceId, {
+      type: "geojson",
+      data: dataset.file,
+    });
+  
+
+    // Draw the shoreline source as a line layer
+    map.addLayer({
+      id: layerId,
+      type: "line",
+      source: sourceId,
+
+      layout: {
+        "line-cap": "round",
+        "line-join": "round",
+      },
+
+      paint: getMHWSPaint(),
+    });
+  });
+}
+
+/*
  * Map event handlers
  * --------------------------------------------------------------------------
  */
@@ -105,6 +180,7 @@ function registerMapEvents(map) {
      *
      * addCoastalData(map);
      */
+    addMHWSLayer(map);
   });
 
   map.on("error", (event) => {
