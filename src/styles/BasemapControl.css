@@ -26,3 +26,19 @@
 .basemap-option input {
     margin-right: 6px;
 }
+
+.basemap-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  cursor: pointer;
+}
+
+.basemap-toggle-icon {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
