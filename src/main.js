@@ -19,6 +19,7 @@ import LegendControl from "./controls/LegendControl.js";
 
 // import layer tools
 import {addMHWSLayers, registerMHWSInteractions} from "./layers/MHWS.js";
+import {addVEdgeLayers, registerVEdgeInteractions} from "./layers/VEdge.js";
 
 /* 
  * --------------------------------------------
@@ -123,7 +124,14 @@ const MHWS_DATASETS = [
   }
 ];
 
-// setup MHWS colour scheme
+const VEDGE_DATASETS = [
+  {
+    id: "VEdge Combined",
+    file: "/data/Montrose_VEdge_combined.geojson",
+  }
+]
+
+// setup colour schemes
 const CURRENT_YEAR = new Date().getFullYear();
 const MHWS_COLOURS = [
   [1900, "#3f3f3f"],
@@ -131,7 +139,10 @@ const MHWS_COLOURS = [
   [2000, "#408dff"],
   [CURRENT_YEAR, "#0011a8"],
 ];
-
+const VEDGE_COLOURS = [
+  [2000, "#eeffe9"],
+  [CURRENT_YEAR, "#006622"],
+];
 /*
  * Create the map
  * --------------------------------------------------------------------------
@@ -226,6 +237,13 @@ function registerMapEvents(map) {
       MHWS_COLOURS,
       CURRENT_YEAR,
     );
+
+    addVEdgeLayers(
+      map,
+      VEDGE_DATASETS,
+      VEDGE_COLOURS,
+      CURRENT_YEAR,
+    );
   });
 
   map.on("error", (event) => {
@@ -252,6 +270,11 @@ function initialiseApplication() {
   registerMHWSInteractions(
     map,
     MHWS_DATASETS,
+    maplibregl.Popup,
+  );
+  registerVEdgeInteractions(
+    map,
+    VEDGE_DATASETS,
     maplibregl.Popup,
   );
   return map;
