@@ -6,14 +6,15 @@
  *--------------------------------------------
  */
 
-
-
 // import MapLibre and its default style
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 // import application specific stylesheet
 import "./style.css";
+
+// import controls
+import BasemapControl from "./controls/BasemapControl.js";
 
 /* 
  * --------------------------------------------
@@ -22,35 +23,80 @@ import "./style.css";
  *--------------------------------------------
  */
 
-const MAP_CONFIG = {container: "map", centre: [-2.45, 56.73], zoom: 12};
+const MAP_CONFIG = {
+  container: "map", 
+  centre: [-2.45, 56.73], 
+  zoom: 12,
+  basemap: "Positron"
+};
 
 /*
- * Basemap style
+ * Basemap definitions
  * --------------------------------------------------------------------------
- * MapLibre styles contain:
+ * Defines the basemap styles available to the application.
  *
- * 1. Sources: where the geographic data comes from.
- * 2. Layers: how those data sources should be displayed.
+ * Each basemap entry contains:
  *
- * This style currently contains only an OpenStreetMap raster basemap.
+ * name
+ *     Human-readable name displayed in the basemap control.
+ *
+ * style
+ *     Either:
+ *
+ *     1. A URL pointing to a MapLibre style document; or
+ *     2. An inline MapLibre style object.
+ *
+ * OpenFreeMap provides complete hosted vector styles.
+ *
+ * Esri World Imagery is configured here as an inline MapLibre style using
+ * Esri raster tiles. Attribution is included in the raster source and is
+ * displayed by MapLibre's attribution control.
+ *
+ * Changing basemap calls map.setStyle(), which replaces all sources and
+ * layers in the current style. Application-specific layers must therefore
+ * be re-added when the new style emits the "style.load" event.
  */
 
-const BASEMAP_STYLE = {
-  version: 8,
-  sources: {
-    osm: {
-      type: "raster",
-      tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png",],
-      tileSize: 256,
-      attribution: "© OpenStreetMap contributors",
-    },
+const BASEMAPS = {
+
+  Positron: {
+      name: "Light",
+      style: "https://tiles.openfreemap.org/styles/positron"
   },
-  layers: [{
-      id: "osm-basemap",
-      type: "raster",
-      source: "osm",
-    },
-  ],
+
+  Dark: {
+      name: "Dark",
+      style: "https://tiles.openfreemap.org/styles/dark"
+  },
+
+  Bright: {
+      name: "StreetMap",
+      style: "https://tiles.openfreemap.org/styles/bright"
+  },
+
+  EsriImagery: {
+    name: "Satellite",
+    style: {
+      version: 8,
+      sources: {
+        imagery: {
+          type: "raster",
+          tiles: [
+            "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+          ],
+          tileSize: 256,
+          attribution: "© Esri, Maxar, Earthstar Geographics"
+        }
+      },
+      layers: [
+        {
+          id: "imagery",
+          type: "raster",
+          source: "imagery"
+        }
+      ]
+    }
+  }
 };
 
 /*
@@ -81,17 +127,45 @@ const MHWS_DATASETS = [
 function createMap() {
   return new maplibregl.Map({
     container: MAP_CONFIG.container,
-    style: BASEMAP_STYLE,
+    style: BASEMAPS[MAP_CONFIG.basemap].style,
     center: MAP_CONFIG.centre,
     zoom: MAP_CONFIG.zoom,
   });
 }
 
+
+/*
+ * Set active basemap
+ * --------------------------------------------------------------------------
+ * Displays the selected basemap layer and hides all other basemap layers.
+ *
+ * Parameters
+ * ----------
+ * map : maplibregl.Map
+ *    The MapLibre map instance.
+ * BasemapName : 
+ *    The name of othe basemap layer to get the style from
+ */
+
+function setBasemap(map, BasemapName) {
+  
+  // get the map
+  const basemap = BASEMAPS[BasemapName];
+
+  // check it
+  if (!basemap) {
+    console.error('Unknown basemap: ${BasemapName}');
+  }
+
+  // set the map
+  map.setStyle(basemap.style);
+}
+
+
 /*
  * Map controls
  * --------------------------------------------------------------------------
  */
-
 function addMapControls(map) {
   // Zoom, rotation and compass controls
   map.addControl(
@@ -107,6 +181,15 @@ function addMapControls(map) {
     }),
     "bottom-left",
   );
+
+  // Basemap selector
+  map.addControl(
+    new BasemapControl(BASEMAPS, MAP_CONFIG.basemap),
+    "top-left",
+  );
+
+  // Layer selector (future)
+  // addLayerControl(map);
 }
 
 /*
@@ -141,26 +224,30 @@ function addMHWSLayer(map) {
     const sourceId = `${dataset.id}-source`;
     const layerId = `${dataset.id}-line`;
 
-    // Register the GeoJSON file as a MapLibre data source
-    map.addSource(sourceId, {
-      type: "geojson",
-      data: dataset.file,
-    });
+    // Register the GeoJSON file as a MapLibre data source if not already present
+    if (!map.getSource(sourceId)) {
+      map.addSource(sourceId, {
+        type: "geojson",
+        data: dataset.file,
+      });
+    }
   
 
-    // Draw the shoreline source as a line layer
-    map.addLayer({
-      id: layerId,
-      type: "line",
-      source: sourceId,
+    // Draw the shoreline source as a line layer if not already present
+    if (!map.getLayer(layerId)) {
+      map.addLayer({
+        id: layerId,
+        type: "line",
+        source: sourceId,
 
-      layout: {
-        "line-cap": "round",
-        "line-join": "round",
-      },
+        layout: {
+          "line-cap": "round",
+          "line-join": "round",
+        },
 
-      paint: getMHWSPaint(),
-    });
+        paint: getMHWSPaint(),
+      });
+    };
   });
 }
 
@@ -170,16 +257,9 @@ function addMHWSLayer(map) {
  */
 
 function registerMapEvents(map) {
-  map.on("load", () => {
-    console.log("Map loaded successfully");
+  map.on("style.load", () => {
+    console.log("Map style loaded successfully");
 
-    /*
-     * Coastal data sources and layers will eventually be added here.
-     *
-     * For example:
-     *
-     * addCoastalData(map);
-     */
     addMHWSLayer(map);
   });
 
