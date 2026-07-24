@@ -20,8 +20,22 @@
 }
 
 .legend-labels {
-  display: flex;
-  justify-content: space-between;
+  position: relative;
+  height: 18px;
   margin-top: 4px;
   font-size: 11px;
+}
+
+.legend-labels span {
+  position: absolute;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.legend-label-first {
+  transform: translateX(0) !important;
+}
+
+.legend-label-last {
+  transform: translateX(-100%) !important;
 }

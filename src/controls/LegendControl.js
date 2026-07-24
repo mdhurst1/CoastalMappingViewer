@@ -48,10 +48,23 @@ export default class LegendControl {
     const labels = document.createElement("div");
     labels.className = "legend-labels";
 
-    [1900, 1970, 2000, 2026].forEach((year) => {
-      const label = document.createElement("span");
-      label.textContent = year;
-      labels.appendChild(label);
+    const firstYear = this.colours[0][0];
+    const lastYear = this.colours[this.colours.length - 1][0];
+
+    this.colours.forEach(([year], index) => {
+    const position =
+        ((year - firstYear) / (lastYear - firstYear)) * 100;
+
+    const label = document.createElement("span");
+    label.textContent = year;
+    label.style.left = `${position}%`;
+    
+    if (index === 0) {
+        label.classList.add("legend-label-first");
+    } else if (index === this.colours.length - 1) {
+        label.classList.add("legend-label-last");
+    }
+    labels.appendChild(label);
     });
 
     this.container.appendChild(title);
