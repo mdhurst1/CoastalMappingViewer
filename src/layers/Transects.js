@@ -92,7 +92,7 @@ export function addTransectLayers(map, datasets) {
           "line-join": "round",
         },
 
-        paint: getTransectPaint(colours, fallbackYear),
+        paint: getTransectPaint(),
       });
     }
   });
@@ -105,21 +105,20 @@ export function addTransectLayers(map, datasets) {
  * Using textContent prevents property values from being interpreted as HTML.
  */
 function createTransectPopupContent(properties) {
+  // create popup container
   const container = document.createElement("div");
   container.className = "Transect-popup";
 
+  // add transect ID as title
   const title = document.createElement("strong");
-  title.textContent = "Transect";
-
-  const ID = document.createElement("p");
-
-  const IDLabel = document.createElement("strong");
-  IDLabel.textContent = "Transect ID: ";
-
-  ID.appendChild(IDLabel);
-  ID.append(properties.TransectID ?? "Unknown");
-
-  const HistRate = document.createElement("p");
+  title.textContent = "Transect ID: ";
+  title.append(properties.TransectID ?? "Unknown");
+  
+  // add the erosion/accretion rate
+  const HistRate = document.createElement("div");
+  const HistRateLabel = document.createElement("strong");
+  HistRateLabel.textContent = "Historic Rate: ";
+  HistRate.appendChild(HistRateLabel);
 
   const rate = Number(properties.Hist_Rate);
   HistRate.append(
@@ -130,14 +129,8 @@ function createTransectPopupContent(properties) {
 
   HistRate.append(" m/yr");
 
-  const HistRateLabel = document.createElement("strong");
-  HistRateLabel.textContent = "Historic Rate: ";
-
-  HistRate.appendChild(HistRateLabel);
-  HistRate.append(properties.Hist_Rate ?? "Unknown");
 
   container.appendChild(title);
-  container.appendChild(ID);
   container.appendChild(HistRate);
 
   return container;
