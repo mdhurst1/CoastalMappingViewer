@@ -14,8 +14,17 @@ import "./VEdge.css";
 
 // set up hovering
 let hoveredFeature = null;
+let selectedFeature = null;
 
 export function getVEdgePaint(colours, fallbackYear) {
+
+  // define conditions to highlight
+  const highlighted = [
+    "any",
+    ["boolean", ["feature-state", "hover"], false],
+    ["boolean", ["feature-state", "selected"], false],
+  ];
+
   const colourExpression = [
     "interpolate",
     ["linear"],
@@ -206,18 +215,49 @@ export function registerVEdgeInteractions(map, datasets, PopupClass) {
     map.on("click", layerId, (event) => {
       const feature = event.features?.[0];
 
-      if (!feature) {
+      if (!feature || feature.id == null) {
         return;
       }
+
+      // Clear the previously selected feature
+      if (selectedFeature) {
+        map.setFeatureState(
+          selectedFeature,
+          { selected: false },
+        );
+      }
+
+      // Select the clicked feature
+      selectedFeature = {
+        source: feature.source,
+        id: feature.id,
+      };
+
+      map.setFeatureState(
+        selectedFeature,
+        { selected: true },
+      );
 
       const popupContent = createVEdgePopupContent(
         feature.properties ?? {},
       );
 
-      new PopupClass()
+      const popup = new PopupClass()
         .setLngLat(event.lngLat)
         .setDOMContent(popupContent)
         .addTo(map);
+
+      // Remove the persistent highlight when the popup closes
+      popup.on("close", () => {
+        if (selectedFeature) {
+          map.setFeatureState(
+            selectedFeature,
+            { selected: false },
+          );
+
+          selectedFeature = null;
+        }
+      });
     });
   });
 }

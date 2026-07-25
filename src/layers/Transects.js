@@ -14,10 +14,18 @@ import "./Transects.css";
 
 // set up hovering
 let hoveredFeature = null;
+let selectedFeature = null;
 
 export function getTransectPaint() {
-  const MinRate = -5.0;
-  const MaxRate = 5.0;
+  const MIN_RATE = -5.0;
+  const MAX_RATE = 5.0;
+
+  // define conditions to highlight
+  const highlighted = [
+    "any",
+    ["boolean", ["feature-state", "hover"], false],
+    ["boolean", ["feature-state", "selected"], false],
+  ];
 
   return {
     "line-color": [
@@ -25,24 +33,24 @@ export function getTransectPaint() {
       ["linear"],
       ["to-number", ["get", "Hist_Rate"], 0],
 
-      MinRate, "#b2182b",
-     -2.5, "#ef8a62",
+      MIN_RATE, "#b2182b",
+      -2.5, "#ef8a62",
       0.0, "#f7f7f7",
       2.5, "#67a9cf",
-      MaxRate, "#2166ac",
+      MAX_RATE, "#2166ac",
     ],
 
     "line-width": [
       "case",
-      ["boolean", ["feature-state", "hover"], false],
+      highlighted,
       5,
       2,
     ],
 
     "line-opacity": [
       "case",
-      ["boolean", ["feature-state", "hover"], false],
-      1.0,
+      highlighted,
+      1,
       0.8,
     ],
   };
@@ -53,6 +61,13 @@ export function getTransectPaint() {
  * Add all Transect GeoJSON sources and line layers.
  */
 export function addTransectLayers(map, datasets) {
+  
+  const highlighted = [
+    "any",
+    ["boolean", ["feature-state", "hover"], false],
+    ["boolean", ["feature-state", "selected"], false],
+  ];
+  
   datasets.forEach((dataset) => {
     const sourceId = `${dataset.id}-source`;
     const haloLayerId = `${dataset.id}-halo`;
@@ -199,18 +214,49 @@ export function registerTransectInteractions(map, datasets, PopupClass) {
     map.on("click", layerId, (event) => {
       const feature = event.features?.[0];
 
-      if (!feature) {
+      if (!feature || feature.id == null) {
         return;
       }
+
+      // Clear the previously selected transect
+      if (selectedFeature) {
+        map.setFeatureState(
+          selectedFeature,
+          { selected: false },
+        );
+      }
+
+      // Select the clicked transect
+      selectedFeature = {
+        source: feature.source,
+        id: feature.id,
+      };
+
+      map.setFeatureState(
+        selectedFeature,
+        { selected: true },
+      );
 
       const popupContent = createTransectPopupContent(
         feature.properties ?? {},
       );
 
-      new PopupClass()
+      const popup = new PopupClass()
         .setLngLat(event.lngLat)
         .setDOMContent(popupContent)
         .addTo(map);
+
+      // Remove the persistent highlight when the popup closes
+      popup.on("close", () => {
+        if (selectedFeature) {
+          map.setFeatureState(
+            selectedFeature,
+            { selected: false },
+          );
+
+          selectedFeature = null;
+        }
+      });
     });
   });
 }

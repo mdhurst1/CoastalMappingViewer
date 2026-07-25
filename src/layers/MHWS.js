@@ -14,8 +14,18 @@ import "./MHWS.css";
 
 // set up hovering
 let hoveredFeature = null;
+let selectedFeature = null;
+let activePopup = null;
 
 export function getMHWSPaint(colours, fallbackYear) {
+  
+  
+  const highlighted = [
+    "any",
+    ["boolean", ["feature-state", "hover"], false],
+    ["boolean", ["feature-state", "selected"], false],
+  ];
+
   const colourExpression = [
     "interpolate",
     ["linear"],
@@ -34,18 +44,18 @@ export function getMHWSPaint(colours, fallbackYear) {
     "line-color": colourExpression,
 
     "line-width": [
-        "case",
-        ["boolean", ["feature-state", "hover"], false],
-        5,
-        2
+      "case",
+      highlighted,
+      5,
+      2,
     ],
 
     "line-opacity": [
-        "case",
-        ["boolean", ["feature-state", "hover"], false],
-        1.0,
-        0.8
-    ]
+      "case",
+      highlighted,
+      1.0,
+      0.8,
+    ],
   };
 }
 
@@ -54,6 +64,13 @@ export function getMHWSPaint(colours, fallbackYear) {
  * Add all MHWS GeoJSON sources and line layers.
  */
 export function addMHWSLayers(map, datasets, colours, fallbackYear) {
+  
+  const highlighted = [
+    "any",
+    ["boolean", ["feature-state", "hover"], false],
+    ["boolean", ["feature-state", "selected"], false],
+  ];
+
   datasets.forEach((dataset) => {
     const sourceId = `${dataset.id}-source`;
     const haloLayerId = `${dataset.id}-halo`;
@@ -83,14 +100,14 @@ export function addMHWSLayers(map, datasets, colours, fallbackYear) {
 
           "line-width": [
             "case",
-            ["boolean", ["feature-state", "hover"], false],
-            7,
+            highlighted,
+            9,
             0,
           ],
 
           "line-opacity": [
             "case",
-            ["boolean", ["feature-state", "hover"], false],
+            highlighted,
             1,
             0,
           ],
@@ -200,24 +217,87 @@ export function registerMHWSInteractions(map, datasets, PopupClass) {
     });
 
     map.on("mouseleave", layerId, () => {
-      map.getCanvas().style.cursor = "move";
+      map.getCanvas().style.cursor = "";
+
+      if (hoveredFeature) {
+        map.setFeatureState(
+          hoveredFeature,
+          { hover: false },
+        );
+
+        hoveredFeature = null;
+      }
     });
 
     map.on("click", layerId, (event) => {
       const feature = event.features?.[0];
 
-      if (!feature) {
+      if (!feature || feature.id == null) {
         return;
       }
+
+      // Store the newly clicked feature independently.
+      const clickedFeature = {
+        source: feature.source,
+        id: feature.id,
+      };
+
+      // Remove selection from the previous feature.
+      if (selectedFeature) {
+        map.setFeatureState(
+          selectedFeature,
+          { selected: false },
+        );
+      }
+
+      /*
+      * Clear this reference before removing the old popup.
+      * Its close handler must not clear the newly selected feature.
+      */
+      const previousPopup = activePopup;
+      activePopup = null;
+      previousPopup?.remove();
+
+      // Select the newly clicked feature.
+      selectedFeature = clickedFeature;
+
+      map.setFeatureState(
+        clickedFeature,
+        { selected: true },
+      );
 
       const popupContent = createMHWSPopupContent(
         feature.properties ?? {},
       );
 
-      new PopupClass()
+      const popup = new PopupClass()
         .setLngLat(event.lngLat)
         .setDOMContent(popupContent)
         .addTo(map);
+
+      activePopup = popup;
+
+      popup.on("close", () => {
+        /*
+        * Only clear the selection if this popup still corresponds to the
+        * currently selected feature.
+        */
+        if (
+          selectedFeature?.source === clickedFeature.source &&
+          selectedFeature?.id === clickedFeature.id
+        ) {
+          map.setFeatureState(
+            clickedFeature,
+            { selected: false },
+          );
+
+          selectedFeature = null;
+        }
+
+        if (activePopup === popup) {
+          activePopup = null;
+        }
+      });
     });
   });
 }
