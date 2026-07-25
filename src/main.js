@@ -172,8 +172,11 @@ const LEGEND_ITEMS = [
   },
   {
     type: "gradient",
-    title: "Transects",
+    title: "Historical shoreline change (m/yr)",
     colours: TRANSECT_COLOURS,
+    leftLabel: "Erosion",
+    rightLabel: "Accretion",
+    units: "m/yr",
   },
 ];
 
@@ -192,12 +195,12 @@ const LAYER_GROUPS = {
     datasets: VEDGE_DATASETS,
     colours: VEDGE_COLOURS,
     addLayers: addVEdgeLayers,
-  }
+  },
   transects: {
     name: "Transects",
     visible: true,
     datasets: TRANSECTS_DATASETS,
-    colours: TRANSECT_COLOURS
+    colours: TRANSECT_COLOURS,
     addLayers: addTransectLayers,
   },
 };
@@ -331,7 +334,7 @@ function initialiseApplication() {
     map,
     TRANSECTS_DATASETS,
     maplibregl.Popup,
-  )
+  );
   return map;
 }
 

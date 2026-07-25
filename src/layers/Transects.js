@@ -25,11 +25,11 @@ export function getTransectPaint() {
       ["linear"],
       ["to-number", ["get", "Hist_Rate"], 0],
 
-      MIN_RATE, "#b2182b",
+      MinRate, "#b2182b",
      -2.5, "#ef8a62",
       0.0, "#f7f7f7",
       2.5, "#67a9cf",
-      MAX_RATE, "#2166ac",
+      MaxRate, "#2166ac",
     ],
 
     "line-width": [
@@ -52,7 +52,7 @@ export function getTransectPaint() {
 /*
  * Add all Transect GeoJSON sources and line layers.
  */
-export function addTransectLayers(map, datasets, colours, fallbackYear) {
+export function addTransectLayers(map, datasets) {
   datasets.forEach((dataset) => {
     const sourceId = `${dataset.id}-source`;
     const haloLayerId = `${dataset.id}-halo`;
@@ -77,23 +77,7 @@ export function addTransectLayers(map, datasets, colours, fallbackYear) {
           "line-join": "round",
         },
 
-        paint: {
-          "line-color": "#ffffff",
-
-          "line-width": [
-            "case",
-            ["boolean", ["feature-state", "hover"], false],
-            7,
-            0,
-          ],
-
-          "line-opacity": [
-            "case",
-            ["boolean", ["feature-state", "hover"], false],
-            1,
-            0,
-          ],
-        },
+        paint: getTransectPaint(),
       });
     }
 
@@ -137,8 +121,17 @@ function createTransectPopupContent(properties) {
 
   const HistRate = document.createElement("p");
 
+  const rate = Number(properties.Hist_Rate);
+  HistRate.append(
+    Number.isFinite(rate)
+    ? rate.toFixed(2)
+    : "Unknown"
+  );
+
+  HistRate.append(" m/yr");
+
   const HistRateLabel = document.createElement("strong");
-  HistRateLabel.textContent = "Historic Rate of Change (m/y): ";
+  HistRateLabel.textContent = "Historic Rate: ";
 
   HistRate.appendChild(HistRateLabel);
   HistRate.append(properties.Hist_Rate ?? "Unknown");
@@ -199,7 +192,15 @@ export function registerTransectInteractions(map, datasets, PopupClass) {
     });
 
     map.on("mouseleave", layerId, () => {
-      map.getCanvas().style.cursor = "move";
+      map.getCanvas().style.cursor = "";
+
+      if (hoveredFeature) {
+        map.setFeatureState(hoveredFeature, {
+          hover: false,
+        });
+
+        hoveredFeature = null;
+      }
     });
 
     map.on("click", layerId, (event) => {

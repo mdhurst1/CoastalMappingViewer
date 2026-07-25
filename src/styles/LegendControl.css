@@ -54,3 +54,13 @@
 .legend-label-last {
   transform: translateX(-100%) !important;
 }
+
+.legend-direction-labels {
+  display: flex;
+  justify-content: space-between;
+
+  margin-top: 3px;
+
+  font-size: 10px;
+  color: #666;
+}

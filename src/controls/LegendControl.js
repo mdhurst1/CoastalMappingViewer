@@ -75,13 +75,28 @@ export default class LegendControl {
     colourRamp.style.background =
       this.createGradient(item.colours);
 
-    const labels =
-      this.createGradientLabels(item.colours);
+    const labels = this.createGradientLabels(item.colours);
 
     section.appendChild(title);
     section.appendChild(colourRamp);
     section.appendChild(labels);
 
+    // Optional descriptive labels beneath the numeric scale
+  if (item.leftLabel || item.rightLabel) {
+      const directionLabels = document.createElement("div");
+      directionLabels.className = "legend-direction-labels";
+
+      const left = document.createElement("span");
+      left.textContent = item.leftLabel ?? "";
+
+      const right = document.createElement("span");
+      right.textContent = item.rightLabel ?? "";
+
+      directionLabels.appendChild(left);
+      directionLabels.appendChild(right);
+
+      section.appendChild(directionLabels);
+      }
     return section;
   }
 
