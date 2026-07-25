@@ -15,6 +15,7 @@ import "./Transects.css";
 // set up hovering
 let hoveredFeature = null;
 let selectedFeature = null;
+let activePopup = null;
 
 export function getTransectPaint() {
   const MIN_RATE = -5.0;
@@ -218,7 +219,13 @@ export function registerTransectInteractions(map, datasets, PopupClass) {
         return;
       }
 
-      // Clear the previously selected transect
+      // Store the newly clicked feature independently.
+      const clickedFeature = {
+        source: feature.source,
+        id: feature.id,
+      };
+
+      // Remove selection from the previous feature.
       if (selectedFeature) {
         map.setFeatureState(
           selectedFeature,
@@ -226,14 +233,19 @@ export function registerTransectInteractions(map, datasets, PopupClass) {
         );
       }
 
-      // Select the clicked transect
-      selectedFeature = {
-        source: feature.source,
-        id: feature.id,
-      };
+      /*
+      * Clear this reference before removing the old popup.
+      * Its close handler must not clear the newly selected feature.
+      */
+      const previousPopup = activePopup;
+      activePopup = null;
+      previousPopup?.remove();
+
+      // Select the newly clicked feature.
+      selectedFeature = clickedFeature;
 
       map.setFeatureState(
-        selectedFeature,
+        clickedFeature,
         { selected: true },
       );
 
@@ -246,15 +258,27 @@ export function registerTransectInteractions(map, datasets, PopupClass) {
         .setDOMContent(popupContent)
         .addTo(map);
 
-      // Remove the persistent highlight when the popup closes
+      activePopup = popup;
+
       popup.on("close", () => {
-        if (selectedFeature) {
+        /*
+        * Only clear the selection if this popup still corresponds to the
+        * currently selected feature.
+        */
+        if (
+          selectedFeature?.source === clickedFeature.source &&
+          selectedFeature?.id === clickedFeature.id
+        ) {
           map.setFeatureState(
-            selectedFeature,
+            clickedFeature,
             { selected: false },
           );
 
           selectedFeature = null;
+        }
+
+        if (activePopup === popup) {
+          activePopup = null;
         }
       });
     });

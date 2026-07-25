@@ -15,6 +15,7 @@ import "./VEdge.css";
 // set up hovering
 let hoveredFeature = null;
 let selectedFeature = null;
+let activePopup = null;
 
 export function getVEdgePaint(colours, fallbackYear) {
 
@@ -219,7 +220,13 @@ export function registerVEdgeInteractions(map, datasets, PopupClass) {
         return;
       }
 
-      // Clear the previously selected feature
+      // Store the newly clicked feature independently.
+      const clickedFeature = {
+        source: feature.source,
+        id: feature.id,
+      };
+
+      // Remove selection from the previous feature.
       if (selectedFeature) {
         map.setFeatureState(
           selectedFeature,
@@ -227,14 +234,19 @@ export function registerVEdgeInteractions(map, datasets, PopupClass) {
         );
       }
 
-      // Select the clicked feature
-      selectedFeature = {
-        source: feature.source,
-        id: feature.id,
-      };
+      /*
+      * Clear this reference before removing the old popup.
+      * Its close handler must not clear the newly selected feature.
+      */
+      const previousPopup = activePopup;
+      activePopup = null;
+      previousPopup?.remove();
+
+      // Select the newly clicked feature.
+      selectedFeature = clickedFeature;
 
       map.setFeatureState(
-        selectedFeature,
+        clickedFeature,
         { selected: true },
       );
 
@@ -247,15 +259,27 @@ export function registerVEdgeInteractions(map, datasets, PopupClass) {
         .setDOMContent(popupContent)
         .addTo(map);
 
-      // Remove the persistent highlight when the popup closes
+      activePopup = popup;
+
       popup.on("close", () => {
-        if (selectedFeature) {
+        /*
+        * Only clear the selection if this popup still corresponds to the
+        * currently selected feature.
+        */
+        if (
+          selectedFeature?.source === clickedFeature.source &&
+          selectedFeature?.id === clickedFeature.id
+        ) {
           map.setFeatureState(
-            selectedFeature,
+            clickedFeature,
             { selected: false },
           );
 
           selectedFeature = null;
+        }
+
+        if (activePopup === popup) {
+          activePopup = null;
         }
       });
     });
