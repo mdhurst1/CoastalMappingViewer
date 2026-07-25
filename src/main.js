@@ -20,6 +20,7 @@ import LegendControl from "./controls/LegendControl.js";
 // import layer tools
 import {addMHWSLayers, registerMHWSInteractions} from "./layers/MHWS.js";
 import {addVEdgeLayers, registerVEdgeInteractions} from "./layers/VEdge.js";
+import { addTransectLayers, registerTransectInteractions } from "./layers/Transects.js";
 
 /* 
  * --------------------------------------------
@@ -131,6 +132,12 @@ const VEDGE_DATASETS = [
   }
 ]
 
+const TRANSECTS_DATASETS = [
+  {
+    id: "Transects"
+    file: "/CMT_output/Montrose_Transects.geojson"
+  }
+]
 // setup colour schemes
 const CURRENT_YEAR = new Date().getFullYear();
 const MHWS_COLOURS = [
@@ -174,6 +181,13 @@ const LAYER_GROUPS = {
     colours: VEDGE_COLOURS,
     addLayers: addVEdgeLayers,
   }
+  transects: {
+    name: "Transects"
+    visible: true
+    datasets: TRANSECTS_DATASETS
+    colours: None,
+    addLayers: addTransectLayers,
+  },
 };
 /*
  * Create the map
@@ -301,6 +315,11 @@ function initialiseApplication() {
     VEDGE_DATASETS,
     maplibregl.Popup,
   );
+  registerTransectInteractions(
+    map,
+    TRANSECTS_DATASETS,
+    maplibregl.Popup,
+  )
   return map;
 }
 
