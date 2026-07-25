@@ -10,6 +10,7 @@ export default class LegendControl {
     this.items = items;
     this.map = undefined;
     this.container = undefined;
+    this.sections = new Map();
   }
 
   /*
@@ -65,6 +66,7 @@ export default class LegendControl {
   createGradientItem(item) {
     const section = document.createElement("div");
     section.className = "legend-item legend-gradient-item";
+    section.dataset.group = item.group;
 
     const title = document.createElement("div");
     title.className = "legend-item-title";
@@ -114,16 +116,33 @@ export default class LegendControl {
     this.container.appendChild(heading);
 
     this.items.forEach((item) => {
-      if (item.type === "gradient") {
-        this.container.appendChild(
-          this.createGradientItem(item),
-        );
+      if (item.type !== "gradient") {
+        return;
       }
+
+      const section = this.createGradientItem(item);
+
+      this.sections.set(item.group, section);
+      this.container.appendChild(section);
     });
 
     return this.container;
   }
 
+  updateVisibility(layerGroups) {
+    this.sections.forEach((section, groupId) => {
+      const group = layerGroups[groupId];
+
+      section.hidden = !group?.visible;
+    });
+
+    const hasVisibleItems = Array.from(
+      this.sections.values(),
+    ).some((section) => !section.hidden);
+
+    this.container.hidden = !hasVisibleItems;
+  }
+  
   onRemove() {
     this.container?.remove();
 

@@ -161,16 +161,19 @@ const TRANSECT_COLOURS = [
 // initiate legend items
 const LEGEND_ITEMS = [
   {
+    group: "mhws",
     type: "gradient",
     title: "MHWS shorelines",
     colours: MHWS_COLOURS,
   },
   {
+    group: "vegetation",
     type: "gradient",
     title: "Vegetation edge",
     colours: VEDGE_COLOURS,
   },
   {
+    group: "transects",
     type: "gradient",
     title: "Historical shoreline change (m/yr)",
     colours: TRANSECT_COLOURS,
@@ -224,13 +227,11 @@ function createMap() {
  * --------------------------------------------------------------------------
  */
 function addMapControls(map) {
-  // Zoom, rotation and compass controls
   map.addControl(
     new maplibregl.NavigationControl(),
     "top-right",
   );
 
-  // Metric scale bar
   map.addControl(
     new maplibregl.ScaleControl({
       maxWidth: 150,
@@ -239,12 +240,18 @@ function addMapControls(map) {
     "bottom-left",
   );
 
-  // Map opttion selector for basemaps and layers
+  const legendControl = new LegendControl(LEGEND_ITEMS);
+
+  const updateVisibleLayers = () => {
+    applyLayerVisibility(map);
+    legendControl.updateVisibility(LAYER_GROUPS);
+  };
+
   const mapOptionsControl = new MapOptionsControl(
     BASEMAPS,
     MAP_CONFIG.basemap,
     LAYER_GROUPS,
-    () => applyLayerVisibility(map),
+    updateVisibleLayers,
   );
 
   map.addControl(
@@ -252,11 +259,13 @@ function addMapControls(map) {
     "top-left",
   );
 
-  // add legend
   map.addControl(
-    new LegendControl(LEGEND_ITEMS),
+    legendControl,
     "bottom-right",
   );
+
+  // Apply the initial legend state
+  legendControl.updateVisibility(LAYER_GROUPS);
 }
 
 /*
