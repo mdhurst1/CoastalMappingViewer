@@ -16,43 +16,35 @@ import "./Transects.css";
 let hoveredFeature = null;
 
 export function getTransectPaint() {
-
   const MinRate = -5.0;
   const MaxRate = 5.0;
 
   return {
-    "line-width": 2,
-
     "line-color": [
       "interpolate",
       ["linear"],
       ["to-number", ["get", "Hist_Rate"], 0],
 
-      MinRate, "#8a0010",
-      -2.5, "#ff9595",
-       0.0, "#f7f7f7",
-       2.5, "#89d4ff",
-       MaxRate, "#003daf",
+      MIN_RATE, "#b2182b",
+     -2.5, "#ef8a62",
+      0.0, "#f7f7f7",
+      2.5, "#67a9cf",
+      MAX_RATE, "#2166ac",
     ],
-  };
-}
-
-  return {
-    "line-color": colourExpression,
 
     "line-width": [
-        "case",
-        ["boolean", ["feature-state", "hover"], false],
-        5,
-        2
+      "case",
+      ["boolean", ["feature-state", "hover"], false],
+      5,
+      2,
     ],
 
     "line-opacity": [
-        "case",
-        ["boolean", ["feature-state", "hover"], false],
-        1.0,
-        0.8
-    ]
+      "case",
+      ["boolean", ["feature-state", "hover"], false],
+      1.0,
+      0.8,
+    ],
   };
 }
 

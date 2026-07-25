@@ -20,7 +20,7 @@ import LegendControl from "./controls/LegendControl.js";
 // import layer tools
 import {addMHWSLayers, registerMHWSInteractions} from "./layers/MHWS.js";
 import {addVEdgeLayers, registerVEdgeInteractions} from "./layers/VEdge.js";
-import { addTransectLayers, registerTransectInteractions } from "./layers/Transects.js";
+import {addTransectLayers, registerTransectInteractions } from "./layers/Transects.js";
 
 /* 
  * --------------------------------------------
@@ -134,8 +134,8 @@ const VEDGE_DATASETS = [
 
 const TRANSECTS_DATASETS = [
   {
-    id: "Transects"
-    file: "/CMT_output/Montrose_Transects.geojson"
+    id: "Transects",
+    file: "/CMT_output/Montrose_Transects.geojson",
   }
 ]
 // setup colour schemes
@@ -150,6 +150,13 @@ const VEDGE_COLOURS = [
   [2000, "#eeffe9"],
   [CURRENT_YEAR, "#006622"],
 ];
+const TRANSECT_COLOURS = [
+  [-5, "#b2182b"],
+  [-2.5, "#ef8a62"],
+  [0.0, "#f7f7f7"],
+  [2.5, "#67a9cf"],
+  [5, "#2166ac"],
+];
 
 // initiate legend items
 const LEGEND_ITEMS = [
@@ -162,6 +169,11 @@ const LEGEND_ITEMS = [
     type: "gradient",
     title: "Vegetation edge",
     colours: VEDGE_COLOURS,
+  },
+  {
+    type: "gradient",
+    title: "Transects",
+    colours: TRANSECT_COLOURS,
   },
 ];
 
@@ -182,10 +194,10 @@ const LAYER_GROUPS = {
     addLayers: addVEdgeLayers,
   }
   transects: {
-    name: "Transects"
-    visible: true
-    datasets: TRANSECTS_DATASETS
-    colours: None,
+    name: "Transects",
+    visible: true,
+    datasets: TRANSECTS_DATASETS,
+    colours: TRANSECT_COLOURS
     addLayers: addTransectLayers,
   },
 };
