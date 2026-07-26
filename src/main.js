@@ -20,7 +20,8 @@ import LegendControl from "./controls/LegendControl.js";
 // import layer tools
 import {addMHWSLayers, registerMHWSInteractions} from "./layers/MHWS.js";
 import {addVEdgeLayers, registerVEdgeInteractions} from "./layers/VEdge.js";
-import {addTransectLayers, registerTransectInteractions } from "./layers/Transects.js";
+import {addTransectLayers, registerTransectInteractions} from "./layers/Transects.js";
+import {setDatasetVisibility} from "./layers/LineLayer.js";
 
 /* 
  * --------------------------------------------
@@ -190,6 +191,7 @@ const LAYER_GROUPS = {
     datasets: MHWS_DATASETS,
     colours: MHWS_COLOURS,
     addLayers: addMHWSLayers,
+    registerInteractions: registerMHWSInteractions,
   },
 
   vegetation: {
@@ -198,6 +200,7 @@ const LAYER_GROUPS = {
     datasets: VEDGE_DATASETS,
     colours: VEDGE_COLOURS,
     addLayers: addVEdgeLayers,
+    registerInteractions: registerVEdgeInteractions,
   },
   transects: {
     name: "Transects",
@@ -205,6 +208,7 @@ const LAYER_GROUPS = {
     datasets: TRANSECTS_DATASETS,
     colours: TRANSECT_COLOURS,
     addLayers: addTransectLayers,
+    registerInteractions: registerTransectInteractions,
   },
 };
 /*
@@ -297,23 +301,8 @@ function registerMapEvents(map) {
 
 function applyLayerVisibility(map) {
   Object.values(LAYER_GROUPS).forEach((group) => {
-    const visibility = group.visible
-      ? "visible"
-      : "none";
-
     group.datasets.forEach((dataset) => {
-      const haloLayerId = `${dataset.id}-halo`;
-      const lineLayerId = `${dataset.id}-line`;
-
-      [haloLayerId, lineLayerId].forEach((layerId) => {
-        if (map.getLayer(layerId)) {
-          map.setLayoutProperty(
-            layerId,
-            "visibility",
-            visibility,
-          );
-        }
-      });
+      setDatasetVisibility(map, dataset, group.visible);
     });
   });
 }
@@ -329,21 +318,13 @@ function initialiseApplication() {
 
   addMapControls(map);
   registerMapEvents(map);
-  registerMHWSInteractions(
-    map,
-    MHWS_DATASETS,
-    maplibregl.Popup,
-  );
-  registerVEdgeInteractions(
-    map,
-    VEDGE_DATASETS,
-    maplibregl.Popup,
-  );
-  registerTransectInteractions(
-    map,
-    TRANSECTS_DATASETS,
-    maplibregl.Popup,
-  );
+  Object.values(LAYER_GROUPS).forEach((group) => {
+    group.registerInteractions(
+      map,
+      group.datasets,
+      maplibregl.Popup,
+    );
+  });
   return map;
 }
 

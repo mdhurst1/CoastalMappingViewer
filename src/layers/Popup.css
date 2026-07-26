@@ -1,21 +1,23 @@
 /* --------------------------------------------------------------------------
- * MHWS popup
+ * Shared coastal data popups
  * -------------------------------------------------------------------------- */
 
-.mhws-popup {
+.coastal-popup {
   min-width: 150px;
 }
 
-.mhws-popup > strong {
+.coastal-popup > strong {
   display: block;
   margin-bottom: 8px;
   font-size: 14px;
 }
 
-.mhws-popup p {
+.coastal-popup p,
+.coastal-popup div {
   margin: 4px 0;
 }
 
-.mhws-popup p strong {
+.coastal-popup p strong,
+.coastal-popup div strong {
   font-weight: 600;
 }
