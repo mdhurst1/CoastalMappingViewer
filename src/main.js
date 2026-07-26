@@ -21,7 +21,7 @@ import LegendControl from "./controls/LegendControl.js";
 import {addMHWSLayers, registerMHWSInteractions} from "./layers/MHWS.js";
 import {addVEdgeLayers, registerVEdgeInteractions} from "./layers/VEdge.js";
 import {addTransectLayers, registerTransectInteractions} from "./layers/Transects.js";
-import {setDatasetVisibility} from "./layers/LineLayer.js";
+import {setDatasetVisibility} from "./map/LayerFactory.js";
 
 /* 
  * --------------------------------------------

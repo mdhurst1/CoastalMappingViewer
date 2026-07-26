@@ -8,12 +8,12 @@ import "../styles/Popup.css";
 import {
   HIGHLIGHTED_EXPRESSION,
   addGeoJsonLineLayers,
-} from "./LineLayer.js";
-import { registerLineInteractions } from "./LineInteractions.js";
+} from "../map/LayerFactory.js";
+import { registerLineInteractions } from "../map/Interactions.js";
 import {
   appendPopupField,
   createPopupContainer,
-} from "./PopupContent.js";
+} from "../popups/PopupContent.js";
 
 export function getVEdgePaint(colours, fallbackYear) {
   const colourExpression = [
