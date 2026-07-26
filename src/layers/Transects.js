@@ -4,7 +4,7 @@
  * Dataset-specific styling and popup content for shoreline-change transects.
  */
 
-import "./Popup.css";
+import "../styles/Popup.css";
 import {
   HIGHLIGHTED_EXPRESSION,
   addGeoJsonLineLayers,

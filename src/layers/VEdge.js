@@ -4,7 +4,7 @@
  * Dataset-specific styling and popup content for vegetation-edge shorelines.
  */
 
-import "./Popup.css";
+import "../styles/Popup.css";
 import {
   HIGHLIGHTED_EXPRESSION,
   addGeoJsonLineLayers,
