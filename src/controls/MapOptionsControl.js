@@ -35,7 +35,7 @@ export default class MapOptionsControl {
     this.onVisibilityChanged = onVisibilityChanged;
     this.onFutureShorelineChanged = onFutureShorelineChanged;
     this.futureShorelineState = {
-      scenario: "RCP85",
+      scenario: "None",
       indicator: "MHWS",
       year: 2030,
     };

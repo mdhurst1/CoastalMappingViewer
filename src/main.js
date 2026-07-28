@@ -21,7 +21,17 @@ import LegendControl from "./controls/LegendControl.js";
 import {addMHWSLayers, registerMHWSInteractions} from "./layers/MHWS.js";
 import {addVEdgeLayers, registerVEdgeInteractions} from "./layers/VEdge.js";
 import {addTransectLayers, registerTransectInteractions} from "./layers/Transects.js";
-import {addFutureMHWSLayer, updateFutureMHWSYear} from "./layers/FutureMHWS.js";
+import {
+  addFutureMHWSLayer,
+  updateFutureMHWSYear,
+  setFutureMHWSVisibility,
+} from "./layers/FutureMHWS.js";
+
+import {
+  addFutureUncertaintyLayer,
+  updateFutureUncertainty,
+  setFutureUncertaintyVisibility,
+} from "./layers/FutureMHWSUncertainty.js";
 import {setDatasetVisibility} from "./map/LayerFactory.js";
 
 /* 
@@ -149,16 +159,21 @@ const FUTURE_DATASETS = [
 ]
 
 // get uncertainty file based on state attributes
-function getFutureUncertaintyUrl({
+function getFutureUncertaintyDataset({
   scenario,
   indicator,
   year, }) {
   return {
-    id: "MHWS_Future_Unc",
+    id: `${indicator}_Future_Uncertainty`,
     file: `/CMT_output/Future/Montrose_Uncertainty_${scenario}_P95_${year}.geojson`,
-    
   }
 }
+
+let futureState = {
+  scenario: "None",
+  indicator: "MHWS",
+  year: 2030,
+};
 
 // setup colour schemes
 const CURRENT_YEAR = new Date().getFullYear();
@@ -273,15 +288,24 @@ function addMapControls(map) {
   };
 
   const updateFutureShoreline = (state) => {
+    futureState = { ...state };
 
-    if (state.scenario === "None") {
-        hideFutureMHWS(map, FUTURE_DATASETS[0]);
-        return;
+    const visible = futureState.scenario !== "None";
+    const FUTURE_UNCERTAINTY_DATASET = {
+      id: "MHWS_Future_Uncertainty",
+    };
+    setFutureMHWSVisibility(map, FUTURE_DATASETS[0], visible);
+    setFutureUncertaintyVisibility(map, FUTURE_UNCERTAINTY_DATASET, visible);
+
+    if (!visible) {
+      return;
     }
 
-    showFutureMHWS(map, FUTURE_DATASETS[0]);
-    updateFutureMHWSYear(map, FUTURE_DATASETS[0], state.year);
-};
+    updateFutureMHWSYear(map, FUTURE_DATASETS[0], futureState.year);
+
+    FUTURE_UNCERTAINTY_DATASET = getFutureUncertaintyDataset(futureState);
+    updateFutureUncertainty(map, FUTURE_UNCERTAINTY_DATASET, futureState.year);
+  };
 
   const mapOptionsControl = new MapOptionsControl(
     BASEMAPS,
@@ -328,6 +352,11 @@ function registerMapEvents(map) {
       2030,
     );
 
+    addFutureUncertaintyLayer(
+      map,
+      INITIAL_UNCERTAINTY_DATASET,
+      2030,
+    );
 
   applyLayerVisibility(map);
   });

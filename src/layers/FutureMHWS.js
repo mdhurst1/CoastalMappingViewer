@@ -109,6 +109,23 @@ export function updateFutureMHWSYear(
   );
 }
 
+export function setFutureMHWSVisibility(map, dataset, visible) {
+  const visibility = visible ? "visible" : "none";
+
+  [
+    `${dataset.id}${FILL_SUFFIX}`,
+    `${dataset.id}${OUTLINE_SUFFIX}`,
+  ].forEach((layerId) => {
+    if (map.getLayer(layerId)) {
+      map.setLayoutProperty(
+        layerId,
+        "visibility",
+        visibility,
+      );
+    }
+  });
+}
+
 export function showFutureMHWS(map, dataset) {
     map.setLayoutProperty(`${dataset.id}-line`, "visibility", "visible");
 }
