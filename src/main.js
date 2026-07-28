@@ -158,7 +158,7 @@ const FUTURE_DATASETS = [
   }
 ]
 
-const FUTURE_UNCERTAINTY_DATASET = [
+const FUTURE_UNCERTAINTY_DATASETS = [
   {
     id: "MHWS_Future_Uncertainty",
   }
@@ -182,7 +182,7 @@ function getFutureUncertaintyDataset({scenario, indicator, year, }) {
   
   return {
     id: `${indicator}_Future_Uncertainty`,
-    file: `/CMT_output/Future/Montrose_Uncertainty_${scenario}_P95_${year}.geojson`,
+    file: `/CMT_output/Future/Montrose_Uncertainty_${scenarioCode}_P95_${year}.geojson`,
   }
 }
 
@@ -288,7 +288,7 @@ function applyFutureState(map) {
   const visible = futureState.scenario !== "None";
 
   setFutureMHWSVisibility(map, FUTURE_DATASETS[0], visible);
-  setFutureUncertaintyVisibility(map, FUTURE_UNCERTAINTY_DATASET, visible);
+  setFutureUncertaintyVisibility(map, FUTURE_UNCERTAINTY_DATASETS[0], visible);
 
   if (!visible) {
     return;
@@ -302,7 +302,7 @@ function applyFutureState(map) {
     return;
   }
 
-  updateFutureUncertainty(map, FUTURE_UNCERTAINTY_DATASET, selectedUncertaintyDataset);
+  updateFutureUncertainty(map, FUTURE_UNCERTAINTY_DATASETS[0], selectedUncertaintyDataset);
 }
 
 /*
@@ -377,7 +377,7 @@ function registerMapEvents(map) {
     );
 
     addFutureMHWSLayer(map, FUTURE_DATASETS[0], futureState.year);
-    addFutureUncertaintyLayer(map, FUTURE_UNCERTAINTY_DATASET);
+    addFutureUncertaintyLayer(map, FUTURE_UNCERTAINTY_DATASETS[0]);
     applyLayerVisibility(map);
     applyFutureState(map);
   });
