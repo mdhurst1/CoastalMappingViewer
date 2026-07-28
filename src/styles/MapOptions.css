@@ -7,12 +7,12 @@
   overflow: visible;
 }
 
-/* Two icon buttons arranged horizontally */
+/* Three icon buttons arranged horizontally */
 .map-options-buttons {
   display: grid;
-  grid-template-columns: repeat(2, 32px);
+  grid-template-columns: repeat(3, 32px);
 
-  width: 64px;
+  width: 96px;
   height: 32px;
 
   overflow: hidden;
@@ -37,7 +37,7 @@
   cursor: pointer;
 }
 
-.map-options-button:first-child {
+.map-options-button:not(:last-child) {
   border-right: 1px solid rgb(0 0 0 / 15%);
 }
 

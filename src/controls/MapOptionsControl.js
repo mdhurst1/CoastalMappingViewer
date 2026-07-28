@@ -46,8 +46,15 @@ export default class MapOptionsControl {
       () => this.showLayerPanel(),
     );
 
+    const FutureShorelinesButton = this.createButton(
+      "Select future shorelines",
+      this.getFutureIcon(),
+      () => this.showFuturePanel(),
+    )
+
     buttonRow.appendChild(basemapButton);
     buttonRow.appendChild(layerButton);
+    buttonRow.appendChild(FutureShorelinesButton);
 
     // Dropdown panel displayed beneath the icon buttons
     this.panel = document.createElement("div");
@@ -167,6 +174,32 @@ export default class MapOptionsControl {
     this.panel.hidden = false;
   }
 
+showFutureShorelinePanel() {
+  const isAlreadyOpen =
+    !this.panel.hidden &&
+    this.panel.dataset.panel === "future-shorelines";
+
+  if (isAlreadyOpen) {
+    this.panel.hidden = true;
+    return;
+  }
+
+  this.panel.dataset.panel = "future-shorelines";
+  this.panel.replaceChildren();
+
+  const title = document.createElement("div");
+  title.className = "map-options-title";
+  title.textContent = "Future shorelines";
+
+  const message = document.createElement("div");
+  message.textContent = "Future shoreline controls will go here.";
+
+  this.panel.appendChild(title);
+  this.panel.appendChild(message);
+
+  this.panel.hidden = false;
+}
+
   getBasemapIcon() {
     return `
       <svg
@@ -214,6 +247,39 @@ export default class MapOptionsControl {
     `;
   }
 
+getFutureShorelineIcon() {
+  return `
+    <svg
+      class="map-options-icon"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <path
+        d="M4 8c2.5-1.7 5-1.7 7.5 0s5 1.7 8.5 0"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+      />
+      <path
+        d="M4 13c2.5-1.7 5-1.7 7.5 0s5 1.7 8.5 0"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-dasharray="2.5 2.5"
+      />
+      <path
+        d="M17 17h4m0 0-2-2m2 2-2 2"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  `;
+}
   onRemove() {
     this.container?.remove();
 
