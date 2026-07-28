@@ -7,9 +7,6 @@
  * by applying a filter to the Year property.
  */
 
-const FUTURE_MHWS_SOURCE_ID = "future-mhws-source";
-const FUTURE_MHWS_LAYER_ID = "future-mhws-line";
-
 /**
  * Convert a numeric year into the date format used by the GeoJSON.
  *
@@ -110,26 +107,11 @@ export function updateFutureMHWSYear(
 }
 
 export function setFutureMHWSVisibility(map, dataset, visible) {
-  const visibility = visible ? "visible" : "none";
+  const layerId = `${dataset.id}-line`;
 
-  [
-    `${dataset.id}${FILL_SUFFIX}`,
-    `${dataset.id}${OUTLINE_SUFFIX}`,
-  ].forEach((layerId) => {
-    if (map.getLayer(layerId)) {
-      map.setLayoutProperty(
-        layerId,
-        "visibility",
-        visibility,
-      );
-    }
-  });
-}
+  if (!map.getLayer(layerId)) {
+    return;
+  }
 
-export function showFutureMHWS(map, dataset) {
-    map.setLayoutProperty(`${dataset.id}-line`, "visibility", "visible");
-}
-
-export function hideFutureMHWS(map, dataset) {
-    map.setLayoutProperty(`${dataset.id}-line`, "visibility", "none");
+  map.setLayoutProperty(layerId, "visibility", visible ? "visible" : "none");
 }

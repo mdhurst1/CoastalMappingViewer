@@ -9,21 +9,33 @@ const SOURCE_SUFFIX = "-source";
 const FILL_SUFFIX = "-fill";
 const OUTLINE_SUFFIX = "-outline";
 
+const EMPTY_GEOJSON = {
+  type: "FeatureCollection",
+  features: [],
+};
+
 /**
  * Add the future uncertainty source and polygon layers.
+ *
+ * The source initially contains no features. Its data is replaced when the
+ * user selects a future sea-level scenario.
  *
  * @param {maplibregl.Map} map
  * @param {Object} dataset
  */
-export function addFutureUncertaintyLayer(map, dataset) {
+export function addFutureUncertaintyLayer(
+  map,
+  dataset,
+) {
   const sourceId = `${dataset.id}${SOURCE_SUFFIX}`;
   const fillLayerId = `${dataset.id}${FILL_SUFFIX}`;
-  const outlineLayerId = `${dataset.id}${OUTLINE_SUFFIX}`;
+  const outlineLayerId =
+    `${dataset.id}${OUTLINE_SUFFIX}`;
 
   if (!map.getSource(sourceId)) {
     map.addSource(sourceId, {
       type: "geojson",
-      data: dataset.file,
+      data: EMPTY_GEOJSON,
     });
   }
 
@@ -56,23 +68,32 @@ export function addFutureUncertaintyLayer(map, dataset) {
 }
 
 /**
- * Replace the uncertainty GeoJSON displayed by the source.
+ * Replace the GeoJSON displayed by the uncertainty source.
  *
  * @param {maplibregl.Map} map
- * @param {Object} dataset
+ * @param {Object} layerDataset
+ * @param {Object} selectedDataset
  */
-export function updateFutureUncertainty(map, dataset) {
-  const sourceId = `${dataset.id}${SOURCE_SUFFIX}`;
+export function updateFutureUncertainty(
+  map,
+  layerDataset,
+  selectedDataset,
+) {
+  const sourceId =
+    `${layerDataset.id}${SOURCE_SUFFIX}`;
+
   const source = map.getSource(sourceId);
 
   if (!source) {
     console.warn(
-      `Cannot update ${dataset.id}: source has not been added.`,
+      `Cannot update ${layerDataset.id}: ` +
+      "source has not been added.",
     );
+
     return;
   }
 
-  source.setData(dataset.file);
+  source.setData(selectedDataset.file);
 }
 
 /**
@@ -89,24 +110,20 @@ export function setFutureUncertaintyVisibility(
 ) {
   const visibility = visible ? "visible" : "none";
 
-  [
+  const layerIds = [
     `${dataset.id}${FILL_SUFFIX}`,
     `${dataset.id}${OUTLINE_SUFFIX}`,
-  ].forEach((layerId) => {
-    if (map.getLayer(layerId)) {
-      map.setLayoutProperty(
-        layerId,
-        "visibility",
-        visibility,
-      );
+  ];
+
+  layerIds.forEach((layerId) => {
+    if (!map.getLayer(layerId)) {
+      return;
     }
+
+    map.setLayoutProperty(
+      layerId,
+      "visibility",
+      visibility,
+    );
   });
-}
-
-export function showFutureMHWSUncertainty(map, dataset) {
-    map.setLayoutProperty(`${dataset.id}-line`, "visibility", "visible");
-}
-
-export function hideFutureMHWSUncertainty(map, dataset) {
-    map.setLayoutProperty(`${dataset.id}-line`, "visibility", "none");
 }

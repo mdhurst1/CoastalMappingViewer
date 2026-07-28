@@ -158,6 +158,12 @@ const FUTURE_DATASETS = [
   }
 ]
 
+const FUTURE_UNCERTAINTY_DATASET = [
+  {
+    id: "MHWS_Future_Uncertainty",
+  };
+]
+
 // get uncertainty file based on state attributes
 function getFutureUncertaintyDataset({
   scenario,
@@ -261,6 +267,32 @@ function createMap() {
   });
 }
 
+/*
+ * Apply the current future shoreline state
+ * --------------------------------------------------------------------------
+ * Controls visibility and data for the future MHWS line and its uncertainty
+ * polygon.
+ */
+function applyFutureState(map) {
+  const visible = futureState.scenario !== "None";
+
+  setFutureMHWSVisibility(map, FUTURE_DATASETS[0], visible);
+  setFutureUncertaintyVisibility(map, FUTURE_UNCERTAINTY_DATASET, visible);
+
+  if (!visible) {
+    return;
+  }
+
+  updateFutureMHWSYear(map, FUTURE_DATASETS[0], futureState.year);
+
+  const selectedUncertaintyDataset = getFutureUncertaintyDataset(futureState);
+
+  if (!selectedUncertaintyDataset) {
+    return;
+  }
+
+  updateFutureUncertainty(map, FUTURE_UNCERTAINTY_DATASET, selectedUncertaintyDataset);
+}
 
 /*
  * Map controls
@@ -290,21 +322,7 @@ function addMapControls(map) {
   const updateFutureShoreline = (state) => {
     futureState = { ...state };
 
-    const visible = futureState.scenario !== "None";
-    const FUTURE_UNCERTAINTY_DATASET = {
-      id: "MHWS_Future_Uncertainty",
-    };
-    setFutureMHWSVisibility(map, FUTURE_DATASETS[0], visible);
-    setFutureUncertaintyVisibility(map, FUTURE_UNCERTAINTY_DATASET, visible);
-
-    if (!visible) {
-      return;
-    }
-
-    updateFutureMHWSYear(map, FUTURE_DATASETS[0], futureState.year);
-
-    FUTURE_UNCERTAINTY_DATASET = getFutureUncertaintyDataset(futureState);
-    updateFutureUncertainty(map, FUTURE_UNCERTAINTY_DATASET, futureState.year);
+    applyFutureState(map);
   };
 
   const mapOptionsControl = new MapOptionsControl(
@@ -336,29 +354,21 @@ function addMapControls(map) {
 
 function registerMapEvents(map) {
   map.on("style.load", () => {
-  
-    Object.values(LAYER_GROUPS).forEach((group) => {
-      group.addLayers(
-        map,
-        group.datasets,
-        group.colours,
-        CURRENT_YEAR,
-      );
-    });
-
-    addFutureMHWSLayer(
-      map,
-      FUTURE_DATASETS[0],
-      2030,
+    Object.values(LAYER_GROUPS).forEach(
+      (group) => {
+        group.addLayers(
+          map,
+          group.datasets,
+          group.colours,
+          CURRENT_YEAR,
+        );
+      },
     );
 
-    addFutureUncertaintyLayer(
-      map,
-      INITIAL_UNCERTAINTY_DATASET,
-      2030,
-    );
-
-  applyLayerVisibility(map);
+    addFutureMHWSLayer(map, FUTURE_DATASETS[0], futureState.year);
+    addFutureUncertaintyLayer(map, FUTURE_UNCERTAINTY_DATASET);
+    applyLayerVisibility(map);
+    applyFutureState(map);
   });
 }
 /*
