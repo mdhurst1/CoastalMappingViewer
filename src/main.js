@@ -161,14 +161,25 @@ const FUTURE_DATASETS = [
 const FUTURE_UNCERTAINTY_DATASET = [
   {
     id: "MHWS_Future_Uncertainty",
-  };
+  }
 ]
 
 // get uncertainty file based on state attributes
-function getFutureUncertaintyDataset({
-  scenario,
-  indicator,
-  year, }) {
+const FUTURE_SCENARIO_FILE_CODES = {
+  RCP26: "RCP2",
+  RCP45: "RCP4",
+  RCP85: "RCP8",
+};
+
+function getFutureUncertaintyDataset({scenario, indicator, year, }) {
+  
+  const scenarioCode =
+    FUTURE_SCENARIO_FILE_CODES[scenario];
+
+  if (!scenarioCode) {
+    return null;
+  }
+  
   return {
     id: `${indicator}_Future_Uncertainty`,
     file: `/CMT_output/Future/Montrose_Uncertainty_${scenario}_P95_${year}.geojson`,
