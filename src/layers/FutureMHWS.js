@@ -108,3 +108,11 @@ export function updateFutureMHWSYear(
     getFutureMHWSFilter(year),
   );
 }
+
+export function showFutureMHWS(map, dataset) {
+    map.setLayoutProperty(`${dataset.id}-line`, "visibility", "visible");
+}
+
+export function hideFutureMHWS(map, dataset) {
+    map.setLayoutProperty(`${dataset.id}-line`, "visibility", "none");
+}

@@ -5,6 +5,7 @@
  */
 
 const FUTURE_SCENARIOS = [
+  { value: "None", label: "None" },
   { value: "RCP26", label: "RCP 2.6" },
   { value: "RCP45", label: "RCP 4.5" },
   { value: "RCP85", label: "RCP 8.5" },

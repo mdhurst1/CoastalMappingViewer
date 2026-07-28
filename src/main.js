@@ -272,12 +272,24 @@ function addMapControls(map) {
     legendControl.updateVisibility(LAYER_GROUPS);
   };
 
+  const updateFutureShoreline = (state) => {
+
+    if (state.scenario === "None") {
+        hideFutureMHWS(map, FUTURE_DATASETS[0]);
+        return;
+    }
+
+    showFutureMHWS(map, FUTURE_DATASETS[0]);
+    updateFutureMHWSYear(map, FUTURE_DATASETS[0], state.year);
+};
+
   const mapOptionsControl = new MapOptionsControl(
     BASEMAPS,
     MAP_CONFIG.basemap,
     LAYER_GROUPS,
     updateVisibleLayers,
-  );
+    updateFutureShoreline,
+);
 
   map.addControl(
     mapOptionsControl,
