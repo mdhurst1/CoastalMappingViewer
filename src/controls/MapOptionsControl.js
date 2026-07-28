@@ -4,6 +4,21 @@
  * Combined MapLibre control for switching basemaps and toggling data layers.
  */
 
+const FUTURE_SCENARIOS = [
+  { value: "RCP26", label: "RCP 2.6" },
+  { value: "RCP45", label: "RCP 4.5" },
+  { value: "RCP85", label: "RCP 8.5" },
+];
+
+const FUTURE_INDICATORS = [
+  { value: "MHWS", label: "Mean High Water Springs" },
+  { value: "VEdge", label: "Vegetation edge" },
+];
+
+const FUTURE_YEARS = [
+  2030, 2040, 2050, 2060, 2070, 2080, 2090, 2100,
+];
+
 export default class MapOptionsControl {
 
   constructor(
@@ -16,6 +31,11 @@ export default class MapOptionsControl {
     this.activeBasemap = initialBasemap;
     this.layerGroups = layerGroups;
     this.onVisibilityChanged = onVisibilityChanged;
+    this.futureShorelineState = {
+      scenario: "RCP85",
+      indicator: "MHWS",
+      year: 2030,
+    };
 
     this.map = undefined;
     this.container = undefined;
@@ -191,11 +211,120 @@ showFuturePanel() {
   title.className = "map-options-title";
   title.textContent = "Future shorelines";
 
-  const message = document.createElement("div");
-  message.textContent = "Future shoreline controls will go here.";
+  /*
+   * Scenario dropdown
+   */
+
+  const scenarioLabel = document.createElement("label");
+  scenarioLabel.className = "future-control-label";
+  scenarioLabel.htmlFor = "future-scenario-select";
+  scenarioLabel.textContent = "Scenario";
+
+  const scenarioSelect = document.createElement("select");
+  scenarioSelect.id = "future-scenario-select";
+  scenarioSelect.className = "future-control-select";
+
+  FUTURE_SCENARIOS.forEach((scenario) => {
+    const option = document.createElement("option");
+
+    option.value = scenario.value;
+    option.textContent = scenario.label;
+
+    scenarioSelect.appendChild(option);
+  });
+
+  scenarioSelect.value =
+    this.futureShorelineState.scenario;
+
+  scenarioSelect.addEventListener("change", () => {
+    this.futureShorelineState.scenario =
+      scenarioSelect.value;
+
+    this.logFutureShorelineState();
+  });
+
+  /*
+   * Shoreline indicator dropdown
+   */
+
+  const indicatorLabel = document.createElement("label");
+  indicatorLabel.className = "future-control-label";
+  indicatorLabel.htmlFor = "future-indicator-select";
+  indicatorLabel.textContent = "Shoreline indicator";
+
+  const indicatorSelect = document.createElement("select");
+  indicatorSelect.id = "future-indicator-select";
+  indicatorSelect.className = "future-control-select";
+
+  FUTURE_INDICATORS.forEach((indicator) => {
+    const option = document.createElement("option");
+
+    option.value = indicator.value;
+    option.textContent = indicator.label;
+
+    indicatorSelect.appendChild(option);
+  });
+
+  indicatorSelect.value =
+    this.futureShorelineState.indicator;
+
+  indicatorSelect.addEventListener("change", () => {
+    this.futureShorelineState.indicator =
+      indicatorSelect.value;
+
+    this.logFutureShorelineState();
+  });
+
+  /*
+   * Year slider
+   */
+
+  const yearLabel = document.createElement("label");
+  yearLabel.className = "future-control-label";
+  yearLabel.htmlFor = "future-year-slider";
+  yearLabel.textContent =
+    `Year: ${this.futureShorelineState.year}`;
+
+  const yearSlider = document.createElement("input");
+  yearSlider.type = "range";
+  yearSlider.id = "future-year-slider";
+  yearSlider.className = "future-year-slider";
+
+  yearSlider.min = 0;
+  yearSlider.max = FUTURE_YEARS.length - 1;
+  yearSlider.step = 1;
+
+  const selectedYearIndex = FUTURE_YEARS.indexOf(
+    this.futureShorelineState.year,
+  );
+
+  yearSlider.value =
+    selectedYearIndex === -1 ? 0 : selectedYearIndex;
+
+  yearSlider.addEventListener("input", () => {
+    const yearIndex = Number(yearSlider.value);
+    const selectedYear = FUTURE_YEARS[yearIndex];
+
+    this.futureShorelineState.year = selectedYear;
+    yearLabel.textContent = `Year: ${selectedYear}`;
+
+    this.logFutureShorelineState();
+  });
+
+  /*
+   * Add controls to panel
+   */
 
   this.panel.appendChild(title);
-  this.panel.appendChild(message);
+
+  this.panel.appendChild(scenarioLabel);
+  this.panel.appendChild(scenarioSelect);
+
+  this.panel.appendChild(indicatorLabel);
+  this.panel.appendChild(indicatorSelect);
+
+  this.panel.appendChild(yearLabel);
+  this.panel.appendChild(yearSlider);
 
   this.panel.hidden = false;
 }
