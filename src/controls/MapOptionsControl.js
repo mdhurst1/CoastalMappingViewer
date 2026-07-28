@@ -240,7 +240,6 @@ showFuturePanel() {
     this.futureShorelineState.scenario =
       scenarioSelect.value;
 
-    this.logFutureShorelineState();
   });
 
   /*
@@ -250,7 +249,7 @@ showFuturePanel() {
   const indicatorLabel = document.createElement("label");
   indicatorLabel.className = "future-control-label";
   indicatorLabel.htmlFor = "future-indicator-select";
-  indicatorLabel.textContent = "Shoreline indicator";
+  indicatorLabel.textContent = "Indicator";
 
   const indicatorSelect = document.createElement("select");
   indicatorSelect.id = "future-indicator-select";
@@ -272,7 +271,6 @@ showFuturePanel() {
     this.futureShorelineState.indicator =
       indicatorSelect.value;
 
-    this.logFutureShorelineState();
   });
 
   /*
@@ -308,24 +306,59 @@ showFuturePanel() {
     this.futureShorelineState.year = selectedYear;
     yearLabel.textContent = `Year: ${selectedYear}`;
 
-    this.logFutureShorelineState();
   });
 
+  const tickContainer = document.createElement("div");
+  tickContainer.className = "future-slider-ticks";
+
+  FUTURE_YEARS.forEach((year, index) => {
+      const tick = document.createElement("div");
+      tick.className = "future-slider-tick";
+      tick.style.left = `${100 * index / (FUTURE_YEARS.length - 1)}%`;
+
+      // Only label selected years
+      if (year === 2030 || year === 2050 || year === 2100) {
+          const label = document.createElement("span");
+          label.textContent = year;
+          tick.appendChild(label);
+      }
+
+      tickContainer.appendChild(tick);
+});
   /*
    * Add controls to panel
    */
 
+  // add the title
   this.panel.appendChild(title);
 
-  this.panel.appendChild(scenarioLabel);
-  this.panel.appendChild(scenarioSelect);
+  // create the row
+  const dropdownRow = document.createElement("div");
+  dropdownRow.className = "future-dropdown-row";
 
-  this.panel.appendChild(indicatorLabel);
-  this.panel.appendChild(indicatorSelect);
+  // create scenario column
+  const scenarioColumn = document.createElement("div");
+  scenarioColumn.className = "future-dropdown-column";
+
+  scenarioColumn.appendChild(scenarioLabel);
+  scenarioColumn.appendChild(scenarioSelect);
+
+  // create the indicator column
+  const indicatorColumn = document.createElement("div");
+  indicatorColumn.className = "future-dropdown-column";
+
+  indicatorColumn.appendChild(indicatorLabel);
+  indicatorColumn.appendChild(indicatorSelect);
+
+  // add both columns to row
+  dropdownRow.appendChild(scenarioColumn);
+  dropdownRow.appendChild(indicatorColumn);
+  this.panel.appendChild(dropdownRow);
 
   this.panel.appendChild(yearLabel);
   this.panel.appendChild(yearSlider);
-
+  this.panel.appendChild(tickContainer);
+  
   this.panel.hidden = false;
 }
 

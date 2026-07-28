@@ -80,6 +80,7 @@
 .map-options-title {
   margin-bottom: 8px;
   font-weight: bold;
+  font-size: 14px;
 }
 
 /* Each radio button or checkbox occupies its own row */
@@ -104,21 +105,77 @@
   margin: 0 7px 0 0;
 }
 
+.future-dropdown-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.future-dropdown-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.future-dropdown-column label {
+    margin-top: 0;
+}
+
 .future-control-label {
   display: block;
   margin-top: 12px;
   margin-bottom: 4px;
   font-weight: 500;
+  font-size: 13px;
 }
 
 .future-control-select {
   display: block;
   width: 100%;
   padding: 5px;
+  font-size: 12px;
 }
 
-.future-year-slider {
-  display: block;
-  width: 100%;
-  margin: 0;
+.future-year-slider::-webkit-slider-thumb {
+    width: 16px;
+    height: 16px;
+}
+
+.future-year-slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+}
+
+.future-slider-ticks {
+    position: relative;
+    height: 24px;
+
+    /* Match the centre-to-centre travel of a 16px slider thumb */
+    margin: 2px 9px 0;
+}
+
+.future-slider-tick {
+    position: absolute;
+    width: 1px;
+    height: 8px;
+    background: #666;
+    transform: translateX(-50%);
+}
+
+.future-slider-tick span {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.future-slider-tick:first-child span {
+    left: 0;
+    transform: none;
+}
+
+.future-slider-tick:last-child span {
+    left: 100%;
+    transform: translateX(-100%);
 }
