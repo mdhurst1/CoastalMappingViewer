@@ -26,11 +26,13 @@ export default class MapOptionsControl {
     initialBasemap,
     layerGroups,
     onVisibilityChanged,
+    onFutureShorelineChanged,
   ) {
     this.basemaps = basemaps;
     this.activeBasemap = initialBasemap;
     this.layerGroups = layerGroups;
     this.onVisibilityChanged = onVisibilityChanged;
+    this.onFutureShorelineChanged = onFutureShorelineChanged;
     this.futureShorelineState = {
       scenario: "RCP85",
       indicator: "MHWS",
@@ -194,174 +196,182 @@ export default class MapOptionsControl {
     this.panel.hidden = false;
   }
 
-showFuturePanel() {
-  const isAlreadyOpen =
-    !this.panel.hidden &&
-    this.panel.dataset.panel === "future-shorelines";
+  showFuturePanel() {
+    const isAlreadyOpen =
+      !this.panel.hidden &&
+      this.panel.dataset.panel === "future-shorelines";
 
-  if (isAlreadyOpen) {
-    this.panel.hidden = true;
-    return;
+    if (isAlreadyOpen) {
+      this.panel.hidden = true;
+      return;
+    }
+
+    this.panel.dataset.panel = "future-shorelines";
+    this.panel.replaceChildren();
+
+    const title = document.createElement("div");
+    title.className = "map-options-title";
+    title.textContent = "Future shorelines";
+
+    /*
+    * Scenario dropdown
+    */
+
+    const scenarioLabel = document.createElement("label");
+    scenarioLabel.className = "future-control-label";
+    scenarioLabel.htmlFor = "future-scenario-select";
+    scenarioLabel.textContent = "Scenario";
+
+    const scenarioSelect = document.createElement("select");
+    scenarioSelect.id = "future-scenario-select";
+    scenarioSelect.className = "future-control-select";
+
+    FUTURE_SCENARIOS.forEach((scenario) => {
+      const option = document.createElement("option");
+
+      option.value = scenario.value;
+      option.textContent = scenario.label;
+
+      scenarioSelect.appendChild(option);
+    });
+
+    scenarioSelect.value =
+      this.futureShorelineState.scenario;
+
+    scenarioSelect.addEventListener("change", () => {
+      this.futureShorelineState.scenario =
+        scenarioSelect.value;
+        this.notifyFutureChanged();
+
+    });
+
+    /*
+    * Shoreline indicator dropdown
+    */
+
+    const indicatorLabel = document.createElement("label");
+    indicatorLabel.className = "future-control-label";
+    indicatorLabel.htmlFor = "future-indicator-select";
+    indicatorLabel.textContent = "Indicator";
+
+    const indicatorSelect = document.createElement("select");
+    indicatorSelect.id = "future-indicator-select";
+    indicatorSelect.className = "future-control-select";
+
+    FUTURE_INDICATORS.forEach((indicator) => {
+      const option = document.createElement("option");
+
+      option.value = indicator.value;
+      option.textContent = indicator.label;
+
+      indicatorSelect.appendChild(option);
+    });
+
+    indicatorSelect.value =
+      this.futureShorelineState.indicator;
+
+    indicatorSelect.addEventListener("change", () => {
+      this.futureShorelineState.indicator =
+        indicatorSelect.value;
+        this.notifyFutureChanged();
+    });
+
+    /*
+    * Year slider
+    */
+
+    const yearLabel = document.createElement("label");
+    yearLabel.className = "future-control-label";
+    yearLabel.htmlFor = "future-year-slider";
+    yearLabel.textContent =
+      `Year: ${this.futureShorelineState.year}`;
+
+    const yearSlider = document.createElement("input");
+    yearSlider.type = "range";
+    yearSlider.id = "future-year-slider";
+    yearSlider.className = "future-year-slider";
+
+    yearSlider.min = 0;
+    yearSlider.max = FUTURE_YEARS.length - 1;
+    yearSlider.step = 1;
+
+    const selectedYearIndex = FUTURE_YEARS.indexOf(
+      this.futureShorelineState.year,
+    );
+
+    yearSlider.value =
+      selectedYearIndex === -1 ? 0 : selectedYearIndex;
+
+    yearSlider.addEventListener("input", () => {
+      const yearIndex = Number(yearSlider.value);
+      const selectedYear = FUTURE_YEARS[yearIndex];
+
+      this.futureShorelineState.year = selectedYear;
+      yearLabel.textContent = `Year: ${selectedYear}`;
+      
+      this.notifyFutureChanged();
+    });
+
+    const tickContainer = document.createElement("div");
+    tickContainer.className = "future-slider-ticks";
+
+    FUTURE_YEARS.forEach((year, index) => {
+        const tick = document.createElement("div");
+        tick.className = "future-slider-tick";
+        tick.style.left = `${100 * index / (FUTURE_YEARS.length - 1)}%`;
+
+        // Only label selected years
+        if (year === 2030 || year === 2050 || year === 2100) {
+            const label = document.createElement("span");
+            label.textContent = year;
+            tick.appendChild(label);
+        }
+
+        tickContainer.appendChild(tick);
+    });
+    /*
+    * Add controls to panel
+    */
+
+    // add the title
+    this.panel.appendChild(title);
+
+    // create the row
+    const dropdownRow = document.createElement("div");
+    dropdownRow.className = "future-dropdown-row";
+
+    // create scenario column
+    const scenarioColumn = document.createElement("div");
+    scenarioColumn.className = "future-dropdown-column";
+
+    scenarioColumn.appendChild(scenarioLabel);
+    scenarioColumn.appendChild(scenarioSelect);
+
+    // create the indicator column
+    const indicatorColumn = document.createElement("div");
+    indicatorColumn.className = "future-dropdown-column";
+
+    indicatorColumn.appendChild(indicatorLabel);
+    indicatorColumn.appendChild(indicatorSelect);
+
+    // add both columns to row
+    dropdownRow.appendChild(scenarioColumn);
+    dropdownRow.appendChild(indicatorColumn);
+    this.panel.appendChild(dropdownRow);
+
+    this.panel.appendChild(yearLabel);
+    this.panel.appendChild(yearSlider);
+    this.panel.appendChild(tickContainer);
+    
+    this.panel.hidden = false;
   }
 
-  this.panel.dataset.panel = "future-shorelines";
-  this.panel.replaceChildren();
-
-  const title = document.createElement("div");
-  title.className = "map-options-title";
-  title.textContent = "Future shorelines";
-
-  /*
-   * Scenario dropdown
-   */
-
-  const scenarioLabel = document.createElement("label");
-  scenarioLabel.className = "future-control-label";
-  scenarioLabel.htmlFor = "future-scenario-select";
-  scenarioLabel.textContent = "Scenario";
-
-  const scenarioSelect = document.createElement("select");
-  scenarioSelect.id = "future-scenario-select";
-  scenarioSelect.className = "future-control-select";
-
-  FUTURE_SCENARIOS.forEach((scenario) => {
-    const option = document.createElement("option");
-
-    option.value = scenario.value;
-    option.textContent = scenario.label;
-
-    scenarioSelect.appendChild(option);
-  });
-
-  scenarioSelect.value =
-    this.futureShorelineState.scenario;
-
-  scenarioSelect.addEventListener("change", () => {
-    this.futureShorelineState.scenario =
-      scenarioSelect.value;
-
-  });
-
-  /*
-   * Shoreline indicator dropdown
-   */
-
-  const indicatorLabel = document.createElement("label");
-  indicatorLabel.className = "future-control-label";
-  indicatorLabel.htmlFor = "future-indicator-select";
-  indicatorLabel.textContent = "Indicator";
-
-  const indicatorSelect = document.createElement("select");
-  indicatorSelect.id = "future-indicator-select";
-  indicatorSelect.className = "future-control-select";
-
-  FUTURE_INDICATORS.forEach((indicator) => {
-    const option = document.createElement("option");
-
-    option.value = indicator.value;
-    option.textContent = indicator.label;
-
-    indicatorSelect.appendChild(option);
-  });
-
-  indicatorSelect.value =
-    this.futureShorelineState.indicator;
-
-  indicatorSelect.addEventListener("change", () => {
-    this.futureShorelineState.indicator =
-      indicatorSelect.value;
-
-  });
-
-  /*
-   * Year slider
-   */
-
-  const yearLabel = document.createElement("label");
-  yearLabel.className = "future-control-label";
-  yearLabel.htmlFor = "future-year-slider";
-  yearLabel.textContent =
-    `Year: ${this.futureShorelineState.year}`;
-
-  const yearSlider = document.createElement("input");
-  yearSlider.type = "range";
-  yearSlider.id = "future-year-slider";
-  yearSlider.className = "future-year-slider";
-
-  yearSlider.min = 0;
-  yearSlider.max = FUTURE_YEARS.length - 1;
-  yearSlider.step = 1;
-
-  const selectedYearIndex = FUTURE_YEARS.indexOf(
-    this.futureShorelineState.year,
-  );
-
-  yearSlider.value =
-    selectedYearIndex === -1 ? 0 : selectedYearIndex;
-
-  yearSlider.addEventListener("input", () => {
-    const yearIndex = Number(yearSlider.value);
-    const selectedYear = FUTURE_YEARS[yearIndex];
-
-    this.futureShorelineState.year = selectedYear;
-    yearLabel.textContent = `Year: ${selectedYear}`;
-
-  });
-
-  const tickContainer = document.createElement("div");
-  tickContainer.className = "future-slider-ticks";
-
-  FUTURE_YEARS.forEach((year, index) => {
-      const tick = document.createElement("div");
-      tick.className = "future-slider-tick";
-      tick.style.left = `${100 * index / (FUTURE_YEARS.length - 1)}%`;
-
-      // Only label selected years
-      if (year === 2030 || year === 2050 || year === 2100) {
-          const label = document.createElement("span");
-          label.textContent = year;
-          tick.appendChild(label);
-      }
-
-      tickContainer.appendChild(tick);
-});
-  /*
-   * Add controls to panel
-   */
-
-  // add the title
-  this.panel.appendChild(title);
-
-  // create the row
-  const dropdownRow = document.createElement("div");
-  dropdownRow.className = "future-dropdown-row";
-
-  // create scenario column
-  const scenarioColumn = document.createElement("div");
-  scenarioColumn.className = "future-dropdown-column";
-
-  scenarioColumn.appendChild(scenarioLabel);
-  scenarioColumn.appendChild(scenarioSelect);
-
-  // create the indicator column
-  const indicatorColumn = document.createElement("div");
-  indicatorColumn.className = "future-dropdown-column";
-
-  indicatorColumn.appendChild(indicatorLabel);
-  indicatorColumn.appendChild(indicatorSelect);
-
-  // add both columns to row
-  dropdownRow.appendChild(scenarioColumn);
-  dropdownRow.appendChild(indicatorColumn);
-  this.panel.appendChild(dropdownRow);
-
-  this.panel.appendChild(yearLabel);
-  this.panel.appendChild(yearSlider);
-  this.panel.appendChild(tickContainer);
-  
-  this.panel.hidden = false;
-}
-
+  // function to keep track of state of future panel
+  notifyFutureChanged() {
+      this.onFutureShorelineChanged?.({
+          ...this.futureShorelineState,
+      });
+  }
   getBasemapIcon() {
     return `
       <svg

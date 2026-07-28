@@ -139,6 +139,25 @@ const TRANSECTS_DATASETS = [
     file: "/CMT_output/Montrose_Transects.geojson",
   }
 ]
+
+const FUTURE_DATASETS = [
+  {
+    id: "MHWS_Future",
+    file: /CMT_output/Future/Montrose_Future.geojson,
+  }
+]
+
+// get uncertainty file based on state attributes
+function getFutureUncertaintyUrl({
+    scenario,
+    indicator,
+    year,
+}) {
+    return {
+      id: "MHWS_Future_Unc",
+      file: `/CMT_output/Future/Montrose_Uncertainty_${scenario}_P95_${year}.geojson`,
+}
+
 // setup colour schemes
 const CURRENT_YEAR = new Date().getFullYear();
 const MHWS_COLOURS = [
