@@ -21,6 +21,7 @@ import LegendControl from "./controls/LegendControl.js";
 import {addMHWSLayers, registerMHWSInteractions} from "./layers/MHWS.js";
 import {addVEdgeLayers, registerVEdgeInteractions} from "./layers/VEdge.js";
 import {addTransectLayers, registerTransectInteractions} from "./layers/Transects.js";
+import {addFutureMHWSLayer, updateFutureMHWSYear} from "./layers/FutureMHWS.js";
 import {setDatasetVisibility} from "./map/LayerFactory.js";
 
 /* 
@@ -143,19 +144,20 @@ const TRANSECTS_DATASETS = [
 const FUTURE_DATASETS = [
   {
     id: "MHWS_Future",
-    file: /CMT_output/Future/Montrose_Future.geojson,
+    file: "/CMT_output/Future/Montrose_Future.geojson",
   }
 ]
 
 // get uncertainty file based on state attributes
 function getFutureUncertaintyUrl({
-    scenario,
-    indicator,
-    year,
-}) {
-    return {
-      id: "MHWS_Future_Unc",
-      file: `/CMT_output/Future/Montrose_Uncertainty_${scenario}_P95_${year}.geojson`,
+  scenario,
+  indicator,
+  year, }) {
+  return {
+    id: "MHWS_Future_Unc",
+    file: `/CMT_output/Future/Montrose_Uncertainty_${scenario}_P95_${year}.geojson`,
+    
+  }
 }
 
 // setup colour schemes
@@ -307,6 +309,13 @@ function registerMapEvents(map) {
         CURRENT_YEAR,
       );
     });
+
+    addFutureMHWSLayer(
+      map,
+      FUTURE_DATASETS[0],
+      2030,
+    );
+
 
   applyLayerVisibility(map);
   });

@@ -46,22 +46,25 @@ function getFutureMHWSFilter(year) {
  */
 export function addFutureMHWSLayer(
   map,
-  file,
+  dataset,
   initialYear = 2030,
 ) {
-  if (!map.getSource(FUTURE_MHWS_SOURCE_ID)) {
-    map.addSource(FUTURE_MHWS_SOURCE_ID, {
+  const sourceId = dataset.id;
+  const layerId = `${dataset.id}-line`;
+
+  if (!map.getSource(sourceId)) {
+    map.addSource(sourceId, {
       type: "geojson",
-      data: file,
+      data: dataset.file,
       generateId: true,
     });
   }
 
-  if (!map.getLayer(FUTURE_MHWS_LAYER_ID)) {
+  if (!map.getLayer(layerId)) {
     map.addLayer({
-      id: FUTURE_MHWS_LAYER_ID,
+      id: layerId,
       type: "line",
-      source: FUTURE_MHWS_SOURCE_ID,
+      source: sourceId,
 
       layout: {
         "line-cap": "round",
@@ -85,17 +88,23 @@ export function addFutureMHWSLayer(
  * @param {maplibregl.Map} map
  * @param {number} year
  */
-export function updateFutureMHWSYear(map, year) {
-  if (!map.getLayer(FUTURE_MHWS_LAYER_ID)) {
+export function updateFutureMHWSYear(
+  map,
+  dataset,
+  year,
+) {
+  const layerId = `${dataset.id}-line`;
+
+  if (!map.getLayer(layerId)) {
     console.warn(
-      "Cannot update future MHWS year: layer has not been added.",
+      `Cannot update ${layerId}: layer has not been added.`,
     );
 
     return;
   }
 
   map.setFilter(
-    FUTURE_MHWS_LAYER_ID,
+    layerId,
     getFutureMHWSFilter(year),
   );
 }
