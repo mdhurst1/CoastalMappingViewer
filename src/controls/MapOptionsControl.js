@@ -4,6 +4,12 @@
  * Combined MapLibre control for switching basemaps and toggling data layers.
  */
 
+const ASSET_LAYERS = [
+  { value: "buildings", label: "Buildings" },
+  { value: "roads", label: "Roads" },
+  { value: "railways", label: "Railways" },
+];
+
 const FUTURE_SCENARIOS = [
   { value: "None", label: "None" },
   { value: "RCP26", label: "RCP 2.6" },
@@ -22,13 +28,9 @@ const FUTURE_YEARS = [
 
 export default class MapOptionsControl {
 
-  constructor(
-    basemaps,
-    initialBasemap,
-    layerGroups,
-    onVisibilityChanged,
-    onFutureShorelineChanged,
-  ) {
+  constructor(basemaps, initialBasemap, layerGroups, onVisibilityChanged, onFutureShorelineChanged)
+  {
+    // initialise
     this.basemaps = basemaps;
     this.activeBasemap = initialBasemap;
     this.layerGroups = layerGroups;
@@ -39,7 +41,11 @@ export default class MapOptionsControl {
       indicator: "MHWS",
       year: 2030,
     };
-
+    this.assetLayerState = {
+      buildings: false,
+      roads: false,
+      railways: false,
+    };
     this.map = undefined;
     this.container = undefined;
     this.panel = undefined;
@@ -57,13 +63,21 @@ export default class MapOptionsControl {
     const buttonRow = document.createElement("div");
     buttonRow.className = "map-options-buttons";
 
-    const basemapButton = this.createButton(
+    // create basemap button
+    const BasemapButton = this.createButton(
       "Choose basemap",
       this.getBasemapIcon(),
       () => this.showBasemapPanel(),
     );
 
-    const layerButton = this.createButton(
+    // create assets button
+    const AssetButton = this.createButton(
+      "Choose visible assets",
+      this.getAssetIcon(),
+      () => this.showAssetPanel(),
+    );
+
+    const LayerButton = this.createButton(
       "Choose visible layers",
       this.getLayerIcon(),
       () => this.showLayerPanel(),
@@ -75,8 +89,9 @@ export default class MapOptionsControl {
       () => this.showFuturePanel(),
     )
 
-    buttonRow.appendChild(basemapButton);
-    buttonRow.appendChild(layerButton);
+    buttonRow.appendChild(BasemapButton);
+    buttonRow.appendChild(AssetButton);
+    buttonRow.appendChild(LayerButton);
     buttonRow.appendChild(FutureShorelinesButton);
 
     // Dropdown panel displayed beneath the icon buttons
@@ -153,6 +168,54 @@ export default class MapOptionsControl {
     this.panel.hidden = false;
   }
 
+  showAssetPanel() {
+    const isAlreadyOpen =
+      !this.panel.hidden &&
+      this.panel.dataset.panel === "assets";
+
+    if (isAlreadyOpen) {
+      this.panel.hidden = true;
+      return;
+    }
+
+    this.panel.dataset.panel = "assets";
+    this.panel.replaceChildren();
+
+    const title = document.createElement("div");
+    title.className = "map-options-title";
+    title.textContent = "Assets";
+
+    this.panel.appendChild(title);
+
+    ASSET_LAYERS.forEach((assetLayer) => {
+      const label = document.createElement("label");
+      label.className = "map-options-option";
+
+      const input = document.createElement("input");
+      input.type = "checkbox";
+      input.value = assetLayer.value;
+      input.checked =
+        this.assetLayerState[assetLayer.value];
+
+      input.addEventListener("change", () => {
+        this.assetLayerState[assetLayer.value] =
+          input.checked;
+
+        console.log(
+          `${assetLayer.label}: ${
+            input.checked ? "visible" : "hidden"
+          }`,
+        );
+      });
+
+      label.appendChild(input);
+      label.append(` ${assetLayer.label}`);
+
+      this.panel.appendChild(label);
+    });
+
+    this.panel.hidden = false;
+  }
   showLayerPanel() {
     const isAlreadyOpen =
       !this.panel.hidden &&
@@ -383,6 +446,47 @@ export default class MapOptionsControl {
         <path
           fill="currentColor"
           d="M20.5 3 15 5.1 9 3 3.5 5A1 1 0 0 0 3 5.9V21l6-2.1 6 2.1 5.5-2a1 1 0 0 0 .5-.9V4a1 1 0 0 0-1.5-1ZM10 5.3l4 1.4v12l-4-1.4v-12Zm-5 1.4 3-1.1v11.7l-3 1.1V6.7Zm14 10.6-3 1.1V6.7l3-1.1v11.7Z"
+        />
+      </svg>
+    `;
+  }
+
+  getAssetIcon() {
+    return `
+      <svg
+        class="map-options-icon"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path
+          d="M4 20V9l6-3v14"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M10 20V4l10 4v12"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M2 20h20"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+        />
+        <path
+          d="M13 8h1M17 10h1M13 12h1M17 14h1M13 16h1"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
         />
       </svg>
     `;

@@ -10,9 +10,9 @@
 /* Three icon buttons arranged horizontally */
 .map-options-buttons {
   display: grid;
-  grid-template-columns: repeat(3, 32px);
+  grid-template-columns: repeat(4, 32px);
 
-  width: 96px;
+  width: 128px;
   height: 32px;
 
   overflow: hidden;
