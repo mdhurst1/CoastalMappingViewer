@@ -18,14 +18,11 @@ import MapOptionsControl from "./controls/MapOptionsControl.js";
 import LegendControl from "./controls/LegendControl.js";
 
 // import layer tools
+import {addAssetLayers, applyAssetVisibility} from "./layers/Assets.js";
 import {addMHWSLayers, registerMHWSInteractions} from "./layers/MHWS.js";
 import {addVEdgeLayers, registerVEdgeInteractions} from "./layers/VEdge.js";
 import {addTransectLayers, registerTransectInteractions} from "./layers/Transects.js";
-import {
-  addFutureMHWSLayer,
-  updateFutureMHWSYear,
-  setFutureMHWSVisibility,
-} from "./layers/FutureMHWS.js";
+import {addFutureMHWSLayer, updateFutureMHWSYear, setFutureMHWSVisibility} from "./layers/FutureMHWS.js";
 
 import {
   addFutureUncertaintyLayer,
@@ -186,10 +183,28 @@ function getFutureUncertaintyDataset({scenario, indicator, year, }) {
   }
 }
 
+/*
+ * Future layer state
+ * --------------------------------------------------------------------------
+ * Stored here so visibility can be restored after changing basemap style.
+ */
+
 let futureState = {
   scenario: "None",
   indicator: "MHWS",
   year: 2030,
+};
+
+/*
+ * Asset layer state
+ * --------------------------------------------------------------------------
+ * Stored here so visibility can be restored after changing basemap style.
+ */
+
+let assetState = {
+  buildings: false,
+  roads: false,
+  railways: false,
 };
 
 // setup colour schemes
@@ -325,6 +340,12 @@ function addMapControls(map) {
 
   const legendControl = new LegendControl(LEGEND_ITEMS);
 
+  const updateAssetVisibility = (newAssetState) => {
+    assetState = {...newAssetState,};
+  
+    applyAssetVisibility(map, assetState);
+  };
+  
   const updateVisibleLayers = () => {
     applyLayerVisibility(map);
     legendControl.updateVisibility(LAYER_GROUPS);
@@ -340,9 +361,10 @@ function addMapControls(map) {
     BASEMAPS,
     MAP_CONFIG.basemap,
     LAYER_GROUPS,
+    updateAssetVisibility,
     updateVisibleLayers,
     updateFutureShoreline,
-);
+  );
 
   map.addControl(
     mapOptionsControl,
@@ -365,6 +387,8 @@ function addMapControls(map) {
 
 function registerMapEvents(map) {
   map.on("style.load", () => {
+    
+    addAssetLayers(map);
     Object.values(LAYER_GROUPS).forEach(
       (group) => {
         group.addLayers(
@@ -376,9 +400,10 @@ function registerMapEvents(map) {
       },
     );
 
+    applyAssetVisibility(map, assetState);
+    applyLayerVisibility(map);
     addFutureMHWSLayer(map, FUTURE_DATASETS[0], futureState.year);
     addFutureUncertaintyLayer(map, FUTURE_UNCERTAINTY_DATASETS[0]);
-    applyLayerVisibility(map);
     applyFutureState(map);
   });
 }

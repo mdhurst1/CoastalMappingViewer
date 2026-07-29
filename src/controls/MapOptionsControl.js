@@ -28,14 +28,16 @@ const FUTURE_YEARS = [
 
 export default class MapOptionsControl {
 
-  constructor(basemaps, initialBasemap, layerGroups, onVisibilityChanged, onFutureShorelineChanged)
+  constructor(basemaps, initialBasemap, layerGroups, onAssetVisibilityChanged, onLayerVisibilityChanged, onFutureShorelineChanged)
   {
     // initialise
     this.basemaps = basemaps;
     this.activeBasemap = initialBasemap;
     this.layerGroups = layerGroups;
-    this.onVisibilityChanged = onVisibilityChanged;
+    this.onAssetVisibilityChanged = onAssetVisibilityChanged;
+    this.onLayerVisibilityChanged = onLayerVisibilityChanged;
     this.onFutureShorelineChanged = onFutureShorelineChanged;
+    
     this.futureShorelineState = {
       scenario: "None",
       indicator: "MHWS",
@@ -201,11 +203,7 @@ export default class MapOptionsControl {
         this.assetLayerState[assetLayer.value] =
           input.checked;
 
-        console.log(
-          `${assetLayer.label}: ${
-            input.checked ? "visible" : "hidden"
-          }`,
-        );
+        this.notifyAssetVisibilityChanged();
       });
 
       label.appendChild(input);
@@ -247,7 +245,7 @@ export default class MapOptionsControl {
 
         input.addEventListener("change", () => {
           group.visible = input.checked;
-          this.onVisibilityChanged();
+          this.onLayerVisibilityChanged();
         });
 
         label.appendChild(input);
@@ -436,6 +434,20 @@ export default class MapOptionsControl {
           ...this.futureShorelineState,
       });
   }
+
+  /*
+ * Notify the application when an asset checkbox changes.
+ */
+
+  notifyAssetVisibilityChanged() {
+    if (this.onAssetVisibilityChanged) {
+      this.onAssetVisibilityChanged({
+        ...this.assetLayerState,
+      });
+    }
+  }
+
+
   getBasemapIcon() {
     return `
       <svg
