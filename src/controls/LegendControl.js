@@ -114,39 +114,56 @@ export default class LegendControl {
     title.className = "legend-item-title";
     title.dataset.role = "future-title";
 
-    const shorelineRow = document.createElement("div");
-    shorelineRow.className = "legend-symbol-row";
+    const graphicRow = document.createElement("div");
+    graphicRow.className = "future-legend-row";
 
-    const shorelineSymbol = document.createElement("span");
-    shorelineSymbol.className = "legend-line-symbol";
-    shorelineSymbol.dataset.role = "future-line-symbol";
+    const graphic = document.createElement("div");
+    graphic.className = "future-legend-graphic";
 
-    const shorelineLabel = document.createElement("span");
-    shorelineLabel.textContent = "Predicted MHWS";
+    const uncertainty95 = document.createElement("div");
+    uncertainty95.className =
+      "future-legend-polygon future-legend-polygon-95";
+    uncertainty95.dataset.role = "future-uncertainty-95";
 
-    shorelineRow.appendChild(shorelineSymbol);
-    shorelineRow.appendChild(shorelineLabel);
+    const uncertainty68 = document.createElement("div");
+    uncertainty68.className =
+      "future-legend-polygon future-legend-polygon-68";
+    uncertainty68.dataset.role = "future-uncertainty-68";
 
-    const uncertaintyRow = document.createElement("div");
-    uncertaintyRow.className = "legend-symbol-row";
+    const shoreline = document.createElement("div");
+    shoreline.className = "future-legend-line";
+    shoreline.dataset.role = "future-line-symbol";
 
-    const uncertaintySymbol = document.createElement("span");
-    uncertaintySymbol.className = "legend-fill-symbol";
-    uncertaintySymbol.dataset.role =
-      "future-uncertainty-symbol";
+    /*
+    * Append in back-to-front drawing order.
+    */
+    graphic.appendChild(uncertainty95);
+    graphic.appendChild(uncertainty68);
+    graphic.appendChild(shoreline);
 
-    const uncertaintyLabel = document.createElement("span");
-    uncertaintyLabel.textContent = "95% uncertainty";
+    const labels = document.createElement("div");
+    labels.className = "future-legend-interval-labels";
 
-    uncertaintyRow.appendChild(uncertaintySymbol);
-    uncertaintyRow.appendChild(uncertaintyLabel);
+    const label95 = document.createElement("span");
+    label95.className = "future-legend-label-95";
+    label95.textContent = "95%";
+
+    const label68 = document.createElement("span");
+    label68.className = "future-legend-label-68";
+    label68.textContent = "68%";
+
+    labels.appendChild(label95);
+    labels.appendChild(label68);
+
+    graphicRow.appendChild(graphic);
+    graphicRow.appendChild(labels);
 
     section.appendChild(title);
-    section.appendChild(shorelineRow);
-    section.appendChild(uncertaintyRow);
+    section.appendChild(graphicRow);
 
     return section;
   }
+
   onAdd(map) {
     this.map = map;
 

@@ -88,3 +88,90 @@
   border: none;
   flex-shrink: 0;
 }
+
+.future-legend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.future-legend-graphic {
+  position: relative;
+  width: 150px;
+  height: 44px;
+}
+
+/*
+ * Both uncertainty polygons are centred within the same container.
+ */
+.future-legend-polygon {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+
+  box-sizing: border-box;
+}
+
+/*
+ * Outer 95% uncertainty polygon.
+ */
+.future-legend-polygon-95 {
+  width: 100%;
+  height: 40px;
+  z-index: 1;
+}
+
+/*
+ * Inner 68% uncertainty polygon.
+ *
+ * The width and height are proportional to the outer polygon,
+ * making it visibly nested inside the 95% interval.
+ */
+.future-legend-polygon-68 {
+  width: 62%;
+  height: 22px;
+  z-index: 2;
+}
+
+/*
+ * Median future shoreline.
+ *
+ * top: 50% places it through the centre of both polygons.
+ */
+.future-legend-line {
+  position: absolute;
+  left: 0;
+  top: 50%;
+
+  width: 100%;
+  height: 0;
+
+  transform: translateY(-50%);
+  border-top-style: dashed;
+
+  z-index: 3;
+}
+
+.future-legend-interval-labels {
+  position: relative;
+  width: 28px;
+  height: 44px;
+  flex-shrink: 0;
+
+  font-size: 11px;
+}
+
+.future-legend-label-95 {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.future-legend-label-68 {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+}
