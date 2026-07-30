@@ -369,6 +369,7 @@ function addMapControls(map) {
     futureState = { ...state };
 
     applyFutureState(map);
+    legendControl.updateFuture(futureState);
   };
 
   const mapOptionsControl = new MapOptionsControl(
@@ -392,6 +393,7 @@ function addMapControls(map) {
 
   // Apply the initial legend state
   legendControl.updateVisibility(LAYER_GROUPS);
+  legendControl.updateFuture(futureState);
 }
 
 /*

@@ -4,9 +4,12 @@
  * MapLibre control displaying legend entries for coastal mapping layers.
  */
 
+import {getFutureScenarioStyle} from "../layers/FutureStyles.js";
+
 export default class LegendControl {
 
   constructor(items) {
+    this.futureSection = undefined;
     this.items = items;
     this.map = undefined;
     this.container = undefined;
@@ -102,6 +105,48 @@ export default class LegendControl {
     return section;
   }
 
+  createFutureItem() {
+    const section = document.createElement("div");
+    section.className = "legend-item legend-future-item";
+    section.hidden = true;
+
+    const title = document.createElement("div");
+    title.className = "legend-item-title";
+    title.dataset.role = "future-title";
+
+    const shorelineRow = document.createElement("div");
+    shorelineRow.className = "legend-symbol-row";
+
+    const shorelineSymbol = document.createElement("span");
+    shorelineSymbol.className = "legend-line-symbol";
+    shorelineSymbol.dataset.role = "future-line-symbol";
+
+    const shorelineLabel = document.createElement("span");
+    shorelineLabel.textContent = "Predicted MHWS";
+
+    shorelineRow.appendChild(shorelineSymbol);
+    shorelineRow.appendChild(shorelineLabel);
+
+    const uncertaintyRow = document.createElement("div");
+    uncertaintyRow.className = "legend-symbol-row";
+
+    const uncertaintySymbol = document.createElement("span");
+    uncertaintySymbol.className = "legend-fill-symbol";
+    uncertaintySymbol.dataset.role =
+      "future-uncertainty-symbol";
+
+    const uncertaintyLabel = document.createElement("span");
+    uncertaintyLabel.textContent = "95% uncertainty";
+
+    uncertaintyRow.appendChild(uncertaintySymbol);
+    uncertaintyRow.appendChild(uncertaintyLabel);
+
+    section.appendChild(title);
+    section.appendChild(shorelineRow);
+    section.appendChild(uncertaintyRow);
+
+    return section;
+  }
   onAdd(map) {
     this.map = map;
 
@@ -126,7 +171,88 @@ export default class LegendControl {
       this.container.appendChild(section);
     });
 
+    this.futureSection = this.createFutureItem();
+    this.container.appendChild(this.futureSection);
+
     return this.container;
+  }
+
+  updateFuture(futureState) {
+    if (!this.futureSection) {
+      return;
+    }
+
+    const visible =
+      futureState?.scenario &&
+      futureState.scenario !== "None";
+
+    this.futureSection.hidden = !visible;
+
+    if (!visible) {
+      this.updateContainerVisibility();
+      return;
+    }
+
+    const style = getFutureScenarioStyle(
+      futureState.scenario,
+    );
+
+    if (!style) {
+      this.futureSection.hidden = true;
+      this.updateContainerVisibility();
+      return;
+    }
+
+    const title = this.futureSection.querySelector(
+      '[data-role="future-title"]',
+    );
+
+    const lineSymbol = this.futureSection.querySelector(
+      '[data-role="future-line-symbol"]',
+    );
+
+    const uncertaintySymbol =
+      this.futureSection.querySelector(
+        '[data-role="future-uncertainty-symbol"]',
+      );
+
+    title.textContent =
+      `Future MHWS — ${style.label}, ${futureState.year}`;
+
+    lineSymbol.style.borderTopColor = style.colour;
+    lineSymbol.style.borderTopWidth =
+      `${style.shoreline.width}px`;
+
+    lineSymbol.style.opacity =
+      style.shoreline.opacity;
+
+    lineSymbol.style.borderTopStyle =
+      style.shoreline.dasharray ? "dashed" : "solid";
+
+    uncertaintySymbol.style.backgroundColor =
+      style.colour;
+
+    uncertaintySymbol.style.opacity =
+      style.uncertainty.opacity;
+
+    this.updateContainerVisibility();
+  }
+
+  updateContainerVisibility() {
+    if (!this.container) {
+      return;
+    }
+
+    const historicalVisible = Array.from(
+      this.sections.values(),
+    ).some((section) => !section.hidden);
+
+    const futureVisible =
+      this.futureSection &&
+      !this.futureSection.hidden;
+
+    this.container.hidden =
+      !historicalVisible && !futureVisible;
   }
 
   updateVisibility(layerGroups) {
@@ -136,16 +262,12 @@ export default class LegendControl {
       section.hidden = !group?.visible;
     });
 
-    const hasVisibleItems = Array.from(
-      this.sections.values(),
-    ).some((section) => !section.hidden);
-
-    this.container.hidden = !hasVisibleItems;
+    this.updateContainerVisibility();
   }
   
   onRemove() {
     this.container?.remove();
-
+    this.futureSection = undefined;
     this.map = undefined;
     this.container = undefined;
   }

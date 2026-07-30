@@ -64,3 +64,27 @@
   font-size: 10px;
   color: #666;
 }
+
+.legend-symbol-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  font-size: 12px;
+}
+
+.legend-line-symbol {
+  display: inline-block;
+  width: 34px;
+  height: 0;
+  border-top-style: dashed;
+  flex-shrink: 0;
+}
+
+.legend-fill-symbol {
+  display: inline-block;
+  width: 34px;
+  height: 12px;
+  border: none;
+  flex-shrink: 0;
+}

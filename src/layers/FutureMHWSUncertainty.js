@@ -78,13 +78,36 @@ export function addFutureUncertaintyLayer(
  * @param {Object} layerDataset
  * @param {Object} selectedDataset
  */
+export function updateFutureUncertainty(
+  map,
+  layerDataset,
+  selectedDataset,
+) {
+  const sourceId =
+    `${layerDataset.id}${SOURCE_SUFFIX}`;
+
+  const source = map.getSource(sourceId);
+
+  if (!source) {
+    console.warn(
+      `Cannot update ${layerDataset.id}: ` +
+      "source has not been added.",
+    );
+
+    return;
+  }
+
+  source.setData(selectedDataset.file);
+}
+
 export function updateFutureUncertaintyStyle(
   map,
   dataset,
   scenario,
 ) {
   const fillLayerId = `${dataset.id}${FILL_SUFFIX}`;
-  const outlineLayerId = `${dataset.id}${OUTLINE_SUFFIX}`;
+  const outlineLayerId =
+    `${dataset.id}${OUTLINE_SUFFIX}`;
 
   const style = getFutureScenarioStyle(scenario);
 
@@ -117,43 +140,6 @@ export function updateFutureUncertaintyStyle(
       outlineLayerId,
       "line-width",
       style.uncertainty.outlineWidth,
-    );
-  }
-}
-
-export function updateFutureUncertaintyStyle(
-  map,
-  dataset,
-  scenario,
-) {
-  const fillLayerId = `${dataset.id}${FILL_SUFFIX}`;
-  const outlineLayerId = `${dataset.id}${OUTLINE_SUFFIX}`;
-
-  const style = getFutureScenarioStyle(scenario);
-
-  if (!style) {
-    return;
-  }
-
-  if (map.getLayer(fillLayerId)) {
-    map.setPaintProperty(
-      fillLayerId,
-      "fill-color",
-      style.colour,
-    );
-
-    map.setPaintProperty(
-      fillLayerId,
-      "fill-opacity",
-      style.uncertainty.opacity,
-    );
-  }
-
-  if (map.getLayer(outlineLayerId)) {
-    map.setPaintProperty(
-      outlineLayerId,
-      "line-color",
-      style.uncertainty.outlineColour,
     );
   }
 }
