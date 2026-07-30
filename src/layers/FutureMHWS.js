@@ -7,6 +7,9 @@
  * by applying a filter to the Year property.
  */
 
+// import styles for displaying future MHWS
+import {getFutureScenarioStyle} from "./FutureStyles.js";
+
 const EMPTY_GEOJSON = {
   type: "FeatureCollection",
   features: [],
@@ -117,6 +120,43 @@ export function updateFutureMHWS(
       getFutureMHWSFilter(year),
     );
   }
+}
+
+export function updateFutureMHWSStyle(
+  map,
+  dataset,
+  scenario,
+) {
+  const layerId = `${dataset.id}-line`;
+  const style = getFutureScenarioStyle(scenario);
+
+  if (!style || !map.getLayer(layerId)) {
+    return;
+  }
+
+  map.setPaintProperty(
+    layerId,
+    "line-color",
+    style.colour,
+  );
+
+  map.setPaintProperty(
+    layerId,
+    "line-width",
+    style.shoreline.width,
+  );
+
+  map.setPaintProperty(
+    layerId,
+    "line-opacity",
+    style.shoreline.opacity,
+  );
+
+  map.setPaintProperty(
+    layerId,
+    "line-dasharray",
+    style.shoreline.dasharray,
+  );
 }
 
 export function setFutureMHWSVisibility(map, dataset, visible) {

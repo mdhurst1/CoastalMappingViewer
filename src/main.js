@@ -22,8 +22,8 @@ import {addAssetLayers, applyAssetVisibility} from "./layers/Assets.js";
 import {addMHWSLayers, registerMHWSInteractions} from "./layers/MHWS.js";
 import {addVEdgeLayers, registerVEdgeInteractions} from "./layers/VEdge.js";
 import {addTransectLayers, registerTransectInteractions} from "./layers/Transects.js";
-import {addFutureMHWSLayer, updateFutureMHWS, setFutureMHWSVisibility} from "./layers/FutureMHWS.js";
-import {addFutureUncertaintyLayer, updateFutureUncertainty, setFutureUncertaintyVisibility,} from "./layers/FutureMHWSUncertainty.js";
+import {addFutureMHWSLayer, updateFutureMHWS, updateFutureMHWSStyle, setFutureMHWSVisibility} from "./layers/FutureMHWS.js";
+import {addFutureUncertaintyLayer, updateFutureUncertainty, updateFutureUncertaintyStyle, setFutureUncertaintyVisibility,} from "./layers/FutureMHWSUncertainty.js";
 import {setDatasetVisibility} from "./map/LayerFactory.js";
 
 /* 
@@ -265,7 +265,7 @@ const LEGEND_ITEMS = [
 const LAYER_GROUPS = {
   mhws: {
     name: "MHWS shorelines",
-    visible: true,
+    visible: false,
     datasets: MHWS_DATASETS,
     colours: MHWS_COLOURS,
     addLayers: addMHWSLayers,
@@ -274,7 +274,7 @@ const LAYER_GROUPS = {
 
   vegetation: {
     name: "Vegetation edge",
-    visible: true,
+    visible: false,
     datasets: VEDGE_DATASETS,
     colours: VEDGE_COLOURS,
     addLayers: addVEdgeLayers,
@@ -323,12 +323,14 @@ function applyFutureState(map) {
 
   if (selectedFutureDataset) {
     updateFutureMHWS(map, FUTURE_DATASETS[0], selectedFutureDataset, futureState.year);
+    updateFutureMHWSStyle(map, FUTURE_DATASETS[0], futureState.scenario);
   }
 
   const selectedUncertaintyDataset = getFutureUncertaintyDataset(futureState);
 
   if (selectedUncertaintyDataset) {
     updateFutureUncertainty(map, FUTURE_UNCERTAINTY_DATASETS[0], selectedUncertaintyDataset);
+    updateFutureUncertaintyStyle(map, FUTURE_UNCERTAINTY_DATASETS[0], futureState.scenario);
   }
 }
 

@@ -5,6 +5,10 @@
  * scenario and prediction year.
  */
 
+
+//import future styles for displaying uncertainty polygons
+import {getFutureScenarioStyle} from "./FutureStyles.js";
+
 const SOURCE_SUFFIX = "-source";
 const FILL_SUFFIX = "-fill";
 const OUTLINE_SUFFIX = "-outline";
@@ -74,26 +78,84 @@ export function addFutureUncertaintyLayer(
  * @param {Object} layerDataset
  * @param {Object} selectedDataset
  */
-export function updateFutureUncertainty(
+export function updateFutureUncertaintyStyle(
   map,
-  layerDataset,
-  selectedDataset,
+  dataset,
+  scenario,
 ) {
-  const sourceId =
-    `${layerDataset.id}${SOURCE_SUFFIX}`;
+  const fillLayerId = `${dataset.id}${FILL_SUFFIX}`;
+  const outlineLayerId = `${dataset.id}${OUTLINE_SUFFIX}`;
 
-  const source = map.getSource(sourceId);
+  const style = getFutureScenarioStyle(scenario);
 
-  if (!source) {
-    console.warn(
-      `Cannot update ${layerDataset.id}: ` +
-      "source has not been added.",
-    );
-
+  if (!style) {
     return;
   }
 
-  source.setData(selectedDataset.file);
+  if (map.getLayer(fillLayerId)) {
+    map.setPaintProperty(
+      fillLayerId,
+      "fill-color",
+      style.colour,
+    );
+
+    map.setPaintProperty(
+      fillLayerId,
+      "fill-opacity",
+      style.uncertainty.opacity,
+    );
+  }
+
+  if (map.getLayer(outlineLayerId)) {
+    map.setPaintProperty(
+      outlineLayerId,
+      "line-color",
+      style.uncertainty.outlineColour,
+    );
+
+    map.setPaintProperty(
+      outlineLayerId,
+      "line-width",
+      style.uncertainty.outlineWidth,
+    );
+  }
+}
+
+export function updateFutureUncertaintyStyle(
+  map,
+  dataset,
+  scenario,
+) {
+  const fillLayerId = `${dataset.id}${FILL_SUFFIX}`;
+  const outlineLayerId = `${dataset.id}${OUTLINE_SUFFIX}`;
+
+  const style = getFutureScenarioStyle(scenario);
+
+  if (!style) {
+    return;
+  }
+
+  if (map.getLayer(fillLayerId)) {
+    map.setPaintProperty(
+      fillLayerId,
+      "fill-color",
+      style.colour,
+    );
+
+    map.setPaintProperty(
+      fillLayerId,
+      "fill-opacity",
+      style.uncertainty.opacity,
+    );
+  }
+
+  if (map.getLayer(outlineLayerId)) {
+    map.setPaintProperty(
+      outlineLayerId,
+      "line-color",
+      style.uncertainty.outlineColour,
+    );
+  }
 }
 
 /**
