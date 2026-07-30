@@ -22,13 +22,8 @@ import {addAssetLayers, applyAssetVisibility} from "./layers/Assets.js";
 import {addMHWSLayers, registerMHWSInteractions} from "./layers/MHWS.js";
 import {addVEdgeLayers, registerVEdgeInteractions} from "./layers/VEdge.js";
 import {addTransectLayers, registerTransectInteractions} from "./layers/Transects.js";
-import {addFutureMHWSLayer, updateFutureMHWSYear, setFutureMHWSVisibility} from "./layers/FutureMHWS.js";
-
-import {
-  addFutureUncertaintyLayer,
-  updateFutureUncertainty,
-  setFutureUncertaintyVisibility,
-} from "./layers/FutureMHWSUncertainty.js";
+import {addFutureMHWSLayer, updateFutureMHWS, setFutureMHWSVisibility} from "./layers/FutureMHWS.js";
+import {addFutureUncertaintyLayer, updateFutureUncertainty, setFutureUncertaintyVisibility,} from "./layers/FutureMHWSUncertainty.js";
 import {setDatasetVisibility} from "./map/LayerFactory.js";
 
 /* 
@@ -151,7 +146,6 @@ const TRANSECTS_DATASETS = [
 const FUTURE_DATASETS = [
   {
     id: "MHWS_Future",
-    file: "/CMT_output/Future/Montrose_Future.geojson",
   }
 ]
 
@@ -168,6 +162,22 @@ const FUTURE_SCENARIO_FILE_CODES = {
   RCP85: "RCP8",
 };
 
+function getFutureMHWSDataset({ scenario, indicator }) {
+  const scenarioCode =
+    FUTURE_SCENARIO_FILE_CODES[scenario];
+
+  if (!scenarioCode) {
+    return null;
+  }
+
+  return {
+    id: `${indicator}_Future`,
+    file:
+      `/CMT_output/Future/` +
+      `Montrose_Future_${scenarioCode}_P50.geojson`,
+  };
+}
+
 function getFutureUncertaintyDataset({scenario, indicator, year, }) {
   
   const scenarioCode =
@@ -179,7 +189,7 @@ function getFutureUncertaintyDataset({scenario, indicator, year, }) {
   
   return {
     id: `${indicator}_Future_Uncertainty`,
-    file: `/CMT_output/Future/Montrose_Uncertainty_${scenarioCode}_P95_${year}.geojson`,
+    file: `/CMT_output/Future/Montrose_Uncertainty_${scenarioCode}_${year}.geojson`,
   }
 }
 
@@ -309,15 +319,17 @@ function applyFutureState(map) {
     return;
   }
 
-  updateFutureMHWSYear(map, FUTURE_DATASETS[0], futureState.year);
+  const selectedFutureDataset =  getFutureMHWSDataset(futureState);
+
+  if (selectedFutureDataset) {
+    updateFutureMHWS(map, FUTURE_DATASETS[0], selectedFutureDataset, futureState.year);
+  }
 
   const selectedUncertaintyDataset = getFutureUncertaintyDataset(futureState);
 
-  if (!selectedUncertaintyDataset) {
-    return;
+  if (selectedUncertaintyDataset) {
+    updateFutureUncertainty(map, FUTURE_UNCERTAINTY_DATASETS[0], selectedUncertaintyDataset);
   }
-
-  updateFutureUncertainty(map, FUTURE_UNCERTAINTY_DATASETS[0], selectedUncertaintyDataset);
 }
 
 /*

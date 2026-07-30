@@ -7,6 +7,11 @@
  * by applying a filter to the Year property.
  */
 
+const EMPTY_GEOJSON = {
+  type: "FeatureCollection",
+  features: [],
+};
+
 /**
  * Convert a numeric year into the date format used by the GeoJSON.
  *
@@ -45,14 +50,14 @@ export function addFutureMHWSLayer(
   map,
   dataset,
   initialYear = 2030,
-) {
+  ) {
   const sourceId = dataset.id;
   const layerId = `${dataset.id}-line`;
 
   if (!map.getSource(sourceId)) {
     map.addSource(sourceId, {
       type: "geojson",
-      data: dataset.file,
+      data: dataset.file ?? EMPTY_GEOJSON,
       generateId: true,
     });
   }
@@ -85,25 +90,33 @@ export function addFutureMHWSLayer(
  * @param {maplibregl.Map} map
  * @param {number} year
  */
-export function updateFutureMHWSYear(
+export function updateFutureMHWS(
   map,
-  dataset,
+  layerDataset,
+  selectedDataset,
   year,
 ) {
-  const layerId = `${dataset.id}-line`;
+  const sourceId = layerDataset.id;
+  const layerId = `${layerDataset.id}-line`;
 
-  if (!map.getLayer(layerId)) {
+  const source = map.getSource(sourceId);
+
+  if (!source) {
     console.warn(
-      `Cannot update ${layerId}: layer has not been added.`,
+      `Cannot update ${sourceId}: source has not been added.`,
     );
 
     return;
   }
 
-  map.setFilter(
-    layerId,
-    getFutureMHWSFilter(year),
-  );
+  source.setData(selectedDataset.file);
+
+  if (map.getLayer(layerId)) {
+    map.setFilter(
+      layerId,
+      getFutureMHWSFilter(year),
+    );
+  }
 }
 
 export function setFutureMHWSVisibility(map, dataset, visible) {
