@@ -5,6 +5,7 @@
  */
 
 import Plotly from "plotly.js-dist-min";
+import { TimeseriesStyles } from "./TimeseriesStyles.js";
 
 import {
   appendPopupField,
@@ -37,31 +38,41 @@ function parseTimeseries(properties) {
 
 
 function createTimeseriesTrace(signal, name) {
+
   const observations = signal?.Observations ?? [];
+  const style = TimeseriesStyles[name];
 
   return {
+
     x: observations.map(
-      (observation) => observation.Date,
+      observation => observation.Date,
     ),
 
     y: observations.map(
-      (observation) => observation.Distance,
+      observation => observation.Distance,
     ),
 
     error_y: {
       type: "data",
-
       array: observations.map(
-        (observation) => observation.Error ?? 0,
+        observation => observation.Error ?? 0,
       ),
-
       visible: observations.some(
-        (observation) => observation.Error != null,
+        observation => observation.Error != null,
       ),
+      color: style.colour,
     },
 
-    mode: "lines+markers",
-    name,
+    mode: "markers",
+
+    name: style.label,
+
+    marker: {
+      color: style.colour,
+      symbol: style.symbol,
+      size: 7,
+    },
+
   };
 }
 
@@ -82,7 +93,7 @@ export function plotTransectTimeseries(plot, timeseries) {
     traces.push(
       createTimeseriesTrace(
         timeseries.VEdge,
-        "Vegetation edge",
+        "VEdge",
       ),
     );
   }
@@ -94,37 +105,41 @@ export function plotTransectTimeseries(plot, timeseries) {
     return;
   }
 
-  Plotly.newPlot(
-    plot,
-    traces,
+  Plotly.newPlot(plot, traces,
     {
+      // set up the plot area
       height: 280,
+      autosize: true,
 
-      margin: {
-        l: 55,
-        r: 15,
-        t: 15,
-        b: 45,
+      // grab customised fonts
+      font: {
+        family: 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+        size: 12,
+        color: "#1f2937",
       },
 
-      xaxis: {
-        title: "Date",
-        type: "date",
-      },
+      // format plot area
+      margin: {l: 85, r: 20, t: 20, b: 70, pad: 0},
+      paper_bgcolor: "#ffffff",
+      plot_bgcolor: "#ffffff",
 
-      yaxis: {
-        title: "Distance along transect (m)",
-      },
+      // format axes
+      xaxis: {title: {text: "Date", standoff: 12,}, type: "date", automargin: true, showgrid: false, showline: true, fixedrange: false},
+      yaxis: {title: {text: "Distance along transect (m)", standoff: 12}, automargin: true, showgrid: false, showline: true, zeroline: false, fixedrange: false},
+      
+      //add custom zero line to y-axis
+      shapes: [{type: "line", xref: "paper", x0: 0, x1: 1, yref: "y", y0: 0, y1: 0,
+                line: {color: "#999", width: 1, dash: "dot"}}], 
 
-      legend: {
-        orientation: "h",
-      },
 
+      legend: {orientation: "h", x: 0.02, y: 1.15, xanchor: "left", yanchor: "top", bgcolor: "rgba(255,255,255,0.9)", bordercolor: "#999", borderwidth: 1},
       showlegend: traces.length > 1,
+      hovermode: "closest",
     },
     {
       responsive: true,
       displayModeBar: false,
+      scrollZoom: true,
     },
   );
 }

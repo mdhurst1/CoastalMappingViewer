@@ -81,12 +81,13 @@ export function registerLineInteractions(
       selectedFeature = clickedFeature;
       map.setFeatureState(clickedFeature, { selected: true });
 
-      const popup = new PopupClass()
+      const popup = new PopupClass({ maxWidth: "750px" })
         .setLngLat(event.lngLat)
         .setDOMContent(createPopupContent(feature.properties ?? {}))
         .addTo(map);
 
       activePopup = popup;
+      keepPopupInView(map, popup);
 
       popup.on("close", () => {
         if (sameFeature(selectedFeature, clickedFeature)) {
@@ -99,5 +100,54 @@ export function registerLineInteractions(
         }
       });
     });
+  });
+}
+
+function keepPopupInView(map, popup, padding = 20) {
+  requestAnimationFrame(() => {
+    const mapRect =
+      map.getContainer().getBoundingClientRect();
+
+    const popupRect =
+      popup.getElement().getBoundingClientRect();
+
+    let dx = 0;
+    let dy = 0;
+
+    if (popupRect.left < mapRect.left + padding) {
+      dx =
+        popupRect.left -
+        mapRect.left -
+        padding;
+    } else if (
+      popupRect.right >
+      mapRect.right - padding
+    ) {
+      dx =
+        popupRect.right -
+        mapRect.right +
+        padding;
+    }
+
+    if (popupRect.top < mapRect.top + padding) {
+      dy =
+        popupRect.top -
+        mapRect.top -
+        padding;
+    } else if (
+      popupRect.bottom >
+      mapRect.bottom - padding
+    ) {
+      dy =
+        popupRect.bottom -
+        mapRect.bottom +
+        padding;
+    }
+
+    if (dx !== 0 || dy !== 0) {
+      map.panBy([dx, dy], {
+        duration: 300,
+      });
+    }
   });
 }
