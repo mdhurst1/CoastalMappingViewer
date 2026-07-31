@@ -98,7 +98,7 @@
 
 .future-legend-graphic {
   position: relative;
-  width: 150px;
+  width: 80px;
   height: 44px;
 }
 
@@ -110,7 +110,7 @@
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-
+  width: 100%;
   box-sizing: border-box;
 }
 
@@ -118,7 +118,6 @@
  * Outer 95% uncertainty polygon.
  */
 .future-legend-polygon-95 {
-  width: 100%;
   height: 40px;
   z-index: 1;
 }
@@ -130,7 +129,6 @@
  * making it visibly nested inside the 95% interval.
  */
 .future-legend-polygon-68 {
-  width: 62%;
   height: 22px;
   z-index: 2;
 }

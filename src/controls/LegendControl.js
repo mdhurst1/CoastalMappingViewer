@@ -228,10 +228,13 @@ export default class LegendControl {
       '[data-role="future-line-symbol"]',
     );
 
-    const uncertaintySymbol =
-      this.futureSection.querySelector(
-        '[data-role="future-uncertainty-symbol"]',
-      );
+    const uncertainty95 = this.futureSection.querySelector(
+      '[data-role="future-uncertainty-95"]',
+    );
+
+    const uncertainty68 = this.futureSection.querySelector(
+      '[data-role="future-uncertainty-68"]',
+    );
 
     title.textContent =
       `Future MHWS — ${style.label}, ${futureState.year}`;
@@ -246,11 +249,14 @@ export default class LegendControl {
     lineSymbol.style.borderTopStyle =
       style.shoreline.dasharray ? "dashed" : "solid";
 
-    uncertaintySymbol.style.backgroundColor =
-      style.colour;
+    uncertainty95.style.backgroundColor = style.colour;
+    uncertainty68.style.backgroundColor = style.colour;
 
-    uncertaintySymbol.style.opacity =
-      style.uncertainty.opacity;
+    uncertainty95.style.opacity =
+      style.uncertainty.opacity95 ?? style.uncertainty.opacity;
+
+    uncertainty68.style.opacity =
+      style.uncertainty.opacity68 ?? style.uncertainty.opacity;
 
     this.updateContainerVisibility();
   }
