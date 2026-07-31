@@ -4,16 +4,14 @@
  * Dataset-specific styling and popup content for shoreline-change transects.
  */
 
-import "../styles/Popup.css";
-import {
-  HIGHLIGHTED_EXPRESSION,
-  addGeoJsonLineLayers,
-} from "../map/LayerFactory.js";
+//layers and interactions
+import {HIGHLIGHTED_EXPRESSION, addGeoJsonLineLayers} from "../map/LayerFactory.js";
 import { registerLineInteractions } from "../map/Interactions.js";
-import {
-  appendPopupField,
-  createPopupContainer,
-} from "../popups/PopupContent.js";
+
+// popup imports
+import "../styles/Popup.css";
+import {createTransectPopupContent, plotTransectTimeseries} from "../popups/TransectsPopup.js";
+import {appendPopupField, createPopupContainer} from "../popups/PopupContent.js";
 
 const MIN_RATE = -5;
 const MAX_RATE = 5;
@@ -40,31 +38,6 @@ export function addTransectLayers(map, datasets) {
     paint: getTransectPaint(),
     halo: { width: 9 },
   });
-}
-
-function createTransectPopupContent(properties) {
-  const transectId = properties.TransectID ?? "Unknown";
-  const container = createPopupContainer(
-    "transect-popup",
-    `Transect ID: ${transectId}`,
-  );
-
-  const rate = Number(properties.Hist_Rate);
-  const formattedRate = Number.isFinite(rate)
-    ? rate.toFixed(2)
-    : "Unknown";
-
-  appendPopupField(
-    container,
-    "Historic rate",
-    formattedRate,
-    {
-      suffix: Number.isFinite(rate) ? " m/yr" : "",
-      element: "div",
-    },
-  );
-
-  return container;
 }
 
 export function registerTransectInteractions(map, datasets, PopupClass) {
