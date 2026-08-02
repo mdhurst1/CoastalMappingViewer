@@ -27,12 +27,91 @@
  * -------------------------------------------------------------------------- */
 
 .transect-popup {
-  width: 600px;
-  max-width: 80vw;
+  box-sizing: border-box;
+  width: 780px;
+  max-width: calc(100vw - 60px);
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 6px;
 }
 
 .transect-popup-plot {
+  position: relative;
+  display: block;
+  clear: both;
+
+  width: 90%;
+  height: 300px;
+  min-height: 300px;
+}
+
+.transect-results {
+  position: relative;
+  display: block;
+  clear: both;
+
+  width: 90%;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* --------------------------------------------------------------------------
+ * Transect analytical results
+ * -------------------------------------------------------------------------- */
+
+.transect-results {
+  margin-top: 12px;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 12px;
+}
+
+.transect-results-section {
+  margin-bottom: 14px;
+}
+
+.transect-results-section:last-child {
+  margin-bottom: 0;
+}
+
+.transect-results-heading {
+  margin: 0 0 7px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.transect-results-table {
   width: 100%;
-  height: 260px;
-  margin-top: 10px;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+.transect-results-table th,
+.transect-results-table td {
+  padding: 6px 8px;
+  text-align: right;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.transect-results-table th {
+  color: #4b5563;
+  font-weight: 600;
+  background: #f9fafb;
+}
+
+.transect-results-table th:first-child,
+.transect-results-table td:first-child {
+  text-align: left;
+}
+
+.transect-results-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.transect-results-empty {
+  margin: 0;
+  font-size: 11px;
+  color: #6b7280;
 }

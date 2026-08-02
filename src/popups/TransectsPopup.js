@@ -144,6 +144,145 @@ export function plotTransectTimeseries(plot, timeseries) {
   );
 }
 
+const RESULT_METHODS = [
+  "TWR",
+  "OLS",
+  "EPR",
+  "TheilSen",
+];
+
+
+function formatResultValue(value, decimals = 2) {
+  const number = Number(value);
+
+  return Number.isFinite(number)
+    ? number.toFixed(decimals)
+    : "—";
+}
+
+
+function createTransectResults(timeseries) {
+  const container = document.createElement("div");
+  container.className = "transect-results";
+
+  const signals = [
+    {
+      signal: timeseries.MHWS,
+      heading: "MHWS results",
+    },
+    {
+      signal: timeseries.VEdge,
+      heading: "Vegetation edge results",
+    },
+  ];
+
+  signals.forEach(({signal, heading}) => {
+    const results = signal?.Results ?? {};
+
+    const availableMethods = RESULT_METHODS.filter(
+      method => results[method],
+    );
+
+    /*
+     * Do not create a section when this signal has no results.
+     */
+    if (availableMethods.length === 0) {
+      return;
+    }
+
+    const section = document.createElement("section");
+    section.className = "transect-results-section";
+
+    const title = document.createElement("h3");
+    title.className = "transect-results-heading";
+    title.textContent = heading;
+
+    section.appendChild(title);
+
+    const table = document.createElement("table");
+    table.className = "transect-results-table";
+
+    const tableHead = document.createElement("thead");
+    const headerRow = document.createElement("tr");
+
+    [
+      "Method",
+      "Rate",
+      "Uncertainty",
+      "R²",
+    ].forEach(label => {
+      const cell = document.createElement("th");
+      cell.textContent = label;
+      headerRow.appendChild(cell);
+    });
+
+    tableHead.appendChild(headerRow);
+    table.appendChild(tableHead);
+
+    const tableBody = document.createElement("tbody");
+
+    availableMethods.forEach(methodName => {
+      const result = results[methodName];
+      const row = document.createElement("tr");
+
+      const methodCell = document.createElement("td");
+      methodCell.textContent =
+        result.Method ?? methodName;
+
+      const rateCell = document.createElement("td");
+      rateCell.textContent =
+        `${formatResultValue(result.Rate)} m/yr`;
+
+      const uncertaintyCell =
+        document.createElement("td");
+
+      if (result.RateUncertainty != null) {
+        uncertaintyCell.textContent =
+          `±${formatResultValue(
+            result.RateUncertainty,
+          )} m/yr`;
+      } else if (result.RateCI95?.length === 2) {
+        uncertaintyCell.textContent =
+          `${formatResultValue(
+            result.RateCI95[0],
+          )} to ${formatResultValue(
+            result.RateCI95[1],
+          )} m/yr`;
+      } else {
+        uncertaintyCell.textContent = "—";
+      }
+
+      const r2Cell = document.createElement("td");
+      r2Cell.textContent =
+        formatResultValue(result.R2, 3);
+
+      row.appendChild(methodCell);
+      row.appendChild(rateCell);
+      row.appendChild(uncertaintyCell);
+      row.appendChild(r2Cell);
+
+      tableBody.appendChild(row);
+    });
+
+    table.appendChild(tableBody);
+    section.appendChild(table);
+    container.appendChild(section);
+  });
+
+  /*
+   * Show one message only when no signal has analytical results.
+   */
+  if (container.children.length === 0) {
+    const message = document.createElement("p");
+    message.className = "transect-results-empty";
+    message.textContent =
+      "No analytical results available.";
+
+    container.appendChild(message);
+  }
+
+  return container;
+}
 
 export function createTransectPopupContent(properties) {
   const transectId =
@@ -172,12 +311,17 @@ export function createTransectPopupContent(properties) {
     },
   );
 
+  const timeseries = parseTimeseries(properties);
+
   const plot = document.createElement("div");
   plot.className = "transect-popup-plot";
 
-  container.appendChild(plot);
+  const results = createTransectResults(
+    timeseries,
+  );
 
-  const timeseries = parseTimeseries(properties);
+  container.appendChild(plot);
+  container.appendChild(results);
 
   /*
    * Allow MapLibre to attach the popup element to the DOM before Plotly
