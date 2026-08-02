@@ -408,6 +408,18 @@ function createResultSelector(timeseries) {
     select.appendChild(option);
   });
 
+  /*
+ * Select TWR initially so its regression line and results are shown
+ * as soon as the popup opens.
+ */
+  const preferredMethod = "TWR";
+
+  if (availableMethods.includes(preferredMethod)) {
+    select.value = preferredMethod;
+  } else if (availableMethods.length > 0) {
+    select.value = availableMethods[0];
+  }
+
   label.appendChild(select);
   wrapper.appendChild(label);
 
