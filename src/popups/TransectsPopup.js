@@ -76,28 +76,122 @@ function createTimeseriesTrace(signal, name) {
   };
 }
 
+function createRegressionTrace(
+  signal,
+  signalName,
+  methodName,
+) {
+  const result = signal?.Results?.[methodName];
+  const observations = signal?.Observations ?? [];
+  const style = TimeseriesStyles[signalName];
 
-export function plotTransectTimeseries(plot, timeseries) {
+  if (!result || !style) {
+    return null;
+  }
+
+  /*
+   * EPR is represented by the first and last observations rather than
+   * a fitted value for every observation date.
+   */
+  if (methodName === "EPR") {
+    if (
+      result.StartDate == null ||
+      result.EndDate == null ||
+      result.StartValue == null ||
+      result.EndValue == null
+    ) {
+      return null;
+    }
+
+    return {
+      x: [
+        result.StartDate,
+        result.EndDate,
+      ],
+
+      y: [
+        result.StartValue,
+        result.EndValue,
+      ],
+
+      mode: "lines",
+
+      name: `${style.label} ${methodName}`,
+
+      line: {
+        color: style.colour,
+        width: 2,
+        dash: "dash",
+      },
+
+      hovertemplate:
+        `${style.label} ${methodName}` +
+        "<br>%{x|%Y-%m-%d}" +
+        "<br>%{y:.2f} m" +
+        "<extra></extra>",
+    };
+  }
+
+  /*
+   * OLS, TWR and Theil-Sen results contain one fitted value for each
+   * observation date.
+   */
+  const fitted = result.Fitted;
+
+  if (
+    !Array.isArray(fitted) ||
+    fitted.length !== observations.length
+  ) {
+    return null;
+  }
+
+  return {
+    x: observations.map(
+      observation => observation.Date,
+    ),
+
+    y: fitted,
+
+    mode: "lines",
+
+    name: `${style.label} ${methodName}`,
+
+    line: {
+      color: style.colour,
+      width: 2,
+      dash: "dash",
+    },
+
+    hovertemplate:
+      `${style.label} ${methodName}` +
+      "<br>%{x|%Y-%m-%d}" +
+      "<br>%{y:.2f} m" +
+      "<extra></extra>",
+  };
+}
+
+export function plotTransectTimeseries(plot, timeseries, selectedMethod) {
   const traces = [];
 
   if (timeseries.MHWS?.Observations?.length) {
-    traces.push(
-      createTimeseriesTrace(
-        timeseries.MHWS,
-        "MHWS",
-      ),
-    );
+    
+    traces.push(createTimeseriesTrace(timeseries.MHWS, "MHWS"));
+    const regressionTrace = createRegressionTrace(timeseries.MHWS, "MHWS", selectedMethod);
+    if (regressionTrace) {
+      traces.push(regressionTrace);
+    }
   }
 
   if (timeseries.VEdge?.Observations?.length) {
-    traces.push(
-      createTimeseriesTrace(
-        timeseries.VEdge,
-        "VEdge",
-      ),
-    );
-  }
+    
+    traces.push(createTimeseriesTrace(timeseries.VEdge, "VEdge"));
+    const regressionTrace = createRegressionTrace(timeseries.VEdge, "VEdge", selectedMethod);
 
+    if (regressionTrace) {
+      traces.push(regressionTrace);
+    }
+  }
+  
   if (traces.length === 0) {
     plot.textContent =
       "No shoreline time-series observations available.";
@@ -105,7 +199,7 @@ export function plotTransectTimeseries(plot, timeseries) {
     return;
   }
 
-  Plotly.newPlot(plot, traces,
+  Plotly.react(plot, traces,
     {
       // set up the plot area
       height: 280,
@@ -161,7 +255,7 @@ function formatResultValue(value, decimals = 2) {
 }
 
 
-function createTransectResults(timeseries) {
+function createTransectResults(timeseries, selectedMethod) {
   const container = document.createElement("div");
   container.className = "transect-results";
 
@@ -179,9 +273,9 @@ function createTransectResults(timeseries) {
   signals.forEach(({signal, heading}) => {
     const results = signal?.Results ?? {};
 
-    const availableMethods = RESULT_METHODS.filter(
-      method => results[method],
-    );
+    const availableMethods = results[selectedMethod]
+      ? [selectedMethod]
+      : [];
 
     /*
      * Do not create a section when this signal has no results.
@@ -284,6 +378,46 @@ function createTransectResults(timeseries) {
   return container;
 }
 
+function createResultSelector(timeseries) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "transect-result-selector";
+
+  const label = document.createElement("label");
+  label.textContent = "Analysis method";
+
+  const select = document.createElement("select");
+
+  /*
+   * Only include methods that exist for at least one signal.
+   */
+  const availableMethods = RESULT_METHODS.filter(
+    method =>
+      timeseries.MHWS?.Results?.[method] ||
+      timeseries.VEdge?.Results?.[method],
+  );
+
+  availableMethods.forEach(method => {
+    const option = document.createElement("option");
+
+    option.value = method;
+    option.textContent =
+      timeseries.MHWS?.Results?.[method]?.Method ??
+      timeseries.VEdge?.Results?.[method]?.Method ??
+      method;
+
+    select.appendChild(option);
+  });
+
+  label.appendChild(select);
+  wrapper.appendChild(label);
+
+  return {
+    wrapper,
+    select,
+    availableMethods,
+  };
+}
+
 export function createTransectPopupContent(properties) {
   const transectId =
     properties.TransectID ?? "Unknown";
@@ -311,17 +445,50 @@ export function createTransectPopupContent(properties) {
     },
   );
 
-  const timeseries = parseTimeseries(properties);
+ const timeseries = parseTimeseries(properties);
+
+  const {
+    wrapper: selector,
+    select,
+    availableMethods,
+  } = createResultSelector(timeseries);
 
   const plot = document.createElement("div");
   plot.className = "transect-popup-plot";
 
-  const results = createTransectResults(
-    timeseries,
-  );
+  const resultsContainer = document.createElement("div");
+  resultsContainer.className =
+    "transect-results-container";
+
+  if (availableMethods.length > 0) {
+    container.appendChild(selector);
+  }
 
   container.appendChild(plot);
-  container.appendChild(results);
+  container.appendChild(resultsContainer);
+
+  const render = () => {
+    const selectedMethod =
+      select.value || null;
+
+    plotTransectTimeseries(
+      plot,
+      timeseries,
+      selectedMethod,
+    );
+
+    resultsContainer.replaceChildren(
+      createTransectResults(
+        timeseries,
+        selectedMethod,
+      ),
+    );
+  };
+
+  select.addEventListener(
+    "change",
+    render,
+  );
 
   /*
    * Allow MapLibre to attach the popup element to the DOM before Plotly
