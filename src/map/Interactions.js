@@ -104,50 +104,157 @@ export function registerLineInteractions(
 }
 
 function keepPopupInView(map, popup, padding = 20) {
-  requestAnimationFrame(() => {
-    const mapRect =
-      map.getContainer().getBoundingClientRect();
+  const mapRect =
+    map.getContainer().getBoundingClientRect();
 
-    const popupRect =
-      popup.getElement().getBoundingClientRect();
+  const popupElement = popup.getElement();
 
-    let dx = 0;
-    let dy = 0;
+  if (!popupElement) {
+    return;
+  }
 
-    if (popupRect.left < mapRect.left + padding) {
-      dx =
-        popupRect.left -
-        mapRect.left -
-        padding;
-    } else if (
-      popupRect.right >
-      mapRect.right - padding
+  const popupRect =
+    popupElement.getBoundingClientRect();
+
+  let movePopupX = 0;
+  let movePopupY = 0;
+
+  /*
+   * Keep the popup inside the map viewport.
+   */
+  if (popupRect.left < mapRect.left + padding) {
+    movePopupX =
+      mapRect.left + padding - popupRect.left;
+  } else if (
+    popupRect.right >
+    mapRect.right - padding
+  ) {
+    movePopupX =
+      mapRect.right - padding - popupRect.right;
+  }
+
+  if (popupRect.top < mapRect.top + padding) {
+    movePopupY =
+      mapRect.top + padding - popupRect.top;
+  } else if (
+    popupRect.bottom >
+    mapRect.bottom - padding
+  ) {
+    movePopupY =
+      mapRect.bottom - padding - popupRect.bottom;
+  }
+
+  /*
+   * Keep the popup clear of the legend.
+   */
+  const legend =
+    map.getContainer().querySelector(".legend-control");
+
+  if (legend) {
+    const legendRect =
+      legend.getBoundingClientRect();
+
+    if (
+      rectanglesOverlap(
+        popupRect,
+        legendRect,
+        padding,
+      )
     ) {
-      dx =
-        popupRect.right -
-        mapRect.right +
-        padding;
-    }
+      /*
+       * Move the popup away from whichever side of the legend
+       * requires the smallest displacement.
+       */
+      const moveLeft =
+        legendRect.left -
+        padding -
+        popupRect.right;
 
-    if (popupRect.top < mapRect.top + padding) {
-      dy =
-        popupRect.top -
-        mapRect.top -
-        padding;
-    } else if (
-      popupRect.bottom >
-      mapRect.bottom - padding
-    ) {
-      dy =
-        popupRect.bottom -
-        mapRect.bottom +
-        padding;
-    }
+      const moveRight =
+        legendRect.right +
+        padding -
+        popupRect.left;
 
-    if (dx !== 0 || dy !== 0) {
-      map.panBy([dx, dy], {
+      const moveUp =
+        legendRect.top -
+        padding -
+        popupRect.bottom;
+
+      const moveDown =
+        legendRect.bottom +
+        padding -
+        popupRect.top;
+
+      const candidates = [
+        {
+          axis: "x",
+          value: moveLeft,
+          distance: Math.abs(moveLeft),
+        },
+        {
+          axis: "x",
+          value: moveRight,
+          distance: Math.abs(moveRight),
+        },
+        {
+          axis: "y",
+          value: moveUp,
+          distance: Math.abs(moveUp),
+        },
+        {
+          axis: "y",
+          value: moveDown,
+          distance: Math.abs(moveDown),
+        },
+      ];
+
+      candidates.sort(
+        (a, b) => a.distance - b.distance,
+      );
+
+      const smallestMove = candidates[0];
+
+      if (smallestMove.axis === "x") {
+        movePopupX += smallestMove.value;
+      } else {
+        movePopupY += smallestMove.value;
+      }
+    }
+  }
+
+  if (movePopupX !== 0 || movePopupY !== 0) {
+    map.panBy(
+      [-movePopupX, -movePopupY],
+      {
         duration: 300,
-      });
-    }
+      },
+    );
+  }
+}
+
+function observePopupSize(map, popup) {
+  const popupElement = popup.getElement();
+
+  if (!popupElement) {
+    return;
+  }
+
+  const observer = new ResizeObserver(() => {
+    keepPopupInView(map, popup);
   });
+
+  observer.observe(popupElement);
+
+  popup.on("close", () => {
+    observer.disconnect();
+  });
+}
+
+function rectanglesOverlap(a, b, padding = 8) {
+  return !(
+    a.right < b.left - padding ||
+    a.left > b.right + padding ||
+    a.bottom < b.top - padding ||
+    a.top > b.bottom + padding
+  );
 }
