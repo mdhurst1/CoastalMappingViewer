@@ -7,12 +7,12 @@
   overflow: visible;
 }
 
-/* Three icon buttons arranged horizontally */
+/* icon buttons arranged horizontally */
 .map-options-buttons {
   display: grid;
-  grid-template-columns: repeat(4, 32px);
+  grid-template-columns: repeat(5, 32px);
 
-  width: 128px;
+  width: 160px;
   height: 32px;
 
   overflow: hidden;
@@ -103,6 +103,13 @@
 .map-options-option input {
   flex: 0 0 auto;
   margin: 0 7px 0 0;
+}
+
+.map-options-message {
+  max-width: 220px;
+  color: #555555;
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .future-dropdown-row {

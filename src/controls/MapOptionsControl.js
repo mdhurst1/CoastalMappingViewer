@@ -4,6 +4,9 @@
  * Combined MapLibre control for switching basemaps and toggling data layers.
  */
 
+// import the svg icons for the buttons
+import { MAP_OPTIONS_ICONS } from "./Icons.js";
+
 const ASSET_LAYERS = [
   { value: "buildings", label: "Buildings" },
   { value: "roads", label: "Roads" },
@@ -62,32 +65,39 @@ export default class MapOptionsControl {
     // create basemap button
     const BasemapButton = this.createButton(
       "Choose basemap",
-      this.getBasemapIcon(),
+      MAP_OPTIONS_ICONS.basemap,
       () => this.showBasemapPanel(),
     );
 
     // create assets button
     const AssetButton = this.createButton(
       "Choose visible assets",
-      this.getAssetIcon(),
+      MAP_OPTIONS_ICONS.assets,
       () => this.showAssetPanel(),
     );
 
-    const LayerButton = this.createButton(
+    const MarineButton = this.createButton(
+      "Choose marine data",
+      MAP_OPTIONS_ICONS.marine,
+      () => this.showMarinePanel(),
+    );
+
+    const CoastalLayerButton = this.createButton(
       "Choose visible layers",
-      this.getLayerIcon(),
+      MAP_OPTIONS_ICONS.layers,
       () => this.showLayerPanel(),
     );
 
     const FutureShorelinesButton = this.createButton(
       "Select future shorelines",
-      this.getFutureIcon(),
+      MAP_OPTIONS_ICONS.future,
       () => this.showFuturePanel(),
     )
 
     buttonRow.appendChild(BasemapButton);
     buttonRow.appendChild(AssetButton);
-    buttonRow.appendChild(LayerButton);
+    buttonRow.appendChild(MarineButton);
+    buttonRow.appendChild(CoastalLayerButton);
     buttonRow.appendChild(FutureShorelinesButton);
 
     // Dropdown panel displayed beneath the icon buttons
@@ -208,6 +218,31 @@ export default class MapOptionsControl {
 
     this.panel.hidden = false;
   }
+
+  showMarinePanel() {
+    const isAlreadyOpen =
+      !this.panel.hidden &&
+      this.panel.dataset.panel === "marine";
+
+    if (isAlreadyOpen) {
+      this.panel.hidden = true;
+      return;
+    }
+
+    this.panel.dataset.panel = "marine";
+    this.panel.replaceChildren();
+
+    const title = document.createElement("div");
+    title.className = "map-options-title";
+    title.textContent = "Marine data";
+
+    this.panel.appendChild(title);
+
+    // Add content for marine data options here
+
+    this.panel.hidden = false;
+  
+  } 
   showLayerPanel() {
     const isAlreadyOpen =
       !this.panel.hidden &&
@@ -440,128 +475,6 @@ export default class MapOptionsControl {
       });
     }
   }
-
-
-  getBasemapIcon() {
-    return `
-      <svg
-        class="map-options-icon"
-        viewBox="0 0 24 24"
-        aria-hidden="true"
-      >
-        <path
-          fill="currentColor"
-          d="M20.5 3 15 5.1 9 3 3.5 5A1 1 0 0 0 3 5.9V21l6-2.1 6 2.1 5.5-2a1 1 0 0 0 .5-.9V4a1 1 0 0 0-1.5-1ZM10 5.3l4 1.4v12l-4-1.4v-12Zm-5 1.4 3-1.1v11.7l-3 1.1V6.7Zm14 10.6-3 1.1V6.7l3-1.1v11.7Z"
-        />
-      </svg>
-    `;
-  }
-
-  getAssetIcon() {
-    return `
-      <svg
-        class="map-options-icon"
-        viewBox="0 0 24 24"
-        aria-hidden="true"
-      >
-        <path
-          d="M4 20V9l6-3v14"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.8"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-        <path
-          d="M10 20V4l10 4v12"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.8"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-        <path
-          d="M2 20h20"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.8"
-          stroke-linecap="round"
-        />
-        <path
-          d="M13 8h1M17 10h1M13 12h1M17 14h1M13 16h1"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.8"
-          stroke-linecap="round"
-        />
-      </svg>
-    `;
-  }
-
-  getLayerIcon() {
-    return `
-      <svg
-        class="map-options-icon"
-        viewBox="0 0 24 24"
-        aria-hidden="true"
-      >
-        <path
-          d="M3 7c3-2 6-2 9 0s6 2 9 0"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.8"
-          stroke-linecap="round"
-        />
-        <path
-          d="M3 12c3-2 6-2 9 0s6 2 9 0"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.8"
-          stroke-linecap="round"
-        />
-        <path
-          d="M3 17c3-2 6-2 9 0s6 2 9 0"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.8"
-          stroke-linecap="round"
-        />
-      </svg>
-    `;
-  }
-
-getFutureIcon() {
-  return `
-    <svg
-      class="map-options-icon"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-    >
-      <circle
-        cx="12"
-        cy="12"
-        r="8"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.8"
-      />
-      <path
-        d="M12 12V8"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.8"
-        stroke-linecap="round"
-      />
-      <path
-        d="M12 12L15 14"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.8"
-        stroke-linecap="round"
-      />
-    </svg>
-  `;
-}
 
   onRemove() {
     this.container?.remove();
