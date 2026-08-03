@@ -1,0 +1,92 @@
+// config/datasets.js
+// 
+/* --------------------------------------------------------------------------
+ * Dataset definitions
+ * --------------------------------------------------------------------------
+ * Defines the datasets available to the application.
+ *
+ * Each dataset entry
+ * Declare datasets that will be plotted here
+ * 
+ * MDH, August 2026
+ * --------------------------------------------------------------------------
+ */
+// MHWS datasets
+const MHWS_DATASETS = [
+  {
+    id: "MHWS 1890",
+    file: "/data/montrose_MHWS_1890.geojson",
+  },
+  {
+    id: "MHWS 1970",
+    file: "/data/montrose_MHWS_1970.geojson",
+  },
+  {
+    id: "MHWS LiDAR",
+    file: "/data/montrose_MHWS_Modern_LiDAR.geojson",
+  }
+];
+
+const VEDGE_DATASETS = [
+  {
+    id: "VEdge Combined",
+    file: "/data/Montrose_VEdge_combined.geojson",
+  }
+]
+
+const TRANSECTS_DATASETS = [
+  {
+    id: "Transects",
+    file: "/CMT_output/Montrose_Transects.geojson",
+  }
+]
+
+const FUTURE_DATASETS = [
+  {
+    id: "MHWS_Future",
+  }
+]
+
+const FUTURE_UNCERTAINTY_DATASETS = [
+  {
+    id: "MHWS_Future_Uncertainty",
+  }
+]
+
+// get uncertainty file based on state attributes
+const FUTURE_SCENARIO_FILE_CODES = {
+  RCP26: "RCP2",
+  RCP45: "RCP4",
+  RCP85: "RCP8",
+};
+
+function getFutureMHWSDataset({ scenario, indicator }) {
+  const scenarioCode =
+    FUTURE_SCENARIO_FILE_CODES[scenario];
+
+  if (!scenarioCode) {
+    return null;
+  }
+
+  return {
+    id: `${indicator}_Future`,
+    file:
+      `/CMT_output/Future/` +
+      `Montrose_Future_${scenarioCode}_P50.geojson`,
+  };
+}
+
+function getFutureUncertaintyDataset({scenario, indicator, year, }) {
+  
+  const scenarioCode =
+    FUTURE_SCENARIO_FILE_CODES[scenario];
+
+  if (!scenarioCode) {
+    return null;
+  }
+  
+  return {
+    id: `${indicator}_Future_Uncertainty`,
+    file: `/CMT_output/Future/Montrose_Uncertainty_${scenarioCode}_${year}.geojson`,
+  }
+}
