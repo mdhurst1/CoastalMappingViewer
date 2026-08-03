@@ -28,7 +28,8 @@ const FUTURE_YEARS = [
 
 export default class MapOptionsControl {
 
-  constructor(basemaps, initialBasemap, layerGroups, onAssetVisibilityChanged, onLayerVisibilityChanged, onFutureShorelineChanged)
+  constructor(basemaps, initialBasemap, layerGroups,  initialAssetState, initialFutureState, 
+              onAssetVisibilityChanged, onLayerVisibilityChanged, onFutureShorelineChanged)
   {
     // initialise
     this.basemaps = basemaps;
@@ -38,16 +39,9 @@ export default class MapOptionsControl {
     this.onLayerVisibilityChanged = onLayerVisibilityChanged;
     this.onFutureShorelineChanged = onFutureShorelineChanged;
     
-    this.futureShorelineState = {
-      scenario: "None",
-      indicator: "MHWS",
-      year: 2030,
-    };
-    this.assetLayerState = {
-      buildings: false,
-      roads: false,
-      railways: false,
-    };
+    this.assetLayerState = {...initialAssetState};
+    this.futureShorelineState = {...initialFutureState};
+
     this.map = undefined;
     this.container = undefined;
     this.panel = undefined;

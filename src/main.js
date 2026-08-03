@@ -15,10 +15,15 @@ import "maplibre-gl/dist/maplibre-gl.css";
 // import application specific stylesheet
 import "./style.css";
 
+// import state management functions
+import {getAssetState, getFutureState, updateAssetState, updateFutureState} from "./state/ApplicationState.js";
+
 // import map configurations
 import { MapConfig } from "./config/MapConfig.js";
-import { Basemaps } from "./config/Basemaps.js";
-import { MHWS_DATASETS, VEDGE_DATASETS, TRANSECTS_DATASETS, FUTURE_DATASETS, FUTURE_UNCERTAINTY_DATASETS, FUTURE_SCENARIO_FILE_CODES } from "./config/Datasets.js";
+import { Basemaps } from "./config/BasemapConfig.js";
+import { MHWS_DATASETS, VEDGE_DATASETS, TRANSECTS_DATASETS, FUTURE_DATASETS, FUTURE_UNCERTAINTY_DATASETS, FUTURE_SCENARIO_FILE_CODES, getFutureMHWSDataset, getFutureUncertaintyDataset} from "./config/DatasetConfig.js";
+import { LEGEND_ITEMS } from "./config/LegendConfig.js";
+import { LAYER_GROUPS } from "./config/LayerGroups.js";
 
 // import control tools
 import MapOptionsControl from "./controls/MapOptionsControl.js";
@@ -48,7 +53,7 @@ import {setDatasetVisibility} from "./map/LayerFactory.js";
 
 let futureState = {scenario: "None", indicator: "MHWS", year: 2030};
 let assetState = {buildings: false, roads: false, railways: false};
-
+const CURRENT_YEAR = new Date().getFullYear();
 
 /*
  * Create the map
@@ -71,27 +76,58 @@ function createMap() {
  * polygon.
  */
 function applyFutureState(map) {
+  const futureState = getFutureState();
   const visible = futureState.scenario !== "None";
 
-  setFutureMHWSVisibility(map, FUTURE_DATASETS[0], visible);
-  setFutureUncertaintyVisibility(map, FUTURE_UNCERTAINTY_DATASETS[0], visible);
+  setFutureMHWSVisibility(
+    map,
+    FUTURE_DATASETS[0],
+    visible,
+  );
+
+  setFutureUncertaintyVisibility(
+    map,
+    FUTURE_UNCERTAINTY_DATASETS[0],
+    visible,
+  );
 
   if (!visible) {
     return;
   }
 
-  const selectedFutureDataset =  getFutureMHWSDataset(futureState);
+  const selectedFutureDataset =
+    getFutureMHWSDataset(futureState);
 
   if (selectedFutureDataset) {
-    updateFutureMHWS(map, FUTURE_DATASETS[0], selectedFutureDataset, futureState.year);
-    updateFutureMHWSStyle(map, FUTURE_DATASETS[0], futureState.scenario);
+    updateFutureMHWS(
+      map,
+      FUTURE_DATASETS[0],
+      selectedFutureDataset,
+      futureState.year,
+    );
+
+    updateFutureMHWSStyle(
+      map,
+      FUTURE_DATASETS[0],
+      futureState.scenario,
+    );
   }
 
-  const selectedUncertaintyDataset = getFutureUncertaintyDataset(futureState);
+  const selectedUncertaintyDataset =
+    getFutureUncertaintyDataset(futureState);
 
   if (selectedUncertaintyDataset) {
-    updateFutureUncertainty(map, FUTURE_UNCERTAINTY_DATASETS[0], selectedUncertaintyDataset);
-    updateFutureUncertaintyStyle(map, FUTURE_UNCERTAINTY_DATASETS[0], futureState.scenario);
+    updateFutureUncertainty(
+      map,
+      FUTURE_UNCERTAINTY_DATASETS[0],
+      selectedUncertaintyDataset,
+    );
+
+    updateFutureUncertaintyStyle(
+      map,
+      FUTURE_UNCERTAINTY_DATASETS[0],
+      futureState.scenario,
+    );
   }
 }
 
@@ -115,9 +151,9 @@ function addMapControls(map) {
 
   const legendControl = new LegendControl(LEGEND_ITEMS);
 
-  const updateAssetVisibility = (newAssetState) => {
-    assetState = {...newAssetState,};
-  
+  const handleAssetVisibilityChanged = (changes) => {
+    const assetState = updateAssetState(changes);
+
     applyAssetVisibility(map, assetState);
   };
   
@@ -126,8 +162,8 @@ function addMapControls(map) {
     legendControl.updateVisibility(LAYER_GROUPS);
   };
 
-  const updateFutureShoreline = (state) => {
-    futureState = { ...state };
+  const handleFutureShorelineChanged = (changes) => {
+    const futureState = updateFutureState(changes);
 
     applyFutureState(map);
     legendControl.updateFuture(futureState);
@@ -137,9 +173,11 @@ function addMapControls(map) {
     Basemaps,
     MapConfig.basemap,
     LAYER_GROUPS,
-    updateAssetVisibility,
+    getAssetState(),
+    getFutureState(),
+    handleAssetVisibilityChanged,
     updateVisibleLayers,
-    updateFutureShoreline,
+    handleFutureShorelineChanged,
   );
 
   map.addControl(
@@ -177,8 +215,12 @@ function registerMapEvents(map) {
       },
     );
 
+    const assetState = getAssetState();
+    const futureState = getFutureState();
+
     applyAssetVisibility(map, assetState);
     applyLayerVisibility(map);
+    
     addFutureMHWSLayer(map, FUTURE_DATASETS[0], futureState.year);
     addFutureUncertaintyLayer(map, FUTURE_UNCERTAINTY_DATASETS[0]);
     applyFutureState(map);

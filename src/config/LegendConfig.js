@@ -1,5 +1,8 @@
+// import colours from layer styles file saved in layers folder
+import {MHWS_COLOURS, VEDGE_COLOURS, TRANSECT_COLOURS} from "../layers/LayerStyles.js";
+
 // initiate legend items
-const LEGEND_ITEMS = [
+export const LEGEND_ITEMS = [
   {
     group: "mhws",
     type: "gradient",

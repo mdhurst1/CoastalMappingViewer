@@ -12,7 +12,7 @@
  * --------------------------------------------------------------------------
  */
 // MHWS datasets
-const MHWS_DATASETS = [
+export const MHWS_DATASETS = [
   {
     id: "MHWS 1890",
     file: "/data/montrose_MHWS_1890.geojson",
@@ -27,40 +27,40 @@ const MHWS_DATASETS = [
   }
 ];
 
-const VEDGE_DATASETS = [
+export const VEDGE_DATASETS = [
   {
     id: "VEdge Combined",
     file: "/data/Montrose_VEdge_combined.geojson",
   }
 ]
 
-const TRANSECTS_DATASETS = [
+export const TRANSECTS_DATASETS = [
   {
     id: "Transects",
     file: "/CMT_output/Montrose_Transects.geojson",
   }
 ]
 
-const FUTURE_DATASETS = [
+export const FUTURE_DATASETS = [
   {
     id: "MHWS_Future",
   }
 ]
 
-const FUTURE_UNCERTAINTY_DATASETS = [
+export const FUTURE_UNCERTAINTY_DATASETS = [
   {
     id: "MHWS_Future_Uncertainty",
   }
 ]
 
 // get uncertainty file based on state attributes
-const FUTURE_SCENARIO_FILE_CODES = {
+export const FUTURE_SCENARIO_FILE_CODES = {
   RCP26: "RCP2",
   RCP45: "RCP4",
   RCP85: "RCP8",
 };
 
-function getFutureMHWSDataset({ scenario, indicator }) {
+export function getFutureMHWSDataset({ scenario, indicator }) {
   const scenarioCode =
     FUTURE_SCENARIO_FILE_CODES[scenario];
 
@@ -76,7 +76,7 @@ function getFutureMHWSDataset({ scenario, indicator }) {
   };
 }
 
-function getFutureUncertaintyDataset({scenario, indicator, year, }) {
+export function getFutureUncertaintyDataset({scenario, indicator, year, }) {
   
   const scenarioCode =
     FUTURE_SCENARIO_FILE_CODES[scenario];

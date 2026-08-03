@@ -1,4 +1,10 @@
-const LAYER_GROUPS = {
+import {MHWS_COLOURS,VEDGE_COLOURS, TRANSECT_COLOURS} from "../layers/LayerStyles.js";
+import {MHWS_DATASETS, VEDGE_DATASETS, TRANSECTS_DATASETS} from "./DatasetConfig.js";
+import {addMHWSLayers, registerMHWSInteractions} from "../layers/MHWS.js";
+import {addVEdgeLayers, registerVEdgeInteractions} from "../layers/VEdge.js";
+import {addTransectLayers, registerTransectInteractions} from "../layers/Transects.js";
+
+export const LAYER_GROUPS = {
   mhws: {
     name: "MHWS shorelines",
     visible: false,
