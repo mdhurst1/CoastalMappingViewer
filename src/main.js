@@ -16,12 +16,13 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import "./style.css";
 
 // import state management functions
-import {getAssetState, getFutureState, updateAssetState, updateFutureState} from "./state/ApplicationState.js";
+import {getAssetState, getFutureState, getMarineState, updateAssetState, updateFutureState, updateMarineState } from "./state/ApplicationState.js";
 
 // import map configurations
 import { MapConfig } from "./config/MapConfig.js";
 import { Basemaps } from "./config/BasemapConfig.js";
-import { MHWS_DATASETS, VEDGE_DATASETS, TRANSECTS_DATASETS, FUTURE_DATASETS, FUTURE_UNCERTAINTY_DATASETS, FUTURE_SCENARIO_FILE_CODES, getFutureMHWSDataset, getFutureUncertaintyDataset} from "./config/DatasetConfig.js";
+import { TIDE_GAUGE_DATASET, MHWS_DATASETS, VEDGE_DATASETS, TRANSECTS_DATASETS, FUTURE_DATASETS, FUTURE_UNCERTAINTY_DATASETS, FUTURE_SCENARIO_FILE_CODES, getFutureMHWSDataset, getFutureUncertaintyDataset} from "./config/DatasetConfig.js";
+
 import { LEGEND_ITEMS } from "./config/LegendConfig.js";
 import { LAYER_GROUPS } from "./config/LayerGroups.js";
 
@@ -31,6 +32,8 @@ import LegendControl from "./controls/LegendControl.js";
 
 // import layer tools
 import {addAssetLayers, applyAssetVisibility} from "./layers/Assets.js";
+
+import {addTideGaugeLayer,registerTideGaugeInteractions,setTideGaugeVisibility,} from "./layers/Marine.js";
 import {addMHWSLayers, registerMHWSInteractions} from "./layers/MHWS.js";
 import {addVEdgeLayers, registerVEdgeInteractions} from "./layers/VEdge.js";
 import {addTransectLayers, registerTransectInteractions} from "./layers/Transects.js";
@@ -51,8 +54,6 @@ import {setDatasetVisibility} from "./map/LayerFactory.js";
  * -------------------------------------------------------------------------- 
  */
 
-let futureState = {scenario: "None", indicator: "MHWS", year: 2030};
-let assetState = {buildings: false, roads: false, railways: false};
 const CURRENT_YEAR = new Date().getFullYear();
 
 /*
@@ -157,7 +158,13 @@ function addMapControls(map) {
     applyAssetVisibility(map, assetState);
   };
   
-  const updateVisibleLayers = () => {
+  const handleMarineVisibilityChanged = (changes) => {
+    const marineState = updateMarineState(changes);
+
+    setTideGaugeVisibility(map,marineState.tideGauges);
+  };
+
+  const handleCoastalLayerVisibilityChanged = () => {
     applyLayerVisibility(map);
     legendControl.updateVisibility(LAYER_GROUPS);
   };
@@ -174,9 +181,11 @@ function addMapControls(map) {
     MapConfig.basemap,
     LAYER_GROUPS,
     getAssetState(),
+    getMarineState(),
     getFutureState(),
     handleAssetVisibilityChanged,
-    updateVisibleLayers,
+    handleMarineVisibilityChanged,
+    handleCoastalLayerVisibilityChanged,
     handleFutureShorelineChanged,
   );
 
@@ -192,7 +201,7 @@ function addMapControls(map) {
 
   // Apply the initial legend state
   legendControl.updateVisibility(LAYER_GROUPS);
-  legendControl.updateFuture(futureState);
+  legendControl.updateFuture(getFutureState());
 }
 
 /*
@@ -216,11 +225,14 @@ function registerMapEvents(map) {
     );
 
     const assetState = getAssetState();
+    const marineState = getMarineState();
     const futureState = getFutureState();
 
     applyAssetVisibility(map, assetState);
     applyLayerVisibility(map);
+    setTideGaugeVisibility(map, marineState.tideGauges);
     
+    addTideGaugeLayer(map, TIDE_GAUGE_DATASET);
     addFutureMHWSLayer(map, FUTURE_DATASETS[0], futureState.year);
     addFutureUncertaintyLayer(map, FUTURE_UNCERTAINTY_DATASETS[0]);
     applyFutureState(map);
@@ -252,6 +264,7 @@ function initialiseApplication() {
 
   addMapControls(map);
   registerMapEvents(map);
+  registerTideGaugeInteractions(map);
   Object.values(LAYER_GROUPS).forEach((group) => {
     group.registerInteractions(
       map,

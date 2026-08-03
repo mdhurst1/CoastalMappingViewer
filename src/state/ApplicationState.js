@@ -15,6 +15,7 @@
  */
 
 const DefaultFutureState = {scenario: "None", indicator: "MHWS", year: 2030};
+const DefaultMarineState = {TideGauges: false};
 const DefaultAssetState = {buildings: false, roads: false, railways: false};
 
 /*
@@ -24,7 +25,7 @@ const DefaultAssetState = {buildings: false, roads: false, railways: false};
 
 let futureState = { ...DefaultFutureState };
 let assetState = { ...DefaultAssetState };
-
+let marineState = { ...DefaultMarineState };
 
 /*
  * Future shoreline state
@@ -91,4 +92,34 @@ export function updateAssetState(changes) {
   };
 
   return getAssetState();
+}
+
+/*
+ * Marine layer state
+ * --------------------------------------------------------------------------
+ */
+
+/**
+ * Return a copy of the current marine-layer visibility state.
+ *
+ * @returns {Object}
+ */
+export function getMarineState() {
+  return { ...marineState };
+}
+
+
+/**
+ * Update the marine-layer visibility state.
+ *
+ * @param {Object} changes - Marine-state properties to update.
+ * @returns {Object} A copy of the updated state.
+ */
+export function updateMarineState(changes) {
+  marineState = {
+    ...marineState,
+    ...changes,
+  };
+
+  return getMarineState();
 }

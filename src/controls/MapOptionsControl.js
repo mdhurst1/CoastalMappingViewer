@@ -4,8 +4,14 @@
  * Combined MapLibre control for switching basemaps and toggling data layers.
  */
 
-// import the svg icons for the buttons
+// Import SVG icons for the control buttons
 import { MAP_OPTIONS_ICONS } from "./Icons.js";
+
+
+/*
+ * Control options
+ * --------------------------------------------------------------------------
+ */
 
 const ASSET_LAYERS = [
   { value: "buildings", label: "Buildings" },
@@ -26,29 +32,78 @@ const FUTURE_INDICATORS = [
 ];
 
 const FUTURE_YEARS = [
-  2030, 2040, 2050, 2060, 2070, 2080, 2090, 2100,
+  2030,
+  2040,
+  2050,
+  2060,
+  2070,
+  2080,
+  2090,
+  2100,
 ];
+
+
+/*
+ * Map options control
+ * --------------------------------------------------------------------------
+ */
 
 export default class MapOptionsControl {
 
-  constructor(basemaps, initialBasemap, layerGroups,  initialAssetState, initialFutureState, 
-              onAssetVisibilityChanged, onLayerVisibilityChanged, onFutureShorelineChanged)
-  {
-    // initialise
+  constructor(
+    basemaps,
+    initialBasemap,
+    layerGroups,
+    initialAssetState,
+    initialMarineState,
+    initialFutureState,
+    onAssetVisibilityChanged,
+    onMarineVisibilityChanged,
+    onLayerVisibilityChanged,
+    onFutureShorelineChanged,
+  ) {
+    // Configuration
     this.basemaps = basemaps;
     this.activeBasemap = initialBasemap;
     this.layerGroups = layerGroups;
-    this.onAssetVisibilityChanged = onAssetVisibilityChanged;
-    this.onLayerVisibilityChanged = onLayerVisibilityChanged;
-    this.onFutureShorelineChanged = onFutureShorelineChanged;
-    
-    this.assetLayerState = {...initialAssetState};
-    this.futureShorelineState = {...initialFutureState};
 
+    // Application callbacks
+    this.onAssetVisibilityChanged =
+      onAssetVisibilityChanged;
+
+    this.onMarineVisibilityChanged =
+      onMarineVisibilityChanged;
+
+    this.onLayerVisibilityChanged =
+      onLayerVisibilityChanged;
+
+    this.onFutureShorelineChanged =
+      onFutureShorelineChanged;
+
+    // Local copies of application state
+    this.assetLayerState = {
+      ...initialAssetState,
+    };
+
+    this.marineLayerState = {
+      ...initialMarineState,
+    };
+
+    this.futureShorelineState = {
+      ...initialFutureState,
+    };
+
+    // MapLibre control elements
     this.map = undefined;
     this.container = undefined;
     this.panel = undefined;
   }
+
+
+  /*
+   * Add control to map
+   * ------------------------------------------------------------------------
+   */
 
   onAdd(map) {
     this.map = map;
@@ -58,47 +113,51 @@ export default class MapOptionsControl {
     this.container.className =
       "maplibregl-ctrl map-options-control";
 
-    // Horizontal row containing the two icon buttons
+    // Horizontal row containing the icon buttons
     const buttonRow = document.createElement("div");
     buttonRow.className = "map-options-buttons";
 
-    // create basemap button
-    const BasemapButton = this.createButton(
+    // Basemap button
+    const basemapButton = this.createButton(
       "Choose basemap",
       MAP_OPTIONS_ICONS.basemap,
       () => this.showBasemapPanel(),
     );
 
-    // create assets button
-    const AssetButton = this.createButton(
+    // Asset button
+    const assetButton = this.createButton(
       "Choose visible assets",
       MAP_OPTIONS_ICONS.assets,
       () => this.showAssetPanel(),
     );
 
-    const MarineButton = this.createButton(
+    // Marine-data button
+    const marineButton = this.createButton(
       "Choose marine data",
       MAP_OPTIONS_ICONS.marine,
       () => this.showMarinePanel(),
     );
 
-    const CoastalLayerButton = this.createButton(
+    // Coastal-layer button
+    const coastalLayerButton = this.createButton(
       "Choose visible layers",
       MAP_OPTIONS_ICONS.layers,
       () => this.showLayerPanel(),
     );
 
-    const FutureShorelinesButton = this.createButton(
-      "Select future shorelines",
-      MAP_OPTIONS_ICONS.future,
-      () => this.showFuturePanel(),
-    )
+    // Future-shoreline button
+    const futureShorelinesButton =
+      this.createButton(
+        "Select future shorelines",
+        MAP_OPTIONS_ICONS.future,
+        () => this.showFuturePanel(),
+      );
 
-    buttonRow.appendChild(BasemapButton);
-    buttonRow.appendChild(AssetButton);
-    buttonRow.appendChild(MarineButton);
-    buttonRow.appendChild(CoastalLayerButton);
-    buttonRow.appendChild(FutureShorelinesButton);
+    buttonRow.appendChild(basemapButton);
+    buttonRow.appendChild(assetButton);
+    buttonRow.appendChild(marineButton);
+    buttonRow.appendChild(coastalLayerButton);
+    buttonRow.appendChild(futureShorelinesButton);
 
     // Dropdown panel displayed beneath the icon buttons
     this.panel = document.createElement("div");
@@ -111,7 +170,25 @@ export default class MapOptionsControl {
     return this.container;
   }
 
-  createButton(title, icon, clickHandler) {
+
+  /*
+   * Reusable control builders
+   * ------------------------------------------------------------------------
+   */
+
+  /**
+   * Create an icon button.
+   *
+   * @param {string} title - Button title and accessible label.
+   * @param {string} icon - SVG markup displayed inside the button.
+   * @param {Function} clickHandler - Function called when clicked.
+   * @returns {HTMLButtonElement}
+   */
+  createButton(
+    title,
+    icon,
+    clickHandler,
+  ) {
     const button = document.createElement("button");
 
     button.type = "button";
@@ -120,10 +197,57 @@ export default class MapOptionsControl {
     button.setAttribute("aria-label", title);
     button.innerHTML = icon;
 
-    button.addEventListener("click", clickHandler);
+    button.addEventListener(
+      "click",
+      clickHandler,
+    );
 
     return button;
   }
+
+
+  /**
+   * Create a labelled checkbox.
+   *
+   * This method is used by the asset, marine, and coastal-layer panels.
+   * It creates only the user-interface element; the supplied callback
+   * determines what application state should change.
+   *
+   * @param {string} labelText - Text shown beside the checkbox.
+   * @param {boolean} checked - Initial checkbox state.
+   * @param {Function} onChange - Receives the new checked value.
+   * @returns {HTMLLabelElement}
+   */
+  createCheckbox(
+    labelText,
+    checked,
+    onChange,
+  ) {
+    const label = document.createElement("label");
+    label.className = "map-options-option";
+
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.checked = checked;
+
+    const text = document.createElement("span");
+    text.textContent = labelText;
+
+    input.addEventListener("change", () => {
+      onChange(input.checked);
+    });
+
+    label.appendChild(input);
+    label.appendChild(text);
+
+    return label;
+  }
+
+
+  /*
+   * Basemap panel
+   * ------------------------------------------------------------------------
+   */
 
   showBasemapPanel() {
     const isAlreadyOpen =
@@ -146,14 +270,19 @@ export default class MapOptionsControl {
 
     Object.entries(this.basemaps).forEach(
       ([basemapId, basemap]) => {
-        const label = document.createElement("label");
+        const label =
+          document.createElement("label");
+
         label.className = "map-options-option";
 
-        const input = document.createElement("input");
+        const input =
+          document.createElement("input");
+
         input.type = "radio";
         input.name = "basemap";
         input.value = basemapId;
-        input.checked = basemapId === this.activeBasemap;
+        input.checked =
+          basemapId === this.activeBasemap;
 
         input.addEventListener("change", () => {
           if (!input.checked) {
@@ -164,8 +293,13 @@ export default class MapOptionsControl {
           this.map.setStyle(basemap.style);
         });
 
+        const text =
+          document.createElement("span");
+
+        text.textContent = basemap.name;
+
         label.appendChild(input);
-        label.append(` ${basemap.name}`);
+        label.appendChild(text);
 
         this.panel.appendChild(label);
       },
@@ -173,6 +307,12 @@ export default class MapOptionsControl {
 
     this.panel.hidden = false;
   }
+
+
+  /*
+   * Asset panel
+   * ------------------------------------------------------------------------
+   */
 
   showAssetPanel() {
     const isAlreadyOpen =
@@ -194,30 +334,28 @@ export default class MapOptionsControl {
     this.panel.appendChild(title);
 
     ASSET_LAYERS.forEach((assetLayer) => {
-      const label = document.createElement("label");
-      label.className = "map-options-option";
+      const checkbox = this.createCheckbox(
+        assetLayer.label,
+        this.assetLayerState[assetLayer.value],
+        (checked) => {
+          this.assetLayerState[assetLayer.value] =
+            checked;
 
-      const input = document.createElement("input");
-      input.type = "checkbox";
-      input.value = assetLayer.value;
-      input.checked =
-        this.assetLayerState[assetLayer.value];
+          this.notifyAssetVisibilityChanged();
+        },
+      );
 
-      input.addEventListener("change", () => {
-        this.assetLayerState[assetLayer.value] =
-          input.checked;
-
-        this.notifyAssetVisibilityChanged();
-      });
-
-      label.appendChild(input);
-      label.append(` ${assetLayer.label}`);
-
-      this.panel.appendChild(label);
+      this.panel.appendChild(checkbox);
     });
 
     this.panel.hidden = false;
   }
+
+
+  /*
+   * Marine panel
+   * ------------------------------------------------------------------------
+   */
 
   showMarinePanel() {
     const isAlreadyOpen =
@@ -238,11 +376,28 @@ export default class MapOptionsControl {
 
     this.panel.appendChild(title);
 
-    // Add content for marine data options here
+    const tideGaugeOption = this.createCheckbox(
+      "Tide gauges",
+      this.marineLayerState.tideGauges,
+      (checked) => {
+        this.marineLayerState.tideGauges =
+          checked;
+
+        this.notifyMarineVisibilityChanged();
+      },
+    );
+
+    this.panel.appendChild(tideGaugeOption);
 
     this.panel.hidden = false;
-  
-  } 
+  }
+
+
+  /*
+   * Coastal-layer panel
+   * ------------------------------------------------------------------------
+   */
+
   showLayerPanel() {
     const isAlreadyOpen =
       !this.panel.hidden &&
@@ -264,61 +419,81 @@ export default class MapOptionsControl {
 
     Object.entries(this.layerGroups).forEach(
       ([groupId, group]) => {
-        const label = document.createElement("label");
-        label.className = "map-options-option";
+        const checkbox = this.createCheckbox(
+          group.name,
+          group.visible,
+          (checked) => {
+            group.visible = checked;
 
-        const input = document.createElement("input");
-        input.type = "checkbox";
-        input.value = groupId;
-        input.checked = group.visible;
+            this.onLayerVisibilityChanged?.(
+              groupId,
+              checked,
+            );
+          },
+        );
 
-        input.addEventListener("change", () => {
-          group.visible = input.checked;
-          this.onLayerVisibilityChanged();
-        });
-
-        label.appendChild(input);
-        label.append(` ${group.name}`);
-
-        this.panel.appendChild(label);
+        this.panel.appendChild(checkbox);
       },
     );
 
     this.panel.hidden = false;
   }
 
+
+  /*
+   * Future-shoreline panel
+   * ------------------------------------------------------------------------
+   */
+
   showFuturePanel() {
     const isAlreadyOpen =
       !this.panel.hidden &&
-      this.panel.dataset.panel === "future-shorelines";
+      this.panel.dataset.panel ===
+        "future-shorelines";
 
     if (isAlreadyOpen) {
       this.panel.hidden = true;
       return;
     }
 
-    this.panel.dataset.panel = "future-shorelines";
+    this.panel.dataset.panel =
+      "future-shorelines";
+
     this.panel.replaceChildren();
 
     const title = document.createElement("div");
     title.className = "map-options-title";
     title.textContent = "Future shorelines";
 
-    /*
-    * Scenario dropdown
-    */
 
-    const scenarioLabel = document.createElement("label");
-    scenarioLabel.className = "future-control-label";
-    scenarioLabel.htmlFor = "future-scenario-select";
+    /*
+     * Scenario dropdown
+     * ----------------------------------------------------------------------
+     */
+
+    const scenarioLabel =
+      document.createElement("label");
+
+    scenarioLabel.className =
+      "future-control-label";
+
+    scenarioLabel.htmlFor =
+      "future-scenario-select";
+
     scenarioLabel.textContent = "Scenario";
 
-    const scenarioSelect = document.createElement("select");
-    scenarioSelect.id = "future-scenario-select";
-    scenarioSelect.className = "future-control-select";
+    const scenarioSelect =
+      document.createElement("select");
+
+    scenarioSelect.id =
+      "future-scenario-select";
+
+    scenarioSelect.className =
+      "future-control-select";
 
     FUTURE_SCENARIOS.forEach((scenario) => {
-      const option = document.createElement("option");
+      const option =
+        document.createElement("option");
 
       option.value = scenario.value;
       option.textContent = scenario.label;
@@ -329,28 +504,45 @@ export default class MapOptionsControl {
     scenarioSelect.value =
       this.futureShorelineState.scenario;
 
-    scenarioSelect.addEventListener("change", () => {
-      this.futureShorelineState.scenario =
-        scenarioSelect.value;
-        this.notifyFutureChanged();
+    scenarioSelect.addEventListener(
+      "change",
+      () => {
+        this.futureShorelineState.scenario =
+          scenarioSelect.value;
 
-    });
+        this.notifyFutureChanged();
+      },
+    );
+
 
     /*
-    * Shoreline indicator dropdown
-    */
+     * Shoreline-indicator dropdown
+     * ----------------------------------------------------------------------
+     */
 
-    const indicatorLabel = document.createElement("label");
-    indicatorLabel.className = "future-control-label";
-    indicatorLabel.htmlFor = "future-indicator-select";
+    const indicatorLabel =
+      document.createElement("label");
+
+    indicatorLabel.className =
+      "future-control-label";
+
+    indicatorLabel.htmlFor =
+      "future-indicator-select";
+
     indicatorLabel.textContent = "Indicator";
 
-    const indicatorSelect = document.createElement("select");
-    indicatorSelect.id = "future-indicator-select";
-    indicatorSelect.className = "future-control-select";
+    const indicatorSelect =
+      document.createElement("select");
+
+    indicatorSelect.id =
+      "future-indicator-select";
+
+    indicatorSelect.className =
+      "future-control-select";
 
     FUTURE_INDICATORS.forEach((indicator) => {
-      const option = document.createElement("option");
+      const option =
+        document.createElement("option");
 
       option.value = indicator.value;
       option.textContent = indicator.label;
@@ -361,120 +553,213 @@ export default class MapOptionsControl {
     indicatorSelect.value =
       this.futureShorelineState.indicator;
 
-    indicatorSelect.addEventListener("change", () => {
-      this.futureShorelineState.indicator =
-        indicatorSelect.value;
+    indicatorSelect.addEventListener(
+      "change",
+      () => {
+        this.futureShorelineState.indicator =
+          indicatorSelect.value;
+
         this.notifyFutureChanged();
-    });
+      },
+    );
+
 
     /*
-    * Year slider
-    */
+     * Year slider
+     * ----------------------------------------------------------------------
+     */
 
-    const yearLabel = document.createElement("label");
-    yearLabel.className = "future-control-label";
-    yearLabel.htmlFor = "future-year-slider";
+    const yearLabel =
+      document.createElement("label");
+
+    yearLabel.className =
+      "future-control-label";
+
+    yearLabel.htmlFor =
+      "future-year-slider";
+
     yearLabel.textContent =
       `Year: ${this.futureShorelineState.year}`;
 
-    const yearSlider = document.createElement("input");
+    const yearSlider =
+      document.createElement("input");
+
     yearSlider.type = "range";
     yearSlider.id = "future-year-slider";
-    yearSlider.className = "future-year-slider";
+    yearSlider.className =
+      "future-year-slider";
 
     yearSlider.min = 0;
-    yearSlider.max = FUTURE_YEARS.length - 1;
+    yearSlider.max =
+      FUTURE_YEARS.length - 1;
+
     yearSlider.step = 1;
 
-    const selectedYearIndex = FUTURE_YEARS.indexOf(
-      this.futureShorelineState.year,
-    );
+    const selectedYearIndex =
+      FUTURE_YEARS.indexOf(
+        this.futureShorelineState.year,
+      );
 
     yearSlider.value =
-      selectedYearIndex === -1 ? 0 : selectedYearIndex;
+      selectedYearIndex === -1
+        ? 0
+        : selectedYearIndex;
 
-    yearSlider.addEventListener("input", () => {
-      const yearIndex = Number(yearSlider.value);
-      const selectedYear = FUTURE_YEARS[yearIndex];
+    yearSlider.addEventListener(
+      "input",
+      () => {
+        const yearIndex =
+          Number(yearSlider.value);
 
-      this.futureShorelineState.year = selectedYear;
-      yearLabel.textContent = `Year: ${selectedYear}`;
-      
-      this.notifyFutureChanged();
-    });
+        const selectedYear =
+          FUTURE_YEARS[yearIndex];
 
-    const tickContainer = document.createElement("div");
-    tickContainer.className = "future-slider-ticks";
+        this.futureShorelineState.year =
+          selectedYear;
+
+        yearLabel.textContent =
+          `Year: ${selectedYear}`;
+
+        this.notifyFutureChanged();
+      },
+    );
+
+
+    /*
+     * Slider ticks
+     * ----------------------------------------------------------------------
+     */
+
+    const tickContainer =
+      document.createElement("div");
+
+    tickContainer.className =
+      "future-slider-ticks";
 
     FUTURE_YEARS.forEach((year, index) => {
-        const tick = document.createElement("div");
-        tick.className = "future-slider-tick";
-        tick.style.left = `${100 * index / (FUTURE_YEARS.length - 1)}%`;
+      const tick =
+        document.createElement("div");
 
-        // Only label selected years
-        if (year === 2030 || year === 2050 || year === 2100) {
-            const label = document.createElement("span");
-            label.textContent = year;
-            tick.appendChild(label);
-        }
+      tick.className = "future-slider-tick";
 
-        tickContainer.appendChild(tick);
+      tick.style.left =
+        `${100 * index /
+        (FUTURE_YEARS.length - 1)}%`;
+
+      // Only label selected years
+      if (
+        year === 2030 ||
+        year === 2050 ||
+        year === 2100
+      ) {
+        const label =
+          document.createElement("span");
+
+        label.textContent = year;
+        tick.appendChild(label);
+      }
+
+      tickContainer.appendChild(tick);
     });
-    /*
-    * Add controls to panel
-    */
 
-    // add the title
+
+    /*
+     * Add controls to panel
+     * ----------------------------------------------------------------------
+     */
+
     this.panel.appendChild(title);
 
-    // create the row
-    const dropdownRow = document.createElement("div");
-    dropdownRow.className = "future-dropdown-row";
+    const dropdownRow =
+      document.createElement("div");
 
-    // create scenario column
-    const scenarioColumn = document.createElement("div");
-    scenarioColumn.className = "future-dropdown-column";
+    dropdownRow.className =
+      "future-dropdown-row";
 
-    scenarioColumn.appendChild(scenarioLabel);
-    scenarioColumn.appendChild(scenarioSelect);
+    const scenarioColumn =
+      document.createElement("div");
 
-    // create the indicator column
-    const indicatorColumn = document.createElement("div");
-    indicatorColumn.className = "future-dropdown-column";
+    scenarioColumn.className =
+      "future-dropdown-column";
 
-    indicatorColumn.appendChild(indicatorLabel);
-    indicatorColumn.appendChild(indicatorSelect);
+    scenarioColumn.appendChild(
+      scenarioLabel,
+    );
 
-    // add both columns to row
-    dropdownRow.appendChild(scenarioColumn);
-    dropdownRow.appendChild(indicatorColumn);
+    scenarioColumn.appendChild(
+      scenarioSelect,
+    );
+
+    const indicatorColumn =
+      document.createElement("div");
+
+    indicatorColumn.className =
+      "future-dropdown-column";
+
+    indicatorColumn.appendChild(
+      indicatorLabel,
+    );
+
+    indicatorColumn.appendChild(
+      indicatorSelect,
+    );
+
+    dropdownRow.appendChild(
+      scenarioColumn,
+    );
+
+    dropdownRow.appendChild(
+      indicatorColumn,
+    );
+
     this.panel.appendChild(dropdownRow);
-
     this.panel.appendChild(yearLabel);
     this.panel.appendChild(yearSlider);
     this.panel.appendChild(tickContainer);
-    
+
     this.panel.hidden = false;
   }
 
-  // function to keep track of state of future panel
-  notifyFutureChanged() {
-      this.onFutureShorelineChanged?.({
-          ...this.futureShorelineState,
-      });
-  }
 
   /*
- * Notify the application when an asset checkbox changes.
- */
+   * State-change notifications
+   * ------------------------------------------------------------------------
+   */
 
-  notifyAssetVisibilityChanged() {
-    if (this.onAssetVisibilityChanged) {
-      this.onAssetVisibilityChanged({
-        ...this.assetLayerState,
-      });
-    }
+  /**
+   * Notify the application when the future-shoreline state changes.
+   */
+  notifyFutureChanged() {
+    this.onFutureShorelineChanged?.({
+      ...this.futureShorelineState,
+    });
   }
+
+
+  /**
+   * Notify the application when an asset checkbox changes.
+   */
+  notifyAssetVisibilityChanged() {
+    this.onAssetVisibilityChanged?.({
+      ...this.assetLayerState,
+    });
+  }
+
+
+  /**
+   * Notify the application when a marine-data checkbox changes.
+   */
+  notifyMarineVisibilityChanged() {
+    this.onMarineVisibilityChanged?.({
+      ...this.marineLayerState,
+    });
+  }
+
+
+  /*
+   * Remove control from map
+   * ------------------------------------------------------------------------
+   */
 
   onRemove() {
     this.container?.remove();

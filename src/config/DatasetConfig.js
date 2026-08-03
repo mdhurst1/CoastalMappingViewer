@@ -27,6 +27,13 @@ export const MHWS_DATASETS = [
   }
 ];
 
+
+export const TIDE_GAUGE_DATASET = {
+  id: "tide-gauges",
+  name: "Tide gauges",
+  file: "/data/TideGauges.geojson",
+};
+
 export const VEDGE_DATASETS = [
   {
     id: "VEdge Combined",
@@ -52,6 +59,7 @@ export const FUTURE_UNCERTAINTY_DATASETS = [
     id: "MHWS_Future_Uncertainty",
   }
 ]
+
 
 // get uncertainty file based on state attributes
 export const FUTURE_SCENARIO_FILE_CODES = {
@@ -90,3 +98,4 @@ export function getFutureUncertaintyDataset({scenario, indicator, year, }) {
     file: `/CMT_output/Future/Montrose_Uncertainty_${scenarioCode}_${year}.geojson`,
   }
 }
+
