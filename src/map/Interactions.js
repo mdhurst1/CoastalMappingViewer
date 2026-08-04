@@ -19,6 +19,56 @@ function getFeatureReference(feature) {
   };
 }
 
+export function registerPointInteractions(
+  map,
+  layerId,
+  PopupClass,
+  createPopupContent,
+) {
+  let activePopup = null;
+
+  map.on("mouseenter", layerId, () => {
+    map.getCanvas().style.cursor = "pointer";
+  });
+
+  map.on("mouseleave", layerId, () => {
+    map.getCanvas().style.cursor = "";
+  });
+
+  map.on("click", layerId, (event) => {
+    const feature = event.features?.[0];
+
+    if (!feature) {
+      return;
+    }
+
+    activePopup?.remove();
+
+    const coordinates = [
+      ...feature.geometry.coordinates,
+    ];
+
+    const popupContent = createPopupContent(
+      feature.properties ?? {},
+    );
+
+    const popup = new PopupClass({
+      offset: 12,
+    })
+      .setLngLat(coordinates)
+      .setDOMContent(popupContent)
+      .addTo(map);
+
+    activePopup = popup;
+
+    popup.on("close", () => {
+      if (activePopup === popup) {
+        activePopup = null;
+      }
+    });
+  });
+}
+
 export function registerLineInteractions(
   map,
   datasets,

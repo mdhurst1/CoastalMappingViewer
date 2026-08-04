@@ -10,6 +10,13 @@
  * MDH, August 2026
  */
 
+//import modules
+import { registerPointInteractions } from "../map/Interactions.js";
+
+// popup imports
+import "../styles/Popup.css";
+import { createTideGaugePopup } from "../popups/TideGaugePopup.js";
+
 /*
  * Tide-gauge layer identifiers
  * --------------------------------------------------------------------------
@@ -103,32 +110,90 @@ export function setTideGaugeVisibility(
 
 
 /*
- * Register tide-gauge interactions
+ * Tide gauge popup content
  * --------------------------------------------------------------------------
  */
+function createTideGaugePopupContent(properties) {
 
-/**
- * Register basic mouse interactions for the tide-gauge layer.
- *
- * The popup itself will be added later. For now this changes the cursor so
- * users can see that the points are interactive.
- *
- * @param {maplibregl.Map} map - MapLibre map instance.
+  const container = document.createElement("div");
+  container.className = "Marine-popup";
+
+  const title = document.createElement("div");
+  title.className = "Marine-popup-title";
+  title.textContent =
+    properties.Station_ID ?? "Tide gauge";
+
+  container.appendChild(title);
+
+  addPopupRow(
+    container,
+    "Network",
+    properties.Monitoring_programme,
+  );
+
+  addPopupRow(
+    container,
+    "Organisation",
+    properties.Organisation,
+  );
+
+  addPopupRow(
+    container,
+    "Operating period",
+    formatOperatingPeriod(properties),
+  );
+
+  addPopupRow(
+    container,
+    "Frequency",
+    properties.Frequency,
+    " minutes",
+  );
+
+  addPopupRow(
+    container,
+    "Notes",
+    properties.Notes,
+  );
+
+  return container;
+}
+
+
+/*
+ * Format the start and end dates as one value.
  */
-export function registerTideGaugeInteractions(map) {
-  map.on(
-    "mouseenter",
-    TIDE_GAUGE_LAYER_ID,
-    () => {
-      map.getCanvas().style.cursor = "pointer";
-    },
-  );
+function formatOperatingPeriod(properties) {
 
-  map.on(
-    "mouseleave",
-    TIDE_GAUGE_LAYER_ID,
-    () => {
-      map.getCanvas().style.cursor = "";
-    },
-  );
+  const start = properties.Start_date;
+  const end = properties.End_date;
+
+  if (start && end) {
+    return `${start}–${end}`;
+  }
+
+  return start ?? end ?? null;
+}
+
+
+/*
+ * Register tide gauge popup interactions.
+ * --------------------------------------------------------------------------
+ *
+ * This should be called once when the application starts, rather than inside
+ * style.load, to avoid registering duplicate event handlers.
+ */
+export function registerTideGaugeInteractions(
+  map,
+  datasets,
+  PopupClass,
+) {
+  datasets.forEach((dataset) => {
+    registerPointInteractions(
+      map,
+      `${dataset.id}-circle`,
+      PopupClass,
+      createTideGaugePopup,
+    );
+  });
 }
