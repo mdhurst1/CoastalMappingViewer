@@ -142,3 +142,32 @@
   color: #1f2937;
   font: inherit;
 }
+
+.tide-gauge-popup {
+  box-sizing: border-box;
+  width: 420px;
+  max-width: calc(100vw - 60px);
+}
+
+.tide-gauge-popup-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+}
+
+.tide-gauge-popup-table th,
+.tide-gauge-popup-table td {
+  padding: 3px 0;
+  text-align: left;
+  vertical-align: top;
+}
+
+.tide-gauge-popup-table th {
+  padding-right: 14px;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.tide-gauge-popup-table td {
+  width: 100%;
+}

@@ -52,8 +52,10 @@ export function registerPointInteractions(
       feature.properties ?? {},
     );
 
+    
     const popup = new PopupClass({
       offset: 12,
+      maxWidth: "450px",
     })
       .setLngLat(coordinates)
       .setDOMContent(popupContent)

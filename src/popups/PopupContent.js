@@ -32,3 +32,27 @@ export function appendPopupField(
 
   return row;
 }
+
+export function appendTableRow(table, label, value, options = {}) {
+
+  if (
+    value === null ||
+    value === undefined ||
+    value === ""
+  ) {
+    return;
+  }
+
+  const row = document.createElement("tr");
+
+  const labelCell = document.createElement("th");
+  labelCell.scope = "row";
+  labelCell.textContent = label;
+
+  const valueCell = document.createElement("td");
+  valueCell.textContent =
+    `${value}${options.suffix ?? ""}`;
+
+  row.append(labelCell, valueCell);
+  table.appendChild(row);
+}

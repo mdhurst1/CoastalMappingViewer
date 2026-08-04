@@ -4,7 +4,7 @@
  * Creates the popup content displayed when a tide gauge is selected.
  */
 
-import {appendPopupField, createPopupContainer} from "./PopupContent.js";
+import {appendTableRow, createPopupContainer} from "./PopupContent.js";
 
 export function createTideGaugePopup(properties) {
 
@@ -12,44 +12,66 @@ export function createTideGaugePopup(properties) {
         "tide-gauge-popup",
         properties.Station_ID ?? "Tide gauge",
     );
-    
-    appendPopupField(
-        popup,
+
+    const table = document.createElement("table");
+    table.className = "tide-gauge-popup-table";
+
+    appendTableRow(
+        table,
         "Monitoring programme",
         properties.Monitoring_programme,
     );
 
-    appendPopupField(
-        popup,
+    appendTableRow(
+        table,
         "Organisation",
         properties.Organisation,
     );
 
-    appendPopupField(
-        popup,
+    appendTableRow(
+        table,
         "Start date",
         properties.Start_date,
     );
 
-    appendPopupField(
-        popup,
+    appendTableRow(
+        table,
         "End date",
         properties.End_date,
     );
 
-    appendPopupField(
-        popup,
+    appendTableRow(
+        table,
         "Sampling interval",
         properties.Frequency,
         { suffix: " minutes" },
     );
 
-    appendPopupLink(
-        popup,
-        "Website",
-        properties.URL,
-        "View station",
+    appendTableRow(
+        table,
+        "Notes",
+        properties.Notes,
     );
 
+    popup.appendChild(table);
+
+    const row = document.createElement("tr");
+
+    const label = document.createElement("th");
+    label.textContent = "Website";
+
+    const value = document.createElement("td");
+
+    const link = document.createElement("a");
+    link.href = properties.URL;
+    link.textContent = "Open station page ↗";
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+
+    value.appendChild(link);
+
+    row.append(label, value);
+    table.appendChild(row);
+
     return popup;
-}
+    }
