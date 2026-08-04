@@ -15,8 +15,40 @@ export function createTideGaugePopup(properties) {
     
     appendPopupField(
         popup,
+        "Monitoring programme",
+        properties.Monitoring_programme,
+    );
+
+    appendPopupField(
+        popup,
         "Organisation",
-        properties.Organisation
+        properties.Organisation,
+    );
+
+    appendPopupField(
+        popup,
+        "Start date",
+        properties.Start_date,
+    );
+
+    appendPopupField(
+        popup,
+        "End date",
+        properties.End_date,
+    );
+
+    appendPopupField(
+        popup,
+        "Sampling interval",
+        properties.Frequency,
+        { suffix: " minutes" },
+    );
+
+    appendPopupLink(
+        popup,
+        "Website",
+        properties.URL,
+        "View station",
     );
 
     return popup;
