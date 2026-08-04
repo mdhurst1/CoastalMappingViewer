@@ -264,7 +264,6 @@ function initialiseApplication() {
 
   addMapControls(map);
   registerMapEvents(map);
-  registerTideGaugeInteractions(map);
   Object.values(LAYER_GROUPS).forEach((group) => {
     group.registerInteractions(
       map,

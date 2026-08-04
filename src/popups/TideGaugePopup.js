@@ -9,19 +9,14 @@ import {appendPopupField, createPopupContainer} from "./PopupContent.js";
 export function createTideGaugePopup(properties) {
 
     const popup = createPopupContainer(
-        properties.Station_ID
+        "tide-gauge-popup",
+        properties.Station_ID ?? "Tide gauge",
     );
-
+    
     appendPopupField(
         popup,
         "Organisation",
         properties.Organisation
-    );
-
-    appendPopupField(
-        popup,
-        "Frequency",
-        properties.Frequency
     );
 
     return popup;

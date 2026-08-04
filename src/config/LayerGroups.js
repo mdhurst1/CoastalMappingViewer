@@ -1,8 +1,9 @@
 import {MHWS_COLOURS,VEDGE_COLOURS, TRANSECT_COLOURS} from "../layers/LayerStyles.js";
-import {MHWS_DATASETS, VEDGE_DATASETS, TRANSECTS_DATASETS} from "./DatasetConfig.js";
+import {MHWS_DATASETS, VEDGE_DATASETS, TRANSECTS_DATASETS, TIDE_GAUGE_DATASET} from "./DatasetConfig.js";
 import {addMHWSLayers, registerMHWSInteractions} from "../layers/MHWS.js";
 import {addVEdgeLayers, registerVEdgeInteractions} from "../layers/VEdge.js";
 import {addTransectLayers, registerTransectInteractions} from "../layers/Transects.js";
+import {addTideGaugeLayer, registerTideGaugeInteractions} from "../layers/Marine.js";
 
 export const LAYER_GROUPS = {
   mhws: {
@@ -24,10 +25,18 @@ export const LAYER_GROUPS = {
   },
   transects: {
     name: "Transects",
-    visible: true,
+    visible: false,
     datasets: TRANSECTS_DATASETS,
     colours: TRANSECT_COLOURS,
     addLayers: addTransectLayers,
     registerInteractions: registerTransectInteractions,
+  },
+
+  marine: {
+    name: "Tide Gauges",
+    visible: false,
+    datasets: [TIDE_GAUGE_DATASET],
+    addLayers: addTideGaugeLayer,
+    registerInteractions: registerTideGaugeInteractions,
   },
 };
