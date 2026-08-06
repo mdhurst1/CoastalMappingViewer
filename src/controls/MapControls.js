@@ -7,6 +7,17 @@
 
 // import modulues
 import maplibregl from "maplibre-gl";
+import { MapConfig } from "../config/MapConfig.js";
+import { Basemaps } from "../config/BasemapConfig.js";
+import { LAYER_GROUPS } from "../config/LayerGroups.js";
+import { LEGEND_ITEMS } from "../config/LegendConfig.js";
+
+// import state management functions
+import {getAssetState, getFutureState, getMarineState, updateAssetState, updateFutureState, updateMarineState } from "../state/ApplicationState.js";
+
+import {DrawingControl} from "./DrawingControl";
+import MapOptionsControl from "./MapOptionsControl";
+import LegendControl from "./LegendControl.js";
 
 // create a perspective control to toggle between 2D and 3D views
 class PerspectiveControl {
@@ -79,6 +90,11 @@ export function addMapControls(map) {
     "top-right",
   );
 
+  // add the custom drawing control to the map
+  map.addControl(
+    new DrawingControl(),
+    "top-right",
+  );
 
   // add a scale bar to the map
   map.addControl(
