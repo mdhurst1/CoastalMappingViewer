@@ -29,6 +29,7 @@ import { LAYER_GROUPS } from "./config/LayerGroups.js";
 // import control tools
 import MapOptionsControl from "./controls/MapOptionsControl.js";
 import LegendControl from "./controls/LegendControl.js";
+import {addMapControls} from "./controls/MapControls.js";
 
 // import layer tools
 import {addAssetLayers, applyAssetVisibility} from "./layers/Assets.js";
@@ -132,77 +133,6 @@ function applyFutureState(map) {
   }
 }
 
-/*
- * Map controls
- * --------------------------------------------------------------------------
- */
-function addMapControls(map) {
-  map.addControl(
-    new maplibregl.NavigationControl(),
-    "top-right",
-  );
-
-  map.addControl(
-    new maplibregl.ScaleControl({
-      maxWidth: 150,
-      unit: "metric",
-    }),
-    "bottom-left",
-  );
-
-  const legendControl = new LegendControl(LEGEND_ITEMS);
-
-  const handleAssetVisibilityChanged = (changes) => {
-    const assetState = updateAssetState(changes);
-
-    applyAssetVisibility(map, assetState);
-  };
-  
-  const handleMarineVisibilityChanged = (changes) => {
-    const marineState = updateMarineState(changes);
-
-    setTideGaugeVisibility(map,marineState.tideGauges);
-  };
-
-  const handleCoastalLayerVisibilityChanged = () => {
-    applyLayerVisibility(map);
-    legendControl.updateVisibility(LAYER_GROUPS);
-  };
-
-  const handleFutureShorelineChanged = (changes) => {
-    const futureState = updateFutureState(changes);
-
-    applyFutureState(map);
-    legendControl.updateFuture(futureState);
-  };
-
-  const mapOptionsControl = new MapOptionsControl(
-    Basemaps,
-    MapConfig.basemap,
-    LAYER_GROUPS,
-    getAssetState(),
-    getMarineState(),
-    getFutureState(),
-    handleAssetVisibilityChanged,
-    handleMarineVisibilityChanged,
-    handleCoastalLayerVisibilityChanged,
-    handleFutureShorelineChanged,
-  );
-
-  map.addControl(
-    mapOptionsControl,
-    "top-left",
-  );
-
-  map.addControl(
-    legendControl,
-    "bottom-right",
-  );
-
-  // Apply the initial legend state
-  legendControl.updateVisibility(LAYER_GROUPS);
-  legendControl.updateFuture(getFutureState());
-}
 
 /*
  * Map event handlers
