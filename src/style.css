@@ -13,3 +13,8 @@ body {
   inset: 0;
   background: lightgrey;
 }
+
+.polygon-draw-control.active {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}

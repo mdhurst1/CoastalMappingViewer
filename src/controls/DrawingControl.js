@@ -1,16 +1,33 @@
 /*
  * Polygon drawing control
  * --------------------------------------------------------------------------
- * Provides the map button used to start drawing a selection polygon.
+ * Allows the user to draw a single selection polygon.
  *
- * Polygon drawing behaviour will be added separately.
+ * Analysis of the polygon is deliberately handled elsewhere.
  */
 
+import maplibregl from "maplibre-gl";
+
+import {
+  TerraDraw,
+  TerraDrawPolygonMode,
+} from "terra-draw";
+
+import {
+  TerraDrawMapLibreGLAdapter,
+} from "terra-draw-maplibre-gl-adapter";
+
+
 export class DrawingControl {
+  constructor() {
+    this.draw = null;
+    this.currentPolygon = null;
+  }
+
+
   onAdd(map) {
     this.map = map;
 
-    // Use MapLibre's standard control container styling
     this.container = document.createElement("div");
     this.container.className =
       "maplibregl-ctrl maplibregl-ctrl-group";
@@ -24,7 +41,6 @@ export class DrawingControl {
       "Draw selection polygon",
     );
 
-    // Polygon icon
     this.button.innerHTML = `
       <svg
         viewBox="0 0 24 24"
@@ -41,38 +57,18 @@ export class DrawingControl {
           stroke-linejoin="round"
         />
 
-        <circle
-          cx="5"
-          cy="6"
-          r="1.5"
-          fill="currentColor"
-        />
-
-        <circle
-          cx="18"
-          cy="4"
-          r="1.5"
-          fill="currentColor"
-        />
-
-        <circle
-          cx="20"
-          cy="17"
-          r="1.5"
-          fill="currentColor"
-        />
-
-        <circle
-          cx="8"
-          cy="20"
-          r="1.5"
-          fill="currentColor"
-        />
+        <circle cx="5" cy="6" r="1.5" fill="currentColor" />
+        <circle cx="18" cy="4" r="1.5" fill="currentColor" />
+        <circle cx="20" cy="17" r="1.5" fill="currentColor" />
+        <circle cx="8" cy="20" r="1.5" fill="currentColor" />
       </svg>
     `;
 
     this.handleClick =
       this.handleClick.bind(this);
+
+    this.handleDrawingFinished =
+      this.handleDrawingFinished.bind(this);
 
     this.button.addEventListener(
       "click",
@@ -81,13 +77,101 @@ export class DrawingControl {
 
     this.container.appendChild(this.button);
 
+    if (this.map.isStyleLoaded()) {
+      this.initialiseDrawing();
+    } 
+    else {
+      this.handleStyleLoad =
+        this.initialiseDrawing.bind(this);
+
+      this.map.once(
+        "style.load",
+        this.handleStyleLoad,
+      );
+    }
+
+
     return this.container;
   }
 
-  handleClick() {
-    // Temporary check before adding polygon drawing
-    console.log("Polygon drawing button clicked");
+
+  initialiseDrawing() {
+  if (this.draw) {
+    return;
   }
+
+  this.draw = new TerraDraw({
+    adapter: new TerraDrawMapLibreGLAdapter({
+      map: this.map,
+      lib: maplibregl,
+    }),
+
+    modes: [
+      new TerraDrawPolygonMode(),
+    ],
+  });
+
+  this.draw.start();
+
+  this.draw.on(
+    "finish",
+    this.handleDrawingFinished,
+  );
+
+  this.draw.setMode("static");
+}
+
+
+  handleClick() {
+    if (!this.draw) {
+      console.warn(
+        "Drawing tools are not ready yet.",
+      );
+
+      return;
+    }
+
+    if (this.currentPolygon) {
+      this.draw.clear();
+      this.currentPolygon = null;
+    }
+
+    this.button.classList.add("active");
+
+    this.draw.setMode("polygon");
+  }
+
+  handleDrawingFinished(id, context) {
+    /*
+     * Ignore finishes caused by anything except drawing.
+     */
+    if (context.action !== "draw") {
+      return;
+    }
+
+    const polygon = this.draw
+      .getSnapshot()
+      .find((feature) => feature.id === id);
+
+    if (!polygon) {
+      return;
+    }
+
+    this.currentPolygon = polygon;
+
+    console.log(
+      "Selection polygon completed:",
+      polygon,
+    );
+
+    /*
+     * Stop creating more polygons while leaving this polygon visible.
+     */
+    this.draw.setMode("static");
+
+    this.button.classList.remove("active");
+  }
+
 
   onRemove() {
     this.button.removeEventListener(
@@ -95,7 +179,18 @@ export class DrawingControl {
       this.handleClick,
     );
 
+    if (this.handleStyleLoad) {
+      this.map.off(
+        "style.load",
+        this.handleStyleLoad,
+      );
+    }
+
+    this.draw?.stop();
+
     this.container.remove();
+
+    this.draw = null;
     this.map = undefined;
   }
 }

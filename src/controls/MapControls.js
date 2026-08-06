@@ -15,7 +15,7 @@ import { LEGEND_ITEMS } from "../config/LegendConfig.js";
 // import state management functions
 import {getAssetState, getFutureState, getMarineState, updateAssetState, updateFutureState, updateMarineState } from "../state/ApplicationState.js";
 
-import {DrawingControl} from "./DrawingControl";
+import {DrawingControl,} from "./DrawingControl";
 import MapOptionsControl from "./MapOptionsControl";
 import LegendControl from "./LegendControl.js";
 
