@@ -31,12 +31,4 @@ export const LAYER_GROUPS = {
     addLayers: addTransectLayers,
     registerInteractions: registerTransectInteractions,
   },
-
-  marine: {
-    name: "Tide Gauges",
-    visible: false,
-    datasets: [TIDE_GAUGE_DATASET],
-    addLayers: addTideGaugeLayer,
-    registerInteractions: registerTideGaugeInteractions,
-  },
 };

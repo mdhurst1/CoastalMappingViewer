@@ -117,15 +117,13 @@ export function setTideGaugeVisibility(
  */
 export function registerTideGaugeInteractions(
   map,
-  datasets,
+  dataset,
   PopupClass,
 ) {
-  datasets.forEach((dataset) => {
-    registerPointInteractions(
-      map,
-      `${dataset.id}-circle`,
-      PopupClass,
-      createTideGaugePopup,
-    );
-  });
+  registerPointInteractions(
+    map,
+    `${dataset.id}-circle`,
+    PopupClass,
+    createTideGaugePopup,
+  );
 }

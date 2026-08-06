@@ -85,3 +85,15 @@ export function setDatasetVisibility(map, dataset, visible) {
     }
   });
 }
+
+export function applyLayerVisibility(map, layerGroups) {
+  Object.values(layerGroups).forEach((group) => {
+    group.datasets.forEach((dataset) => {
+      setDatasetVisibility(
+        map,
+        dataset,
+        group.visible,
+      );
+    });
+  });
+}

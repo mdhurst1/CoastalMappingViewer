@@ -33,7 +33,6 @@ import {addMapControls} from "./controls/MapControls.js";
 
 // import layer tools
 import {addAssetLayers, applyAssetVisibility} from "./layers/Assets.js";
-
 import {addTideGaugeLayer,registerTideGaugeInteractions,setTideGaugeVisibility,} from "./layers/Marine.js";
 import {addMHWSLayers, registerMHWSInteractions} from "./layers/MHWS.js";
 import {addVEdgeLayers, registerVEdgeInteractions} from "./layers/VEdge.js";
@@ -42,7 +41,7 @@ import {addFutureMHWSLayer, updateFutureMHWS, updateFutureMHWSStyle, setFutureMH
 import {addFutureUncertaintyLayer, updateFutureUncertainty, updateFutureUncertaintyStyle, setFutureUncertaintyVisibility,} from "./layers/FutureMHWSUncertainty.js";
 
 // Generic layer utilities
-import {setDatasetVisibility} from "./map/LayerFactory.js";
+import {setDatasetVisibility, applyLayerVisibility} from "./map/LayerFactory.js";
 
 /* 
  * -------------------------------------------------------------------------- 
@@ -159,7 +158,7 @@ function registerMapEvents(map) {
     const futureState = getFutureState();
 
     applyAssetVisibility(map, assetState);
-    applyLayerVisibility(map);
+    applyLayerVisibility(map, LAYER_GROUPS);
     setTideGaugeVisibility(map, marineState.tideGauges);
     
     addTideGaugeLayer(map, TIDE_GAUGE_DATASET);
@@ -168,20 +167,7 @@ function registerMapEvents(map) {
     applyFutureState(map);
   });
 }
-/*
- * Apply layer visibility
- * --------------------------------------------------------------------------
- * Applies the visibility settings stored in LAYER_GROUPS to all MapLibre
- * layers belonging to each group.
- */
 
-function applyLayerVisibility(map) {
-  Object.values(LAYER_GROUPS).forEach((group) => {
-    group.datasets.forEach((dataset) => {
-      setDatasetVisibility(map, dataset, group.visible);
-    });
-  });
-}
 /*
  * Application initialisation
  * --------------------------------------------------------------------------
