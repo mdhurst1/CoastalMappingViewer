@@ -16,12 +16,30 @@ import {appendPopupField, createPopupContainer} from "../popups/PopupContent.js"
 const MIN_RATE = -5;
 const MAX_RATE = 5;
 
+const twrRateExpression = [
+    "get",
+    "Rate",
+    [
+        "get",
+        "TWR",
+        [
+            "get",
+            "Results",
+            [
+                "get",
+                "MHWS",
+                ["get", "Timeseries"],
+            ],
+        ],
+    ],
+];
+
 export function getTransectPaint() {
   return {
     "line-color": [
       "interpolate",
       ["linear"],
-      ["to-number", ["get", "Hist_Rate"], 0],
+      twrRateExpression,
       MIN_RATE, "#b2182b",
       -2.5, "#ef8a62",
       0, "#f7f7f7",
