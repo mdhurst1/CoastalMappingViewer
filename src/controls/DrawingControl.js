@@ -131,14 +131,31 @@ export class DrawingControl {
       return;
     }
 
+    const isActive =
+      this.button.classList.contains("active");
+
+    if (isActive) {
+      /*
+      * Cancel polygon drawing.
+      */
+      this.draw.setMode("static");
+
+      this.button.classList.remove("active");
+
+      return;
+    }
+
+    /*
+    * Starting a new polygon replaces the previous one.
+    */
     if (this.currentPolygon) {
       this.draw.clear();
       this.currentPolygon = null;
     }
 
-    this.button.classList.add("active");
-
     this.draw.setMode("polygon");
+
+    this.button.classList.add("active");
   }
 
   handleDrawingFinished(id, context) {

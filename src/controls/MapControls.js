@@ -11,6 +11,7 @@ import { MapConfig } from "../config/MapConfig.js";
 import { Basemaps } from "../config/BasemapConfig.js";
 import { LAYER_GROUPS } from "../config/LayerGroups.js";
 import { LEGEND_ITEMS } from "../config/LegendConfig.js";
+import { TIDE_GAUGE_DATASET, MHWS_DATASETS, VEDGE_DATASETS, TRANSECTS_DATASETS, FUTURE_DATASETS, FUTURE_UNCERTAINTY_DATASETS, FUTURE_SCENARIO_FILE_CODES, getFutureMHWSDataset, getFutureUncertaintyDataset} from "../config/DatasetConfig.js";
 
 // import state management functions
 import {getAssetState, getFutureState, getMarineState, updateAssetState, updateFutureState, updateMarineState } from "../state/ApplicationState.js";
@@ -173,3 +174,66 @@ export function addMapControls(map) {
   legendControl.updateVisibility(LAYER_GROUPS);
   legendControl.updateFuture(getFutureState());
 }
+
+/*
+ * Apply the current future shoreline state
+ * --------------------------------------------------------------------------
+ * Controls visibility and data for the future MHWS line and its uncertainty
+ * polygon.
+ */
+function applyFutureState(map) {
+  const futureState = getFutureState();
+  const visible = futureState.scenario !== "None";
+
+  setFutureMHWSVisibility(
+    map,
+    FUTURE_DATASETS[0],
+    visible,
+  );
+
+  setFutureUncertaintyVisibility(
+    map,
+    FUTURE_UNCERTAINTY_DATASETS[0],
+    visible,
+  );
+
+  if (!visible) {
+    return;
+  }
+
+  const selectedFutureDataset =
+    getFutureMHWSDataset(futureState);
+
+  if (selectedFutureDataset) {
+    updateFutureMHWS(
+      map,
+      FUTURE_DATASETS[0],
+      selectedFutureDataset,
+      futureState.year,
+    );
+
+    updateFutureMHWSStyle(
+      map,
+      FUTURE_DATASETS[0],
+      futureState.scenario,
+    );
+  }
+
+  const selectedUncertaintyDataset =
+    getFutureUncertaintyDataset(futureState);
+
+  if (selectedUncertaintyDataset) {
+    updateFutureUncertainty(
+      map,
+      FUTURE_UNCERTAINTY_DATASETS[0],
+      selectedUncertaintyDataset,
+    );
+
+    updateFutureUncertaintyStyle(
+      map,
+      FUTURE_UNCERTAINTY_DATASETS[0],
+      futureState.scenario,
+    );
+  }
+}
+
