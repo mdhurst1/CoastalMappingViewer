@@ -19,7 +19,7 @@ export const MHWS_DATASETS = [
   },
   {
     id: "MHWS 1970",
-    file: "${import.meta.env.BASE_URL}/data/montrose_MHWS_1970.geojson",
+    file: `${import.meta.env.BASE_URL}/data/montrose_MHWS_1970.geojson`,
   },
   {
     id: "MHWS LiDAR",
