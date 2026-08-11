@@ -4,6 +4,8 @@
  * Popup content for polygon-based transect summaries.
  */
 
+import "../styles/Popup.css";
+
 import center from "@turf/center";
 
 import {
@@ -77,14 +79,16 @@ export function showSelectionPopup(
   summary,
   PopupClass,
 ) {
-
   const content =
     createSelectionPopupContent(summary);
 
   const location =
     center(polygon).geometry.coordinates;
 
-  new PopupClass()
+  return new PopupClass({
+    maxWidth: "350px",
+    closeOnClick: false,
+  })
     .setLngLat(location)
     .setDOMContent(content)
     .addTo(map);

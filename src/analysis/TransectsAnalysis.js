@@ -65,13 +65,13 @@ export function summariseTransects(
       const timeseries =
         getTimeseries(transect);
 
-      return Number(
+      return -Number(
         timeseries
-          ?.[signalName]
-          ?.Results
-          ?.[methodName]
-          ?.Rate,
-      );
+            ?.[signalName]
+            ?.Results
+            ?.[methodName]
+            ?.Rate,
+        );
     })
     .filter(Number.isFinite);
 
