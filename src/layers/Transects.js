@@ -17,18 +17,22 @@ const MIN_RATE = -5;
 const MAX_RATE = 5;
 
 const twrRateExpression = [
-    "get",
-    "Rate",
+    "*",
+    -1,
     [
         "get",
-        "TWR",
+        "Rate",
         [
             "get",
-            "Results",
+            "TWR",
             [
                 "get",
-                "MHWS",
-                ["get", "Timeseries"],
+                "Results",
+                [
+                    "get",
+                    "MHWS",
+                    ["get", "Timeseries"],
+                ],
             ],
         ],
     ],

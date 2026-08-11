@@ -15,15 +15,15 @@
 export const MHWS_DATASETS = [
   {
     id: "MHWS 1890",
-    file: "/data/montrose_MHWS_1890.geojson",
+    file: `${import.meta.env.BASE_URL}/data/montrose_MHWS_1890.geojson`,
   },
   {
     id: "MHWS 1970",
-    file: "/data/montrose_MHWS_1970.geojson",
+    file: "${import.meta.env.BASE_URL}/data/montrose_MHWS_1970.geojson",
   },
   {
     id: "MHWS LiDAR",
-    file: "/data/montrose_MHWS_Modern_LiDAR.geojson",
+    file: `${import.meta.env.BASE_URL}/data/montrose_MHWS_Modern_LiDAR.geojson`,
   }
 ];
 
@@ -31,20 +31,20 @@ export const MHWS_DATASETS = [
 export const TIDE_GAUGE_DATASET = {
   id: "tide-gauges",
   name: "Tide gauges",
-  file: "/data/TideGauges.geojson",
+  file: `${import.meta.env.BASE_URL}/data/TideGauges.geojson`,
 };
 
 export const VEDGE_DATASETS = [
   {
     id: "VEdge Combined",
-    file: "/data/Montrose_VEdge_combined.geojson",
+    file: `${import.meta.env.BASE_URL}/data/Montrose_VEdge_combined.geojson`,
   }
 ]
 
 export const TRANSECTS_DATASETS = [
   {
     id: "Transects",
-    file: "/CMT_output/Montrose_Transects.geojson",
+    file: `${import.meta.env.BASE_URL}/CMT_output/Montrose_Transects.geojson`,
   }
 ]
 
@@ -79,7 +79,7 @@ export function getFutureMHWSDataset({ scenario, indicator }) {
   return {
     id: `${indicator}_Future`,
     file:
-      `/CMT_output/Future/` +
+      `${import.meta.env.BASE_URL}/CMT_output/Future/` +
       `Montrose_Future_${scenarioCode}_P50.geojson`,
   };
 }
@@ -95,7 +95,7 @@ export function getFutureUncertaintyDataset({scenario, indicator, year, }) {
   
   return {
     id: `${indicator}_Future_Uncertainty`,
-    file: `/CMT_output/Future/Montrose_Uncertainty_${scenarioCode}_${year}.geojson`,
+    file: `${import.meta.env.BASE_URL}/CMT_output/Future/Montrose_Uncertainty_${scenarioCode}_${year}.geojson`,
   }
 }
 

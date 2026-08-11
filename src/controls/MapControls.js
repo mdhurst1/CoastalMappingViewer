@@ -15,6 +15,7 @@ import { TIDE_GAUGE_DATASET, MHWS_DATASETS, VEDGE_DATASETS, TRANSECTS_DATASETS, 
 
 // import state management functions
 import {getAssetState, getFutureState, getMarineState, updateAssetState, updateFutureState, updateMarineState } from "../state/ApplicationState.js";
+import { applyFutureState } from "../state/MapState.js";
 
 import {DrawingControl,} from "./DrawingControl";
 import MapOptionsControl from "./MapOptionsControl";

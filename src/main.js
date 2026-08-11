@@ -17,6 +17,7 @@ import "./style.css";
 
 // import state management functions
 import {getAssetState, getFutureState, getMarineState, updateAssetState, updateFutureState, updateMarineState } from "./state/ApplicationState.js";
+import { applyFutureState } from "./state/MapState.js";
 
 // import map configurations
 import { MapConfig } from "./config/MapConfig.js";
@@ -69,70 +70,6 @@ function createMap() {
     zoom: MapConfig.zoom,
   });
 }
-
-
-/*
- * Apply the current future shoreline state
- * --------------------------------------------------------------------------
- * Controls visibility and data for the future MHWS line and its uncertainty
- * polygon.
- */
-function applyFutureState(map) {
-  const futureState = getFutureState();
-  const visible = futureState.scenario !== "None";
-
-  setFutureMHWSVisibility(
-    map,
-    FUTURE_DATASETS[0],
-    visible,
-  );
-
-  setFutureUncertaintyVisibility(
-    map,
-    FUTURE_UNCERTAINTY_DATASETS[0],
-    visible,
-  );
-
-  if (!visible) {
-    return;
-  }
-
-  const selectedFutureDataset =
-    getFutureMHWSDataset(futureState);
-
-  if (selectedFutureDataset) {
-    updateFutureMHWS(
-      map,
-      FUTURE_DATASETS[0],
-      selectedFutureDataset,
-      futureState.year,
-    );
-
-    updateFutureMHWSStyle(
-      map,
-      FUTURE_DATASETS[0],
-      futureState.scenario,
-    );
-  }
-
-  const selectedUncertaintyDataset =
-    getFutureUncertaintyDataset(futureState);
-
-  if (selectedUncertaintyDataset) {
-    updateFutureUncertainty(
-      map,
-      FUTURE_UNCERTAINTY_DATASETS[0],
-      selectedUncertaintyDataset,
-    );
-
-    updateFutureUncertaintyStyle(
-      map,
-      FUTURE_UNCERTAINTY_DATASETS[0],
-      futureState.scenario,
-    );
-  }
-}
-
 
 
 /*
