@@ -458,15 +458,14 @@ export function createTransectPopupContent(properties) {
     },
   );
 
-  // selector for type of plot to display (time series or topography)
+  // selector for type of plot to display
   const plotSelectorContainer = document.createElement("div");
-  plotSelectorContainer.className = "transect-popup-control";
+  plotSelectorContainer.className = "transect-result-selector";
 
   const plotSelectorLabel = document.createElement("label");
   plotSelectorLabel.textContent = "Plot";
 
   const plotSelector = document.createElement("select");
-  plotSelector.className = "transect-popup-select";
 
   const timeseriesOption = document.createElement("option");
   timeseriesOption.value = "timeseries";
@@ -481,10 +480,8 @@ export function createTransectPopupContent(properties) {
     topographyOption,
   );
 
-  plotSelectorContainer.append(
-    plotSelectorLabel,
-    plotSelector,
-  );
+  plotSelectorLabel.appendChild(plotSelector);
+  plotSelectorContainer.appendChild(plotSelectorLabel);
 
   container.appendChild(plotSelectorContainer);
 
@@ -505,13 +502,11 @@ export function createTransectPopupContent(properties) {
   resultsContainer.className =
     "transect-results-container";
 
+
+  container.appendChild(plot);
   if (availableMethods.length > 0) {
     container.appendChild(selector);
   }
-
-  container.appendChild(plot);
-
-
   container.appendChild(resultsContainer);
 
   const render = () => {
