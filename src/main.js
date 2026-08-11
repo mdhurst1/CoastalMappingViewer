@@ -31,7 +31,8 @@ import { LAYER_GROUPS } from "./config/LayerGroups.js";
 import MapOptionsControl from "./controls/MapOptionsControl.js";
 import LegendControl from "./controls/LegendControl.js";
 import {addMapControls} from "./controls/MapControls.js";
-import {getIntersectingTransects,} from "./analysis/TransectsAnalysis.js";
+import {getIntersectingTransects, summariseTransects,} from "./analysis/TransectsAnalysis.js";
+import {createSelectionPopupContent,} from "./popups/SelectionPopup.js";
 
 // import layer tools
 import {addAssetLayers, applyAssetVisibility} from "./layers/Assets.js";
@@ -134,6 +135,7 @@ function handleSelectionPolygon(
   map,
   polygon,
 ) {
+
   const transects =
     getIntersectingTransects(
       map,
@@ -141,12 +143,20 @@ function handleSelectionPolygon(
       TRANSECTS_DATASETS,
     );
 
-  console.log(
-    `${transects.length} transects selected`,
-    transects,
+  const summary =
+    summariseTransects(
+      transects,
+      "MHWS",
+      "TWR",
+    );
+
+  showSelectionPopup(
+    map,
+    polygon,
+    summary,
+    maplibregl.Popup,
   );
 }
-
 /*
  * Start the application
  * --------------------------------------------------------------------------

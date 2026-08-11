@@ -86,7 +86,7 @@ class PerspectiveControl {
   }
 }
 
-export function addMapControls(map) {
+export function addMapControls(map, onPolygonFinished) {
   
   // first add the map control buttons using maplibres built in controls
   map.addControl(
@@ -106,7 +106,7 @@ export function addMapControls(map) {
 
   // add the custom drawing control to the map
   map.addControl(
-    new DrawingControl(handleSelectionPolygon),
+    new DrawingControl(onPolygonFinished),
     "top-right",
   );
 

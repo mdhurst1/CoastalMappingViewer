@@ -216,3 +216,4 @@ export class DrawingControl {
     this.map = undefined;
   }
 }
+
