@@ -6,6 +6,8 @@ The **Coastal Mapping Viewer** brings together historical shoreline observations
 
 The current viewer uses **Montrose Bay, Scotland**, as a demonstration area.
 
+![Coastal Mapping Viewer showing future coastal change](readme_images/data_viewer_example_image.png)
+
 ## Live viewer
 
 The Coastal Mapping Viewer is available online through GitHub Pages.
