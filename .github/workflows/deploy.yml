@@ -3,6 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: ["main"]
+    tags: ["v*"]
   workflow_dispatch:
 
 permissions:
@@ -19,8 +20,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -28,19 +31,67 @@ jobs:
           node-version: 20
           cache: npm
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build
-        run: npm run build
-
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload site
+      # ------------------------------------------------------------
+      # Build the current development version from main
+      # ------------------------------------------------------------
+
+      - name: Install current dependencies
+        run: npm ci
+
+      - name: Build current version
+        run: npm run build -- --base="/CoastalMappingViewer/"
+
+      - name: Create Pages site
+        run: |
+          mkdir -p _site
+          cp -a dist/. _site/
+
+      # ------------------------------------------------------------
+      # Build each tagged release into its own subdirectory
+      #
+      # e.g.
+      #
+      # v0.1.0 -> /CoastalMappingViewer/v0.1.0/
+      # v0.2.0 -> /CoastalMappingViewer/v0.2.0/
+      # ------------------------------------------------------------
+
+      - name: Build tagged releases
+        shell: bash
+        run: |
+          for tag in $(git tag --list 'v*'); do
+
+            echo "Building release ${tag}"
+
+            worktree="${RUNNER_TEMP}/release-${tag}"
+
+            git worktree add --detach "${worktree}" "${tag}"
+
+            pushd "${worktree}"
+
+            npm ci
+
+            npm run build -- --base="/CoastalMappingViewer/${tag}/"
+
+            mkdir -p "${GITHUB_WORKSPACE}/_site/${tag}"
+            cp -a dist/. "${GITHUB_WORKSPACE}/_site/${tag}/"
+
+            popd
+
+            git worktree remove --force "${worktree}"
+
+          done
+
+      # ------------------------------------------------------------
+      # Deploy the complete site
+      # ------------------------------------------------------------
+
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist
+          path: ./_site
 
-      - name: Deploy
+      - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4

@@ -10,8 +10,8 @@ The current viewer uses **Montrose Bay, Scotland**, as a demonstration area.
 
 The Coastal Mapping Viewer is available online through GitHub Pages.
 
-* **Current development version:** [Coastal Mapping Viewer](LIVE_GITHUB_PAGES_URL)
-* **Version 0.1:** [Coastal Mapping Viewer v0.1](V0_1_STATIC_URL)
+- [Current development version](https://mdhurst1.github.io/CoastalMappingViewer/)
+- [Version 0.1.0](https://mdhurst1.github.io/CoastalMappingViewer/v0.1.0/)
 
 Version 0.1 represents the first public release of the viewer and provides a fixed reference version of the Montrose Bay demonstrator. The development version may change as new functionality, datasets and interface improvements are added.
 
