@@ -378,6 +378,7 @@ function createTransectResults(timeseries, selectedMethod) {
   return container;
 }
 
+// function to add a result selector for type of timeseries analysis
 function createResultSelector(timeseries) {
   const wrapper = document.createElement("div");
   wrapper.className = "transect-result-selector";
@@ -457,7 +458,38 @@ export function createTransectPopupContent(properties) {
     },
   );
 
- const timeseries = parseTimeseries(properties);
+  // selector for type of plot to display (time series or topography)
+  const plotSelectorContainer = document.createElement("div");
+  plotSelectorContainer.className = "transect-popup-control";
+
+  const plotSelectorLabel = document.createElement("label");
+  plotSelectorLabel.textContent = "Plot";
+
+  const plotSelector = document.createElement("select");
+  plotSelector.className = "transect-popup-select";
+
+  const timeseriesOption = document.createElement("option");
+  timeseriesOption.value = "timeseries";
+  timeseriesOption.textContent = "Shoreline change";
+
+  const topographyOption = document.createElement("option");
+  topographyOption.value = "topography";
+  topographyOption.textContent = "Topography";
+
+  plotSelector.append(
+    timeseriesOption,
+    topographyOption,
+  );
+
+  plotSelectorContainer.append(
+    plotSelectorLabel,
+    plotSelector,
+  );
+
+  container.appendChild(plotSelectorContainer);
+
+  // then add the timeseries selector below the plot
+  const timeseries = parseTimeseries(properties);
 
   const {
     wrapper: selector,
@@ -465,6 +497,7 @@ export function createTransectPopupContent(properties) {
     availableMethods,
   } = createResultSelector(timeseries);
 
+  // create the plot container
   const plot = document.createElement("div");
   plot.className = "transect-popup-plot";
 
@@ -477,6 +510,8 @@ export function createTransectPopupContent(properties) {
   }
 
   container.appendChild(plot);
+
+
   container.appendChild(resultsContainer);
 
   const render = () => {
