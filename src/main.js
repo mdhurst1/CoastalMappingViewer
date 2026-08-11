@@ -32,7 +32,7 @@ import MapOptionsControl from "./controls/MapOptionsControl.js";
 import LegendControl from "./controls/LegendControl.js";
 import {addMapControls} from "./controls/MapControls.js";
 import {getIntersectingTransects, summariseTransects,} from "./analysis/TransectsAnalysis.js";
-import {createSelectionPopupContent,} from "./popups/SelectionPopup.js";
+import {createSelectionPopupContent, showSelectionPopup,} from "./popups/SelectionPopup.js";
 
 // import layer tools
 import {addAssetLayers, applyAssetVisibility} from "./layers/Assets.js";
