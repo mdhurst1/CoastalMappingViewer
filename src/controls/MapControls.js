@@ -106,7 +106,7 @@ export function addMapControls(map) {
 
   // add the custom drawing control to the map
   map.addControl(
-    new DrawingControl(),
+    new DrawingControl(handleSelectionPolygon),
     "top-right",
   );
 

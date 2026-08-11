@@ -19,9 +19,10 @@ import {
 
 
 export class DrawingControl {
-  constructor() {
+  constructor(onPolygonFinished = null) {
     this.draw = null;
     this.currentPolygon = null;
+    this.onPolygonFinished = onPolygonFinished;
   }
 
 
@@ -159,36 +160,40 @@ export class DrawingControl {
   }
 
   handleDrawingFinished(id, context) {
-    /*
-     * Ignore finishes caused by anything except drawing.
-     */
-    if (context.action !== "draw") {
-      return;
-    }
-
-    const polygon = this.draw
-      .getSnapshot()
-      .find((feature) => feature.id === id);
-
-    if (!polygon) {
-      return;
-    }
-
-    this.currentPolygon = polygon;
-
-    console.log(
-      "Selection polygon completed:",
-      polygon,
-    );
-
-    /*
-     * Stop creating more polygons while leaving this polygon visible.
-     */
-    this.draw.setMode("static");
-
-    this.button.classList.remove("active");
+  /*
+   * Ignore finishes caused by anything except drawing.
+   */
+  if (context.action !== "draw") {
+    return;
   }
 
+  const polygon = this.draw
+    .getSnapshot()
+    .find((feature) => feature.id === id);
+
+  if (!polygon) {
+    return;
+  }
+
+  this.currentPolygon = polygon;
+
+  console.log(
+    "Selection polygon completed:",
+    polygon,
+  );
+
+  /*
+   * Stop creating more polygons while leaving this polygon visible.
+   */
+  this.draw.setMode("static");
+
+  this.button.classList.remove("active");
+
+  /*
+   * Pass the completed polygon back to the application.
+   */
+  this.onPolygonFinished?.(polygon);
+}
 
   onRemove() {
     this.button.removeEventListener(

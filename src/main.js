@@ -31,6 +31,7 @@ import { LAYER_GROUPS } from "./config/LayerGroups.js";
 import MapOptionsControl from "./controls/MapOptionsControl.js";
 import LegendControl from "./controls/LegendControl.js";
 import {addMapControls} from "./controls/MapControls.js";
+import {getIntersectingTransects,} from "./analysis/TransectsAnalysis.js";
 
 // import layer tools
 import {addAssetLayers, applyAssetVisibility} from "./layers/Assets.js";
@@ -117,7 +118,7 @@ function initialiseApplication() {
 
   const map = createMap();
 
-  addMapControls(map);
+  addMapControls(map, (polygon) => handleSelectionPolygon(map, polygon),);
   registerMapEvents(map);
   Object.values(LAYER_GROUPS).forEach((group) => {
     group.registerInteractions(
@@ -129,6 +130,22 @@ function initialiseApplication() {
   return map;
 }
 
+function handleSelectionPolygon(
+  map,
+  polygon,
+) {
+  const transects =
+    getIntersectingTransects(
+      map,
+      polygon,
+      TRANSECTS_DATASETS,
+    );
+
+  console.log(
+    `${transects.length} transects selected`,
+    transects,
+  );
+}
 
 /*
  * Start the application
