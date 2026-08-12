@@ -36,6 +36,32 @@ function parseTimeseries(properties) {
   }
 }
 
+function parseTopography(properties) {
+
+  console.log("Transect properties:", properties);
+  console.log("Raw topography:", properties?.Topography);
+  
+  const rawTopography = properties?.Topography;
+
+  if (!rawTopography) {
+    return {};
+  }
+
+  if (typeof rawTopography === "object") {
+    return rawTopography;
+  }
+
+  try {
+    return JSON.parse(rawTopography);
+  } catch (error) {
+    console.error(
+      "TransectPopup: Could not parse Topography.",
+      error,
+    );
+
+    return {};
+  }
+}
 
 function createTimeseriesTrace(signal, name) {
 
@@ -228,6 +254,130 @@ export function plotTransectTimeseries(plot, timeseries, selectedMethod) {
 
       legend: {orientation: "h", x: 0.02, y: 1.15, xanchor: "left", yanchor: "top", bgcolor: "rgba(255,255,255,0.9)", bordercolor: "#999", borderwidth: 1},
       showlegend: traces.length > 1,
+      hovermode: "closest",
+    },
+    {
+      responsive: true,
+      displayModeBar: false,
+      scrollZoom: true,
+    },
+  );
+}
+
+// Function to plot transect topography using Plotly
+export function plotTransectTopography(plot, topography,) {
+
+  // pull distance and elevation arrays from the topography object, defaulting to empty arrays if not present
+  const distance = (topography?.Distance ?? []).map(value => -value,);
+  const elevation = topography?.Elevation ?? [];
+
+  // dont plot if theres no data
+  if (distance.length === 0 || elevation.length === 0) {
+    Plotly.purge(plot);
+    plot.textContent = "No transect topography available.";
+    return;
+  }
+
+  const minElevation = Math.min(...elevation);
+  const maxElevation = Math.max(...elevation);
+  const elevationRange = maxElevation - minElevation;
+  const plotBottom = minElevation - elevationRange * 0.1;
+
+  const fillTrace = {
+    x: [
+      ...distance,
+      distance[distance.length - 1],
+      distance[0],
+    ],
+
+    y: [
+      ...elevation,
+      plotBottom,
+      plotBottom,
+    ],
+
+    fill: "toself",
+    fillcolor: "rgba(180, 180, 180, 0.3)",
+
+    line: {
+      width: 0,
+    },
+
+    hoverinfo: "skip",
+    showlegend: false,
+  };
+
+  const profileTrace = {
+    x: distance,
+    y: elevation,
+
+    mode: "lines",
+
+    line: {
+      color: "#555",
+      width: 2,
+    },
+
+    hovertemplate:
+      "Distance: %{x:.1f} m" +
+      "<br>Elevation: %{y:.2f} m" +
+      "<extra></extra>",
+  };
+
+  Plotly.react(
+    plot,
+    [fillTrace, profileTrace],
+    {
+      height: 280,
+      autosize: true,
+
+      font: {
+        family:
+          'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+        size: 12,
+        color: "#1f2937",
+      },
+
+      margin: {
+        l: 85,
+        r: 20,
+        t: 20,
+        b: 70,
+        pad: 0,
+      },
+
+      paper_bgcolor: "#ffffff",
+      plot_bgcolor: "#ffffff",
+
+      xaxis: {
+        title: {
+          text: "Distance along transect (m)",
+          standoff: 12,
+        },
+        automargin: true,
+        showgrid: false,
+        showline: true,
+        zeroline: false,
+        fixedrange: false,
+      },
+
+      yaxis: {
+        title: {
+          text: "Elevation (m)",
+          standoff: 12,
+        },
+        range: [
+          plotBottom,
+          maxElevation + elevationRange * 0.1,
+        ],
+        automargin: true,
+        showgrid: false,
+        showline: true,
+        zeroline: false,
+        fixedrange: false,
+      },
+
+      showlegend: false,
       hovermode: "closest",
     },
     {
@@ -487,6 +637,7 @@ export function createTransectPopupContent(properties) {
 
   // then add the timeseries selector below the plot
   const timeseries = parseTimeseries(properties);
+  const topography = parseTopography(properties);
 
   const {
     wrapper: selector,
@@ -510,22 +661,48 @@ export function createTransectPopupContent(properties) {
   container.appendChild(resultsContainer);
 
   const render = () => {
+
+    const selectedPlot =
+      plotSelector.value;
+
     const selectedMethod =
       select.value || null;
 
-    plotTransectTimeseries(
-      plot,
-      timeseries,
-      selectedMethod,
-    );
+    if (selectedPlot === "topography") {
 
-    resultsContainer.replaceChildren(
-      createTransectResults(
+      plotTransectTopography(
+        plot,
+        topography,
+      );
+
+      // Analysis controls/results do not apply
+      selector.style.display = "none";
+      resultsContainer.style.display = "none";
+
+    } else {
+
+      plotTransectTimeseries(
+        plot,
         timeseries,
         selectedMethod,
-      ),
-    );
+      );
+
+      selector.style.display = "";
+      resultsContainer.style.display = "";
+
+      resultsContainer.replaceChildren(
+        createTransectResults(
+          timeseries,
+          selectedMethod,
+        ),
+      );
+    }
   };
+
+  plotSelector.addEventListener(
+    "change",
+    render,
+  );
 
   select.addEventListener(
     "change",
@@ -537,10 +714,7 @@ export function createTransectPopupContent(properties) {
    * measures and renders into it.
    */
   requestAnimationFrame(() => {
-    plotTransectTimeseries(
-      plot,
-      timeseries,
-    );
+    render();
   });
 
   return container;
