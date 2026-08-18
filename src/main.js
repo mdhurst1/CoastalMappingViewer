@@ -22,7 +22,7 @@ import { applyFutureState } from "./state/MapState.js";
 // import map configurations
 import { MapConfig } from "./config/MapConfig.js";
 import { Basemaps } from "./config/BasemapConfig.js";
-import { TIDE_GAUGE_DATASET, MHWS_DATASETS, VEDGE_DATASETS, TRANSECTS_DATASETS, FUTURE_DATASETS, FUTURE_UNCERTAINTY_DATASETS, FUTURE_SCENARIO_FILE_CODES, getFutureMHWSDataset, getFutureUncertaintyDataset} from "./config/DatasetConfig.js";
+import { TIDE_GAUGE_DATASET, MHWS_DATASETS, VEDGE_DATASETS, TRANSECTS_DATASETS, FUTURE_DATASETS, FUTURE_UNCERTAINTY_DATASETS, FUTURE_SCENARIO_FILE_CODES, getFutureShorelineDataset, getFutureUncertaintyDataset} from "./config/DatasetConfig.js";
 
 import { LEGEND_ITEMS } from "./config/LegendConfig.js";
 import { LAYER_GROUPS } from "./config/LayerGroups.js";
@@ -40,8 +40,8 @@ import {addTideGaugeLayer,registerTideGaugeInteractions,setTideGaugeVisibility,}
 import {addMHWSLayers, registerMHWSInteractions} from "./layers/MHWS.js";
 import {addVEdgeLayers, registerVEdgeInteractions} from "./layers/VEdge.js";
 import {addTransectLayers, registerTransectInteractions} from "./layers/Transects.js";
-import {addFutureMHWSLayer, updateFutureMHWS, updateFutureMHWSStyle, setFutureMHWSVisibility} from "./layers/FutureMHWS.js";
-import {addFutureUncertaintyLayer, updateFutureUncertainty, updateFutureUncertaintyStyle, setFutureUncertaintyVisibility,} from "./layers/FutureMHWSUncertainty.js";
+import {addFutureShorelineLayer, updateFutureShoreline, updateFutureShorelineStyle, setFutureShorelineVisibility} from "./layers/FutureShorelines.js";
+import {addFutureUncertaintyLayer, updateFutureUncertainty, updateFutureUncertaintyStyle, setFutureUncertaintyVisibility,} from "./layers/FutureShorelinesUncertainty.js";
 
 // Generic layer utilities
 import {setDatasetVisibility, applyLayerVisibility} from "./map/LayerFactory.js";
@@ -103,7 +103,7 @@ function registerMapEvents(map) {
     setTideGaugeVisibility(map, marineState.tideGauges);
     
     addTideGaugeLayer(map, TIDE_GAUGE_DATASET);
-    addFutureMHWSLayer(map, FUTURE_DATASETS[0], futureState.year);
+    addFutureShorelineLayer(map, FUTURE_DATASETS[0], futureState.year);
     addFutureUncertaintyLayer(map, FUTURE_UNCERTAINTY_DATASETS[0]);
     applyFutureState(map);
   });

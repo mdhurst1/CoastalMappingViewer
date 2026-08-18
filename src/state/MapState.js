@@ -8,22 +8,22 @@ import {
 } from "../config/DatasetConfig.js";
 
 import {
-    updateFutureMHWS,
-    updateFutureMHWSStyle,
-    setFutureMHWSVisibility,
-} from "../layers/FutureMHWS.js";
+    updateFutureShoreline,
+    updateFutureShorelineStyle,
+    setFutureShorelineVisibility,
+} from "../layers/FutureShorelines.js";
 
 import {
     updateFutureUncertainty,
     updateFutureUncertaintyStyle,
     setFutureUncertaintyVisibility,
-} from "../layers/FutureMHWSUncertainty.js";
+} from "../layers/FutureShorelinesUncertainty.js";
 
 export function applyFutureState(map) {
     const futureState = getFutureState();
     const visible = futureState.scenario !== "None";
 
-    setFutureMHWSVisibility(
+    setFutureShorelineVisibility(
         map,
         FUTURE_DATASETS[0],
         visible,
@@ -43,14 +43,14 @@ export function applyFutureState(map) {
         getFutureShorelineDataset(futureState);
 
     if (selectedFutureDataset) {
-        updateFutureMHWS(
+        updateFutureShoreline(
             map,
             FUTURE_DATASETS[0],
             selectedFutureDataset,
             futureState.year,
         );
 
-        updateFutureMHWSStyle(
+        updateFutureShorelineStyle(
             map,
             FUTURE_DATASETS[0],
             futureState.scenario,
