@@ -3,7 +3,7 @@ import { getFutureState } from "../state/ApplicationState.js";
 import {
     FUTURE_DATASETS,
     FUTURE_UNCERTAINTY_DATASETS,
-    getFutureMHWSDataset,
+    getFutureShorelineDataset,
     getFutureUncertaintyDataset,
 } from "../config/DatasetConfig.js";
 
@@ -40,7 +40,7 @@ export function applyFutureState(map) {
     }
 
     const selectedFutureDataset =
-        getFutureMHWSDataset(futureState);
+        getFutureShorelineDataset(futureState);
 
     if (selectedFutureDataset) {
         updateFutureMHWS(

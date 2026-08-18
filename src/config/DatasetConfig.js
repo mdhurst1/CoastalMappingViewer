@@ -50,16 +50,15 @@ export const TRANSECTS_DATASETS = [
 
 export const FUTURE_DATASETS = [
   {
-    id: "MHWS_Future",
+    id: "Future_Shoreline",
   }
-]
+];
 
 export const FUTURE_UNCERTAINTY_DATASETS = [
   {
-    id: "MHWS_Future_Uncertainty",
+    id: "Future_Uncertainty",
   }
-]
-
+];
 
 // get uncertainty file based on state attributes
 export const FUTURE_SCENARIO_FILE_CODES = {
@@ -68,7 +67,12 @@ export const FUTURE_SCENARIO_FILE_CODES = {
   RCP85: "RCP8",
 };
 
-export function getFutureMHWSDataset({ scenario, indicator }) {
+// function to retrieve the future shoreline dataset based on scenario and indicator
+export function getFutureShorelineDataset({
+  scenario,
+  indicator,
+}) {
+
   const scenarioCode =
     FUTURE_SCENARIO_FILE_CODES[scenario];
 
@@ -77,25 +81,31 @@ export function getFutureMHWSDataset({ scenario, indicator }) {
   }
 
   return {
-    id: `${indicator}_Future`,
+    id: "Future_Shoreline",
     file:
       `${import.meta.env.BASE_URL}/CMT_output/Future/` +
-      `Montrose_Future_${scenarioCode}_P50.geojson`,
+      `Montrose_Future_${indicator}_${scenarioCode}_P50.geojson`,
   };
 }
 
-export function getFutureUncertaintyDataset({scenario, indicator, year, }) {
-  
+// function to retrieve the future uncertainty dataset based on scenario, indicator, and year
+export function getFutureUncertaintyDataset({
+  scenario,
+  indicator,
+  year,
+}) {
+
   const scenarioCode =
     FUTURE_SCENARIO_FILE_CODES[scenario];
 
   if (!scenarioCode) {
     return null;
   }
-  
-  return {
-    id: `${indicator}_Future_Uncertainty`,
-    file: `${import.meta.env.BASE_URL}/CMT_output/Future/Montrose_Uncertainty_${scenarioCode}_${year}.geojson`,
-  }
-}
 
+  return {
+    id: "Future_Uncertainty",
+    file:
+      `${import.meta.env.BASE_URL}/CMT_output/Future/` +
+      `Montrose_${indicator}_Uncertainty_${scenarioCode}_${year}.geojson`,
+  };
+}

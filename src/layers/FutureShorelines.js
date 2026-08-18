@@ -34,7 +34,7 @@ function getFutureYearDate(year) {
  * @param {number} year
  * @returns {Array}
  */
-function getFutureMHWSFilter(year) {
+function getFutureShorelineFilter(year) {
   return [
     "==",
     ["get", "Year"],
@@ -49,7 +49,7 @@ function getFutureMHWSFilter(year) {
  * @param {string} file
  * @param {number} initialYear
  */
-export function addFutureMHWSLayer(
+export function addFutureShorelineLayer(
   map,
   dataset,
   initialYear = 2030,
@@ -82,7 +82,7 @@ export function addFutureMHWSLayer(
         "line-opacity": 0.9,
       },
 
-      filter: getFutureMHWSFilter(initialYear),
+      filter: getFutureShorelineFilter(initialYear),
     });
   }
 }
@@ -93,7 +93,7 @@ export function addFutureMHWSLayer(
  * @param {maplibregl.Map} map
  * @param {number} year
  */
-export function updateFutureMHWS(
+export function updateFutureShoreline(
   map,
   layerDataset,
   selectedDataset,
@@ -104,6 +104,7 @@ export function updateFutureMHWS(
 
   const source = map.getSource(sourceId);
 
+  // check source exists before updating
   if (!source) {
     console.warn(
       `Cannot update ${sourceId}: source has not been added.`,
@@ -112,17 +113,20 @@ export function updateFutureMHWS(
     return;
   }
 
+  // set the source data to the selected dataset file
   source.setData(selectedDataset.file);
 
+  // update the filter to show the selected year
   if (map.getLayer(layerId)) {
-    map.setFilter(
-      layerId,
-      getFutureMHWSFilter(year),
-    );
+    map.setFilter(layerId, [
+      "==",
+      ["slice", ["to-string", ["get", "Year"]], 0, 4],
+      String(year),
+    ]);
   }
 }
 
-export function updateFutureMHWSStyle(
+export function updateFutureShorelineStyle(
   map,
   dataset,
   scenario,
@@ -159,7 +163,7 @@ export function updateFutureMHWSStyle(
   );
 }
 
-export function setFutureMHWSVisibility(map, dataset, visible) {
+export function setFutureShorelineVisibility(map, dataset, visible) {
   const layerId = `${dataset.id}-line`;
 
   if (!map.getLayer(layerId)) {
