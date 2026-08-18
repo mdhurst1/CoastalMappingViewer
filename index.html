@@ -7,9 +7,34 @@
     content="width=device-width, initial-scale=1.0"
   >
   <title>Coastal Mapping Viewer</title>
+  <style>
+  #loading-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+  }
+
+  .loading-content {
+    text-align: center;
+  }
+</style>
 </head>
 
 <body>
+  <div id="loading-screen">
+  <div class="loading-content">
+    <h1>Coastal Mapping Viewer</h1>
+    <p>Explore observed and projected coastal change</p>
+
+    <div class="loading-spinner"></div>
+
+    <p class="loading-text">Loading map...</p>
+  </div>
+</div>
   <div id="map"></div>
   <script type="module" src="/src/main.js"></script>
 </body>

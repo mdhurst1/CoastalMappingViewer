@@ -18,3 +18,66 @@ body {
   background-color: #dbeafe;
   color: #1d4ed8;
 }
+
+/* --------------------------------------------------------------------------
+   Loading screen
+   -------------------------------------------------------------------------- */
+
+#loading-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #ffffff;
+
+  opacity: 1;
+  transition: opacity 0.5s ease;
+}
+
+#loading-screen.loading-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loading-content {
+  text-align: center;
+  padding: 2rem;
+}
+
+.loading-content h1 {
+  margin: 0 0 0.5rem;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.loading-content p {
+  margin: 0;
+}
+
+.loading-text {
+  margin-top: 1rem !important;
+  font-size: 0.9rem;
+}
+
+.loading-spinner {
+  width: 36px;
+  height: 36px;
+
+  margin: 2rem auto 0;
+
+  border: 3px solid #dddddd;
+  border-top-color: #333333;
+  border-radius: 50%;
+
+  animation: loading-spin 0.8s linear infinite;
+}
+
+@keyframes loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

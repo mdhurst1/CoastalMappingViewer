@@ -46,16 +46,25 @@ import {addFutureUncertaintyLayer, updateFutureUncertainty, updateFutureUncertai
 // Generic layer utilities
 import {setDatasetVisibility, applyLayerVisibility} from "./map/LayerFactory.js";
 
-/* 
- * -------------------------------------------------------------------------- 
- * Application state 
- * -------------------------------------------------------------------------- 
- * Application state is stored independently so it can be reapplied 
- * after changes take place. Initiated here with default values, but updated by user interactions.
- * 
- * MDH, August 2026
- * -------------------------------------------------------------------------- 
+/*
+ * Loading screen
+ * --------------------------------------------------------------------------
  */
+
+const hideLoadingScreen = () => {
+  setTimeout(() => {
+    const loadingScreen =
+      document.getElementById("loading-screen");
+
+    loadingScreen?.classList.add("loading-hidden");
+
+    setTimeout(() => {
+      loadingScreen?.remove();
+    }, 500);
+  }, 3000);
+};
+
+hideLoadingScreen();
 
 const CURRENT_YEAR = new Date().getFullYear();
 
