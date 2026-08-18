@@ -6,6 +6,12 @@
 
 import {getFutureScenarioStyle} from "../layers/FutureStyles.js";
 
+// functions to control future labels
+const indicatorLabels = {
+  MHWS: "MHWS",
+  VEdge: "Vegetation Edge",
+};
+
 export default class LegendControl {
 
   constructor(items) {
@@ -236,8 +242,9 @@ export default class LegendControl {
       '[data-role="future-uncertainty-68"]',
     );
 
-    title.textContent =
-      `Future MHWS — ${style.label}, ${futureState.year}`;
+    // get label from indicator and set text content of title
+    const indicatorLabel = indicatorLabels[futureState.indicator] ?? futureState.indicator;
+    title.textContent = `Future ${indicatorLabel} — ${style.label}, ${futureState.year}`;
 
     lineSymbol.style.borderTopColor = style.colour;
     lineSymbol.style.borderTopWidth =
