@@ -13,12 +13,17 @@ import { LOCAL_RASTER_LAYERS } from "../config/RasterConfig.js";
 // add the raster layers to the map
 export function addRasterLayers(map) {
 
-    Object.values(RASTER_LAYERS).forEach((raster) => {
+    Object.values(LOCAL_RASTER_LAYERS).forEach((raster) => {
 
         const sourceId = `${raster.id}-source`;
 
         // set up the tile URL for the raster layer, including the mosaic URL as a query parameter
-        const tileUrl =`${raster.tileUrl}?url=${encodeURIComponent(raster.mosaic)}`;
+        const tileUrl = `${raster.tileUrl}` + `?url=${encodeURIComponent(raster.mosaic)}` 
+            + `&tilesize=256`
+            + `&rescale=-1,25`
+            + `&colormap_name=terrain`;
+            
+        console.log("Raster tile URL:", tileUrl);
 
         // add the raster source if it doesn't already exist
         if (!map.getSource(sourceId)) {
@@ -42,6 +47,7 @@ export function addRasterLayers(map) {
                 },
             });
         }
+        console.log("Added raster layer:", raster.id);
     });
 }
 
@@ -49,7 +55,7 @@ export function addRasterLayers(map) {
 export function applyRasterVisibility(map, rasterState) {
 
     // loop through the raster layers and set their visibility based on the state
-    Object.entries(RASTER_LAYERS).forEach(([key, raster]) => {
+    Object.entries(LOCAL_RASTER_LAYERS).forEach(([key, raster]) => {
 
         // check if the layer exists on the map before trying to set its visibility
         if (!map.getLayer(raster.id)) {
@@ -61,6 +67,13 @@ export function applyRasterVisibility(map, rasterState) {
             raster.id,
             "visibility",
             rasterState[key] ? "visible" : "none",
+        );
+
+        console.log(
+            "Raster visibility:",
+            raster.id,
+            rasterState[key],
+            map.getLayer(raster.id),
         );
     });
 }

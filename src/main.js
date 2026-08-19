@@ -16,7 +16,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import "./style.css";
 
 // import state management functions
-import {getAssetState, getFutureState, getMarineState, updateAssetState, updateFutureState, updateMarineState } from "./state/ApplicationState.js";
+import {getAssetState, getFutureState, getMarineState, getRasterState, updateAssetState, updateFutureState, updateMarineState, updateRasterState } from "./state/ApplicationState.js";
 import { applyFutureState } from "./state/MapState.js";
 
 // import map configurations
@@ -37,6 +37,7 @@ import {createSelectionPopupContent, showSelectionPopup,} from "./popups/Selecti
 // import layer tools
 import {addAssetLayers, applyAssetVisibility} from "./layers/Assets.js";
 import {addTideGaugeLayer,registerTideGaugeInteractions,setTideGaugeVisibility,} from "./layers/Marine.js";
+import { addRasterLayers, applyRasterVisibility } from "./layers/Raster.js";
 import {addMHWSLayers, registerMHWSInteractions} from "./layers/MHWS.js";
 import {addVEdgeLayers, registerVEdgeInteractions} from "./layers/VEdge.js";
 import {addTransectLayers, registerTransectInteractions} from "./layers/Transects.js";
@@ -114,7 +115,7 @@ function registerMapEvents(map) {
     addTideGaugeLayer(map, TIDE_GAUGE_DATASET);
     addRasterLayers(map);
     applyRasterVisibility(map, getRasterState());
-    
+
     addFutureShorelineLayer(map, FUTURE_DATASETS[0], futureState.year);
     addFutureUncertaintyLayer(map, FUTURE_UNCERTAINTY_DATASETS[0]);
     applyFutureState(map);

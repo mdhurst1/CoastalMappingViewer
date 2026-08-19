@@ -56,6 +56,7 @@ export default class MapOptionsControl {
     layerGroups,
     initialAssetState,
     initialMarineState,
+    initialRasterState,
     initialFutureState,
     onAssetVisibilityChanged,
     onMarineVisibilityChanged,

@@ -24,7 +24,7 @@ export const LOCAL_RASTER_LAYERS = {
     name: "LiDAR DTM",
 
     mosaic:
-      "http://127.0.0.1:9000/Montrose_DTM_mosaic.json",
+      "http://127.0.0.1:9000/Montrose_DEM_Mosaic.json",
 
     tileUrl:
       "http://127.0.0.1:8000/mosaicjson/tiles/WebMercatorQuad/{z}/{x}/{y}.png",

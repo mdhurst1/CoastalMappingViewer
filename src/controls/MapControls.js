@@ -158,9 +158,11 @@ export function addMapControls(map, onPolygonFinished) {
     LAYER_GROUPS,
     getAssetState(),
     getMarineState(),
+    getRasterState(),
     getFutureState(),
     handleAssetVisibilityChanged,
     handleMarineVisibilityChanged,
+    handleRasterVisibilityChanged,
     handleCoastalLayerVisibilityChanged,
     handleFutureShorelineChanged,
   );
