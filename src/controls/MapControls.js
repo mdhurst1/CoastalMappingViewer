@@ -14,7 +14,7 @@ import { LEGEND_ITEMS } from "../config/LegendConfig.js";
 import { TIDE_GAUGE_DATASET, MHWS_DATASETS, VEDGE_DATASETS, TRANSECTS_DATASETS, FUTURE_DATASETS, FUTURE_UNCERTAINTY_DATASETS, FUTURE_SCENARIO_FILE_CODES, getFutureShorelineDataset, getFutureUncertaintyDataset} from "../config/DatasetConfig.js";
 
 // import state management functions
-import {getAssetState, getFutureState, getMarineState, updateAssetState, updateFutureState, updateMarineState } from "../state/ApplicationState.js";
+import {getAssetState, getFutureState, getMarineState, getRasterState, updateAssetState, updateFutureState, updateMarineState, updateRasterState, } from "../state/ApplicationState.js";
 import { applyFutureState } from "../state/MapState.js";
 
 import {DrawingControl,} from "./DrawingControl";
@@ -24,6 +24,7 @@ import LegendControl from "./LegendControl.js";
 // import layer tools
 import {addAssetLayers, applyAssetVisibility} from "../layers/Assets.js";
 import {addTideGaugeLayer,registerTideGaugeInteractions,setTideGaugeVisibility,} from "../layers/Marine.js";
+import {applyRasterVisibility} from "../layers/Raster.js";
 import {addMHWSLayers, registerMHWSInteractions} from "../layers/MHWS.js";
 import {addVEdgeLayers, registerVEdgeInteractions} from "../layers/VEdge.js";
 import {addTransectLayers, registerTransectInteractions} from "../layers/Transects.js";
@@ -130,6 +131,12 @@ export function addMapControls(map, onPolygonFinished) {
     const marineState = updateMarineState(changes);
     setTideGaugeVisibility(map,marineState.tideGauges);
   };
+
+  // raster layers
+  const handleRasterVisibilityChanged = (changes) => {
+    const rasterState = updateRasterState(changes);
+    applyRasterVisibility(map, rasterState);
+  };  
 
   // coastal layers
   const handleCoastalLayerVisibilityChanged = () => {

@@ -112,6 +112,9 @@ function registerMapEvents(map) {
     setTideGaugeVisibility(map, marineState.tideGauges);
     
     addTideGaugeLayer(map, TIDE_GAUGE_DATASET);
+    addRasterLayers(map);
+    applyRasterVisibility(map, getRasterState());
+    
     addFutureShorelineLayer(map, FUTURE_DATASETS[0], futureState.year);
     addFutureUncertaintyLayer(map, FUTURE_UNCERTAINTY_DATASETS[0]);
     applyFutureState(map);
