@@ -17,6 +17,7 @@
 const DefaultFutureState = {scenario: "None", indicator: "MHWS", year: 2030};
 const DefaultMarineState = {TideGauges: false};
 const DefaultAssetState = {buildings: false, roads: false, railways: false};
+const DefaultRasterState = {lidarDTM: false, AerialPhotography: false};
 
 /*
  * Current state initially copied from defaults
@@ -26,6 +27,7 @@ const DefaultAssetState = {buildings: false, roads: false, railways: false};
 let futureState = { ...DefaultFutureState };
 let assetState = { ...DefaultAssetState };
 let marineState = { ...DefaultMarineState };
+let rasterState = { ...DefaultRasterState };
 
 /*
  * Future shoreline state
@@ -122,4 +124,34 @@ export function updateMarineState(changes) {
   };
 
   return getMarineState();
+}
+
+/*
+ * Raster layer state
+ * --------------------------------------------------------------------------
+ */
+
+/**
+ * Return a copy of the current raster-layer visibility state.
+ *
+ * @returns {Object}
+ */
+export function getRasterState() {
+  return { ...rasterState };
+}
+
+
+/**
+ * Update the raster-layer visibility state.
+ *
+ * @param {Object} changes - Raster-state properties to update.
+ * @returns {Object} A copy of the updated state.
+ */
+export function updateRasterState(changes) {
+  rasterState = {
+    ...rasterState,
+    ...changes,
+  };
+
+  return getRasterState();
 }
