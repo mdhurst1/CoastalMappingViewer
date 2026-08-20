@@ -173,3 +173,38 @@
   left: 0;
   transform: translateY(-50%);
 }
+
+.legend-raster-ramp {
+    width: 220px;
+    height: 12px;
+
+    margin-top: 5px;
+
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+}
+
+.legend-raster-labels {
+    position: relative;
+
+    width: 220px;
+    height: 16px;
+
+    margin-top: 3px;
+
+    font-size: 10px;
+    color: #555;
+}
+
+.legend-raster-labels span {
+    position: absolute;
+
+    transform: translateX(-50%);
+    white-space: nowrap;
+}
+
+.legend-raster-labels span {
+    position: absolute;
+    transform: translateX(-50%);
+    white-space: nowrap;
+}

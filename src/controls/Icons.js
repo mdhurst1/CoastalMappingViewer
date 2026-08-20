@@ -144,6 +144,34 @@ export const MAP_OPTIONS_ICONS = {
   `,
 
   /*
+   * Raster layers icon
+   * ------------------------------------------------------------------------
+   */
+
+  raster: `
+    ${SVG_START}
+      <path
+        d="M4 4H20V20H4Z"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linejoin="round"
+      />
+      <path
+        d="M9.3 4V20M14.7 4V20M4 9.3H20M4 14.7H20"
+        stroke="currentColor"
+        stroke-width="1.2"
+      />
+      <path
+        d="M4 16L8 12L11 14L15 9L20 13"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    ${SVG_END}
+  `,
+
+  /*
    * Coastal layers
    * ------------------------------------------------------------------------
    * Stylised shoreline crossed by coastal transects.

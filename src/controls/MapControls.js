@@ -12,18 +12,21 @@ import { Basemaps } from "../config/BasemapConfig.js";
 import { LAYER_GROUPS } from "../config/LayerGroups.js";
 import { LEGEND_ITEMS } from "../config/LegendConfig.js";
 import { TIDE_GAUGE_DATASET, MHWS_DATASETS, VEDGE_DATASETS, TRANSECTS_DATASETS, FUTURE_DATASETS, FUTURE_UNCERTAINTY_DATASETS, FUTURE_SCENARIO_FILE_CODES, getFutureShorelineDataset, getFutureUncertaintyDataset} from "../config/DatasetConfig.js";
+import { LOCAL_RASTER_LAYERS } from "../config/RasterConfig.js";
 
 // import state management functions
-import {getAssetState, getFutureState, getMarineState, updateAssetState, updateFutureState, updateMarineState } from "../state/ApplicationState.js";
+import {getAssetState, getFutureState, getMarineState, getRasterState, updateAssetState, updateFutureState, updateMarineState, updateRasterState, } from "../state/ApplicationState.js";
 import { applyFutureState } from "../state/MapState.js";
 
 import {DrawingControl,} from "./DrawingControl";
 import MapOptionsControl from "./MapOptionsControl";
 import LegendControl from "./LegendControl.js";
+import { ZoomSliderControl } from "./ZoomSliderControl.js";
 
 // import layer tools
 import {addAssetLayers, applyAssetVisibility} from "../layers/Assets.js";
 import {addTideGaugeLayer,registerTideGaugeInteractions,setTideGaugeVisibility,} from "../layers/Marine.js";
+import {applyRasterVisibility} from "../layers/Raster.js";
 import {addMHWSLayers, registerMHWSInteractions} from "../layers/MHWS.js";
 import {addVEdgeLayers, registerVEdgeInteractions} from "../layers/VEdge.js";
 import {addTransectLayers, registerTransectInteractions} from "../layers/Transects.js";
@@ -86,13 +89,36 @@ class PerspectiveControl {
   }
 }
 
+async function checkRasterServer() {
+
+  try {
+
+    const response = await fetch(
+      LOCAL_RASTER_LAYERS.lidarDTM.serverUrl,
+      {
+        signal: AbortSignal.timeout(2000),
+      },
+    );
+
+    return response.ok;
+
+  } catch {
+    return false;
+  }
+}
+
 export function addMapControls(map, onPolygonFinished) {
   
   // first add the map control buttons using maplibres built in controls
   map.addControl(
+    new ZoomSliderControl(),
+    "top-right",
+  );
+
+  map.addControl(
     new maplibregl.NavigationControl({
       showCompass: true,
-      showZoom: true,
+      showZoom: false,
       visualizePitch: true,
     }),
     "top-right",
@@ -131,6 +157,42 @@ export function addMapControls(map, onPolygonFinished) {
     setTideGaugeVisibility(map,marineState.tideGauges);
   };
 
+  // raster layers
+  const handleRasterVisibilityChanged = async (changes) => {
+
+    // only check the server when attempting to enable LiDAR
+    if (changes.lidarDTM) {
+
+      const available =
+        await checkRasterServer();
+
+      if (!available) {
+
+        window.alert(
+          "LiDAR data are currently unavailable.\n\n" +
+          "High-resolution LiDAR visualisation currently " +
+          "requires the local CMV raster service."
+        );
+
+        return false;
+      }
+    }
+
+    const rasterState =
+      updateRasterState(changes);
+
+    applyRasterVisibility(
+      map,
+      rasterState,
+    );
+
+    legendControl.updateRaster(
+      rasterState,
+    );
+
+    return true;
+  };
+
   // coastal layers
   const handleCoastalLayerVisibilityChanged = () => {
     applyLayerVisibility(map, LAYER_GROUPS);
@@ -151,9 +213,11 @@ export function addMapControls(map, onPolygonFinished) {
     LAYER_GROUPS,
     getAssetState(),
     getMarineState(),
+    getRasterState(),
     getFutureState(),
     handleAssetVisibilityChanged,
     handleMarineVisibilityChanged,
+    handleRasterVisibilityChanged,
     handleCoastalLayerVisibilityChanged,
     handleFutureShorelineChanged,
   );

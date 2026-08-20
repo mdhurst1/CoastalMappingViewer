@@ -56,9 +56,11 @@ export default class MapOptionsControl {
     layerGroups,
     initialAssetState,
     initialMarineState,
+    initialRasterState,
     initialFutureState,
     onAssetVisibilityChanged,
     onMarineVisibilityChanged,
+    onRasterVisibilityChanged,
     onLayerVisibilityChanged,
     onFutureShorelineChanged,
   ) {
@@ -74,6 +76,9 @@ export default class MapOptionsControl {
     this.onMarineVisibilityChanged =
       onMarineVisibilityChanged;
 
+    this.onRasterVisibilityChanged =
+      onRasterVisibilityChanged;
+
     this.onLayerVisibilityChanged =
       onLayerVisibilityChanged;
 
@@ -87,6 +92,10 @@ export default class MapOptionsControl {
 
     this.marineLayerState = {
       ...initialMarineState,
+    };
+
+    this.rasterLayerState = {
+      ...initialRasterState,
     };
 
     this.futureShorelineState = {
@@ -138,6 +147,13 @@ export default class MapOptionsControl {
       () => this.showMarinePanel(),
     );
 
+    // Raster-layer button
+    const rasterButton = this.createButton(
+      "Choose raster layers",
+      MAP_OPTIONS_ICONS.raster,
+      () => this.showRasterPanel(),
+    );
+
     // Coastal-layer button
     const coastalLayerButton = this.createButton(
       "Choose visible layers",
@@ -156,6 +172,7 @@ export default class MapOptionsControl {
     buttonRow.appendChild(basemapButton);
     buttonRow.appendChild(assetButton);
     buttonRow.appendChild(marineButton);
+    buttonRow.appendChild(rasterButton);
     buttonRow.appendChild(coastalLayerButton);
     buttonRow.appendChild(futureShorelinesButton);
 
@@ -391,6 +408,67 @@ export default class MapOptionsControl {
 
     this.panel.hidden = false;
   }
+
+
+  /*
+   * Raster layer panel
+   * ------------------------------------------------------------------------
+   */
+
+  showRasterPanel() {
+  const isAlreadyOpen =
+    !this.panel.hidden &&
+    this.panel.dataset.panel === "raster";
+
+  if (isAlreadyOpen) {
+    this.panel.hidden = true;
+    return;
+  }
+
+  this.panel.dataset.panel = "raster";
+  this.panel.replaceChildren();
+
+  const title = document.createElement("div");
+  title.className = "map-options-title";
+  title.textContent = "Raster layers";
+
+  this.panel.appendChild(title);
+
+  const lidarOption = this.createCheckbox(
+  "LiDAR DTM",
+  this.rasterLayerState.lidarDTM,
+  async (checked) => {
+
+    // Request the state change from the application
+    const accepted =
+      await this.onRasterVisibilityChanged?.({
+        ...this.rasterLayerState,
+        lidarDTM: checked,
+      });
+
+    // If the raster service is unavailable,
+    // reset the checkbox to off
+    if (accepted === false) {
+
+      const input =
+        lidarOption.querySelector("input");
+
+      input.checked = false;
+
+      this.rasterLayerState.lidarDTM = false;
+
+      return;
+    }
+
+    // Store the accepted state locally
+    this.rasterLayerState.lidarDTM =
+      checked;
+  },
+);
+  this.panel.appendChild(lidarOption);
+
+  this.panel.hidden = false;
+}
 
 
   /*
@@ -755,6 +833,14 @@ export default class MapOptionsControl {
     });
   }
 
+  /**
+ * Notify the application when a raster-layer checkbox changes.
+ */
+  notifyRasterVisibilityChanged() {
+    this.onRasterVisibilityChanged?.({
+      ...this.rasterLayerState,
+    });
+  }
 
   /*
    * Remove control from map
