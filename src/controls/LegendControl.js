@@ -5,6 +5,7 @@
  */
 
 import {getFutureScenarioStyle} from "../layers/FutureStyles.js";
+import { LOCAL_RASTER_LAYERS } from "../config/RasterConfig.js";
 
 // functions to control future labels
 const indicatorLabels = {
@@ -16,6 +17,7 @@ export default class LegendControl {
 
   constructor(items) {
     this.futureSection = undefined;
+    this.rasterSection = undefined;
     this.items = items;
     this.map = undefined;
     this.container = undefined;
@@ -111,6 +113,82 @@ export default class LegendControl {
     return section;
   }
 
+  createRasterGradient(stops) {
+
+    const entries = Object.entries(stops)
+        .map(([value, colour]) => [Number(value), colour])
+        .sort((a, b) => a[0] - b[0]);
+
+    const min = entries[0][0];
+    const max = entries[entries.length - 1][0];
+
+    const gradientStops = entries.map(([value, colour]) => {
+
+        const position =
+            ((value - min) / (max - min)) * 100;
+
+        return `${colour} ${position}%`;
+    });
+
+    return `linear-gradient(to right, ${gradientStops.join(", ")})`;
+  }
+
+  createRasterLegend(raster) {
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "legend-raster";
+
+    const title = document.createElement("div");
+    title.className = "legend-raster-title";
+    title.textContent =
+        `${raster.legend.title} (${raster.legend.units})`;
+
+    // create the colour ramp
+    const ramp = document.createElement("div");
+    ramp.className = "legend-raster-ramp";
+    ramp.style.background = this.createRasterGradient(raster.legend.stops);
+
+    const labels = document.createElement("div");
+    labels.className = "legend-raster-labels";
+
+    const labelValues = [
+        raster.legend.min,
+        0,
+        2,
+        5,
+        10,
+        raster.legend.max,
+    ];
+
+    labelValues.forEach((value, index) => {
+
+        const position =
+            ((value - raster.legend.min) /
+            (raster.legend.max - raster.legend.min)) * 100;
+
+        const label = document.createElement("span");
+
+        label.textContent = value;
+        label.style.left = `${position}%`;
+
+        if (index === 0) {
+            label.classList.add("legend-raster-label-first");
+        }
+
+        if (index === labelValues.length - 1) {
+            label.classList.add("legend-raster-label-last");
+        }
+
+        labels.appendChild(label);
+    });
+
+    wrapper.appendChild(title);
+    wrapper.appendChild(ramp);
+    wrapper.appendChild(labels);
+
+    return wrapper;
+  }
+
   createFutureItem() {
     const section = document.createElement("div");
     section.className = "legend-item legend-future-item";
@@ -194,16 +272,46 @@ export default class LegendControl {
       this.container.appendChild(section);
     });
 
+    // some temp output
+    console.log(
+        "LiDAR raster config:",
+        LOCAL_RASTER_LAYERS.lidarDTM
+    );
+
+    console.log(
+        "LiDAR legend config:",
+        LOCAL_RASTER_LAYERS.lidarDTM?.legend
+    );
+
+    this.rasterSection = this.createRasterLegend(
+        LOCAL_RASTER_LAYERS.lidarDTM
+    );
+
+    // add raster items
+    this.rasterSection = this.createRasterLegend(
+        LOCAL_RASTER_LAYERS.lidarDTM
+    );
+
+    this.rasterSection.hidden = true;
+    this.container.appendChild(this.rasterSection);
+
+    // add future items
     this.futureSection = this.createFutureItem();
     this.container.appendChild(this.futureSection);
 
     return this.container;
   }
 
+  // update raster visibility in legend
+  updateRaster(rasterState) {
+
+    if (!this.rasterSection) { return;}
+    this.rasterSection.hidden = !rasterState?.lidarDTM;
+    this.updateContainerVisibility();
+  }
+
   updateFuture(futureState) {
-    if (!this.futureSection) {
-      return;
-    }
+    if (!this.futureSection) {return;}
 
     const visible =
       futureState?.scenario &&
@@ -273,6 +381,10 @@ export default class LegendControl {
       return;
     }
 
+    const rasterVisible =
+        this.rasterSection &&
+        !this.rasterSection.hidden;
+
     const historicalVisible = Array.from(
       this.sections.values(),
     ).some((section) => !section.hidden);
@@ -282,7 +394,7 @@ export default class LegendControl {
       !this.futureSection.hidden;
 
     this.container.hidden =
-      !historicalVisible && !futureVisible;
+      !rasterVisible && !historicalVisible && !futureVisible;
   }
 
   updateVisibility(layerGroups) {

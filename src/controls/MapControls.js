@@ -142,6 +142,7 @@ export function addMapControls(map, onPolygonFinished) {
   const handleRasterVisibilityChanged = (changes) => {
     const rasterState = updateRasterState(changes);
     applyRasterVisibility(map, rasterState);
+    legendControl.updateRaster(rasterState);
   };  
 
   // coastal layers

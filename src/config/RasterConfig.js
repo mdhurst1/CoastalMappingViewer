@@ -44,6 +44,7 @@ export const LOCAL_RASTER_LAYERS = {
   lidarDTM: {
     id: "lidar-dtm",
     name: "LiDAR DTM",
+    stateKey: "lidarDTM",
 
     mosaic:
       "http://127.0.0.1:9000/Montrose_DEM_Mosaic.json",
@@ -56,11 +57,18 @@ export const LOCAL_RASTER_LAYERS = {
     maxzoom: 17,
 
     visible: false,
-    stateKey: "lidarDTM",
-
+    
     rescale: "-2,20",
 
     colormap: interpolateColourRamp(LIDAR_COLOUR_STOPS),
+
+    legend: {
+        title: "Scotgov LiDAR elevation",
+        units: "m",
+        min: -2,
+        max: 20,
+        stops: LIDAR_COLOUR_STOPS,
+    },
   },
 
   /* Hillshade layer goes in here
