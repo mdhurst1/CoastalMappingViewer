@@ -92,7 +92,14 @@ function createMap() {
 function registerMapEvents(map) {
   map.on("style.load", () => {
     
+    const assetState = getAssetState();
+    const marineState = getMarineState();
+    const futureState = getFutureState();
+    
+    addRasterLayers(map);
+    applyRasterVisibility(map, getRasterState());
     addAssetLayers(map);
+
     Object.values(LAYER_GROUPS).forEach(
       (group) => {
         group.addLayers(
@@ -104,18 +111,12 @@ function registerMapEvents(map) {
       },
     );
 
-    const assetState = getAssetState();
-    const marineState = getMarineState();
-    const futureState = getFutureState();
-
     applyAssetVisibility(map, assetState);
     applyLayerVisibility(map, LAYER_GROUPS);
     setTideGaugeVisibility(map, marineState.tideGauges);
     
     addTideGaugeLayer(map, TIDE_GAUGE_DATASET);
-    addRasterLayers(map);
-    applyRasterVisibility(map, getRasterState());
-
+    
     addFutureShorelineLayer(map, FUTURE_DATASETS[0], futureState.year);
     addFutureUncertaintyLayer(map, FUTURE_UNCERTAINTY_DATASETS[0]);
     applyFutureState(map);
