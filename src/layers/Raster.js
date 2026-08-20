@@ -21,6 +21,7 @@ export function addRasterLayers(map) {
         let tileUrl =
             `${raster.tileUrl}` +
             `?url=${encodeURIComponent(raster.mosaic)}`;
+    
         
         if (raster.tilesize)
         {
@@ -31,9 +32,10 @@ export function addRasterLayers(map) {
             tileUrl += `&rescale=${raster.rescale}`;
         }
 
-        if (raster.colormap) {
-            tileUrl += `&colormap=${encodeURIComponent(JSON.stringify(raster.colormap))}`;
+        if (raster.colormapName) {
+            tileUrl += `&colormap_name=${raster.colormapName}`;
         }
+        
 
         if (raster.algorithm) {
             tileUrl += `&algorithm=${raster.algorithm}`;

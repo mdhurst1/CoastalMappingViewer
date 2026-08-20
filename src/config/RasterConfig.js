@@ -52,14 +52,15 @@ export const LOCAL_RASTER_LAYERS = {
     tileUrl:
       "http://127.0.0.1:8000/mosaicjson/tiles/WebMercatorQuad/{z}/{x}/{y}.png",
 
-    tilesize: 512,
-    minzoom: 12,
+    tilesize: 256,
+    minzoom: 14,
     maxzoom: 17,
 
     visible: false,
     
     rescale: "-2,20",
 
+    colormapName: "cmv_lidar",
     colormap: interpolateColourRamp(LIDAR_COLOUR_STOPS),
 
     legend: {
@@ -87,7 +88,7 @@ export const LOCAL_RASTER_LAYERS = {
         "http://127.0.0.1:8000/mosaicjson/tiles/WebMercatorQuad/{z}/{x}/{y}.png",
 
     tilesize: 256,
-    minzoom: 12,
+    minzoom: 14,
     maxzoom: 17,
 
     stateKey: "lidarDTM",
