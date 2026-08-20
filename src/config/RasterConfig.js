@@ -46,6 +46,8 @@ export const LOCAL_RASTER_LAYERS = {
     name: "LiDAR DTM",
     stateKey: "lidarDTM",
 
+    serverUrl: "http://127.0.0.1:8000/healthz",
+    
     mosaic:
       "http://127.0.0.1:9000/Montrose_DEM_Mosaic.json",
 

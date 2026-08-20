@@ -112,3 +112,7 @@ app.include_router(
     mosaic.router,
     prefix="/mosaicjson",
 )
+
+@app.get("/healthz")
+def health():
+    return {"status": "ok"}

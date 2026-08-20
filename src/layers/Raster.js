@@ -95,3 +95,29 @@ export function applyRasterVisibility(map, rasterState) {
         );
     });
 }
+
+export async function checkRasterServer(raster) {
+
+    try {
+
+        const response = await fetch(
+            raster.serverUrl,
+            {
+                signal: AbortSignal.timeout(2000),
+            },
+        );
+
+        return response.ok;
+
+    } catch {
+        return false;
+    }
+}
+
+export function showRasterUnavailableWarning() {
+
+    window.alert(
+        "LiDAR data are currently unavailable.\n\n" +
+        "This demonstration currently requires a local raster server."
+    );
+}

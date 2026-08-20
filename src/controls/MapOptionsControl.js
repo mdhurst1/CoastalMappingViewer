@@ -435,16 +435,36 @@ export default class MapOptionsControl {
   this.panel.appendChild(title);
 
   const lidarOption = this.createCheckbox(
-    "LiDAR DTM",
-    this.rasterLayerState.lidarDTM,
-    (checked) => {
-      this.rasterLayerState.lidarDTM =
-        checked;
+  "LiDAR DTM",
+  this.rasterLayerState.lidarDTM,
+  async (checked) => {
 
-      this.notifyRasterVisibilityChanged();
-    },
-  );
+    // Request the state change from the application
+    const accepted =
+      await this.onRasterVisibilityChanged?.({
+        ...this.rasterLayerState,
+        lidarDTM: checked,
+      });
 
+    // If the raster service is unavailable,
+    // reset the checkbox to off
+    if (accepted === false) {
+
+      const input =
+        lidarOption.querySelector("input");
+
+      input.checked = false;
+
+      this.rasterLayerState.lidarDTM = false;
+
+      return;
+    }
+
+    // Store the accepted state locally
+    this.rasterLayerState.lidarDTM =
+      checked;
+  },
+);
   this.panel.appendChild(lidarOption);
 
   this.panel.hidden = false;
