@@ -18,10 +18,26 @@ export function addRasterLayers(map) {
         const sourceId = `${raster.id}-source`;
 
         // set up the tile URL for the raster layer, including the mosaic URL as a query parameter
-        const tileUrl = `${raster.tileUrl}` + `?url=${encodeURIComponent(raster.mosaic)}` 
-            + `&tilesize=256`
-            + `&rescale=-1,25`
-            + `&colormap_name=terrain`;
+        let tileUrl =
+            `${raster.tileUrl}` +
+            `?url=${encodeURIComponent(raster.mosaic)}` +
+            `&tilesize=256`;
+
+        if (raster.rescale) {
+            tileUrl += `&rescale=${raster.rescale}`;
+        }
+
+        if (raster.colormap) {
+            tileUrl += `&colormap=${encodeURIComponent(JSON.stringify(raster.colormap))}`;
+        }
+
+        if (raster.algorithm) {
+            tileUrl += `&algorithm=${raster.algorithm}`;
+        }
+
+        if (raster.buffer) {
+            tileUrl += `&buffer=${raster.buffer}`;
+        }
             
         console.log("Raster tile URL:", tileUrl);
 
@@ -45,6 +61,9 @@ export function addRasterLayers(map) {
                 layout: {
                     visibility: "none",
                 },
+                paint: {
+                    "raster-opacity": raster.opacity ?? 1,
+                },
             });
         }
         console.log("Added raster layer:", raster.id);
@@ -55,25 +74,18 @@ export function addRasterLayers(map) {
 export function applyRasterVisibility(map, rasterState) {
 
     // loop through the raster layers and set their visibility based on the state
-    Object.entries(LOCAL_RASTER_LAYERS).forEach(([key, raster]) => {
+    Object.values(LOCAL_RASTER_LAYERS).forEach((raster) => {
 
         // check if the layer exists on the map before trying to set its visibility
         if (!map.getLayer(raster.id)) {
             return;
         }
 
-        // set the visibility of the raster layer based on the state
+        // set visibility based on the associated raster state
         map.setLayoutProperty(
             raster.id,
             "visibility",
-            rasterState[key] ? "visible" : "none",
-        );
-
-        console.log(
-            "Raster visibility:",
-            raster.id,
-            rasterState[key],
-            map.getLayer(raster.id),
+            rasterState[raster.stateKey] ? "visible" : "none",
         );
     });
 }
