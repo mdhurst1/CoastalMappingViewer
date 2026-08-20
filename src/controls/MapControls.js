@@ -20,6 +20,7 @@ import { applyFutureState } from "../state/MapState.js";
 import {DrawingControl,} from "./DrawingControl";
 import MapOptionsControl from "./MapOptionsControl";
 import LegendControl from "./LegendControl.js";
+import { ZoomSliderControl } from "./ZoomSliderControl.js";
 
 // import layer tools
 import {addAssetLayers, applyAssetVisibility} from "../layers/Assets.js";
@@ -91,9 +92,14 @@ export function addMapControls(map, onPolygonFinished) {
   
   // first add the map control buttons using maplibres built in controls
   map.addControl(
+    new ZoomSliderControl(),
+    "top-right",
+  );
+
+  map.addControl(
     new maplibregl.NavigationControl({
       showCompass: true,
-      showZoom: true,
+      showZoom: false,
       visualizePitch: true,
     }),
     "top-right",
