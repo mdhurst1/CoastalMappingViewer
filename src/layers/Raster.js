@@ -20,8 +20,12 @@ export function addRasterLayers(map) {
         // set up the tile URL for the raster layer, including the mosaic URL as a query parameter
         let tileUrl =
             `${raster.tileUrl}` +
-            `?url=${encodeURIComponent(raster.mosaic)}` +
-            `&tilesize=256`;
+            `?url=${encodeURIComponent(raster.mosaic)}`;
+        
+        if (raster.tilesize)
+        {
+            tileUrl += `&tilesize=${raster.tilesize}`;
+        }
 
         if (raster.rescale) {
             tileUrl += `&rescale=${raster.rescale}`;
@@ -46,7 +50,7 @@ export function addRasterLayers(map) {
             map.addSource(sourceId, {
                 type: "raster",
                 tiles: [tileUrl],
-                tileSize: 256,
+                tileSize: raster.tilesize,
                 minzoom: raster.minzoom,
                 maxzoom: raster.maxzoom,
             });

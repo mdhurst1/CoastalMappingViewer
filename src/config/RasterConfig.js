@@ -51,7 +51,8 @@ export const LOCAL_RASTER_LAYERS = {
     tileUrl:
       "http://127.0.0.1:8000/mosaicjson/tiles/WebMercatorQuad/{z}/{x}/{y}.png",
 
-    minzoom: 14,
+    tilesize: 512,
+    minzoom: 12,
     maxzoom: 17,
 
     visible: false,
@@ -77,7 +78,8 @@ export const LOCAL_RASTER_LAYERS = {
     tileUrl:
         "http://127.0.0.1:8000/mosaicjson/tiles/WebMercatorQuad/{z}/{x}/{y}.png",
 
-    minzoom: 14,
+    tilesize: 256,
+    minzoom: 12,
     maxzoom: 17,
 
     stateKey: "lidarDTM",
