@@ -14,7 +14,7 @@ export function getIntersectingTransects(
   polygon,
   datasets,
 ) {
-  const selected = [];
+  const selected = new Map();
 
   datasets.forEach((dataset) => {
     const { sourceId } = getLayerIds(dataset);
@@ -23,13 +23,28 @@ export function getIntersectingTransects(
       map.querySourceFeatures(sourceId);
 
     features.forEach((feature) => {
-      if (booleanIntersects(feature, polygon)) {
-        selected.push(feature);
+
+      if (!booleanIntersects(feature, polygon)) {
+        return;
+      }
+
+      /*
+       * querySourceFeatures can return duplicate copies of
+       * the same feature from adjacent map tiles.
+       *
+       * LineID + TransectID uniquely identifies a transect.
+       */
+      const key =
+        `${feature.properties?.LineID}-` +
+        `${feature.properties?.TransectID}`;
+
+      if (!selected.has(key)) {
+        selected.set(key, feature);
       }
     });
   });
 
-  return selected;
+  return [...selected.values()];
 }
 
 function getTimeseries(feature) {
