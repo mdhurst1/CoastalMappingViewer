@@ -24,17 +24,10 @@ import LegendControl from "./LegendControl.js";
 import { ZoomSliderControl } from "./ZoomSliderControl.js";
 
 // import layer tools
-import {addAssetLayers, applyAssetVisibility} from "../layers/Assets.js";
-import {addTideGaugeLayer,registerTideGaugeInteractions,setTideGaugeVisibility,} from "../layers/Marine.js";
+import {applyAssetVisibility} from "../layers/Assets.js";
+import {setTideGaugeVisibility,} from "../layers/Marine.js";
 import {applyRasterVisibility} from "../layers/Raster.js";
-import {addMHWSLayers, registerMHWSInteractions} from "../layers/MHWS.js";
-import {addVEdgeLayers, registerVEdgeInteractions} from "../layers/VEdge.js";
-import {addTransectLayers, registerTransectInteractions} from "../layers/Transects.js";
-import {addFutureShorelineLayer, updateFutureShoreline, updateFutureShorelineStyle, setFutureShorelineVisibility} from "../layers/FutureShorelines.js";
-import {addFutureUncertaintyLayer, updateFutureUncertainty, updateFutureUncertaintyStyle, setFutureUncertaintyVisibility,} from "../layers/FutureShorelinesUncertainty.js";
-
-// Generic layer utilities
-import {setDatasetVisibility, applyLayerVisibility} from "../map/LayerFactory.js";
+import {applyLayerVisibility} from "../map/LayerFactory.js";
 
 // create a perspective control to toggle between 2D and 3D views
 class PerspectiveControl {

@@ -1,5 +1,5 @@
 //import style
-import "../styles/zoomslider.css";
+import "../styles/ZoomSlider.css";
 
 export class ZoomSliderControl {
 
