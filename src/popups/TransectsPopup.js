@@ -196,28 +196,45 @@ function createRegressionTrace(
   };
 }
 
-export function plotTransectTimeseries(plot, timeseries, selectedMethod) {
+export function plotTransectTimeseries(plot, timeseries, selectedIndicator, selectedMethod) {
   const traces = [];
 
+  // Plot ALL available shoreline observations
   if (timeseries.MHWS?.Observations?.length) {
-    
-    traces.push(createTimeseriesTrace(timeseries.MHWS, "MHWS"));
-    const regressionTrace = createRegressionTrace(timeseries.MHWS, "MHWS", selectedMethod);
-    if (regressionTrace) {
-      traces.push(regressionTrace);
-    }
+    traces.push(
+      createTimeseriesTrace(
+        timeseries.MHWS,
+        "MHWS",
+      ),
+    );
   }
 
   if (timeseries.VEdge?.Observations?.length) {
-    
-    traces.push(createTimeseriesTrace(timeseries.VEdge, "VEdge"));
-    const regressionTrace = createRegressionTrace(timeseries.VEdge, "VEdge", selectedMethod);
+    traces.push(
+      createTimeseriesTrace(
+        timeseries.VEdge,
+        "VEdge",
+      ),
+    );
+  }
+
+  // Plot regression only for the selected indicator
+  const selectedSignal =
+    timeseries[selectedIndicator];
+
+  if (selectedSignal && selectedMethod) {
+    const regressionTrace =
+      createRegressionTrace(
+        selectedSignal,
+        selectedIndicator,
+        selectedMethod,
+      );
 
     if (regressionTrace) {
       traces.push(regressionTrace);
     }
   }
-  
+
   if (traces.length === 0) {
     plot.textContent =
       "No shoreline time-series observations available.";
@@ -405,20 +422,19 @@ function formatResultValue(value, decimals = 2) {
 }
 
 
-function createTransectResults(timeseries, selectedMethod) {
+function createTransectResults(timeseries, selectedIndicator,selectedMethod) {
   const container = document.createElement("div");
   container.className = "transect-results";
 
   const signals = [
-    {
-      signal: timeseries.MHWS,
-      heading: "MHWS results",
-    },
-    {
-      signal: timeseries.VEdge,
-      heading: "Vegetation edge results",
-    },
-  ];
+  {
+    signal: timeseries[selectedIndicator],
+    heading:
+      selectedIndicator === "MHWS"
+        ? "MHWS results"
+        : "Vegetation edge results",
+  },
+];
 
   signals.forEach(({signal, heading}) => {
     const results = signal?.Results ?? {};
@@ -528,47 +544,28 @@ function createTransectResults(timeseries, selectedMethod) {
   return container;
 }
 
-// function to add a result selector for type of timeseries analysis
-function createResultSelector(timeseries) {
+// function to add a selector for shoreline indicator
+function createIndicatorSelector(timeseries) {
   const wrapper = document.createElement("div");
   wrapper.className = "transect-result-selector";
 
   const label = document.createElement("label");
-  label.textContent = "Analysis method";
+  label.textContent = "Shoreline indicator";
 
   const select = document.createElement("select");
 
-  /*
-   * Only include methods that exist for at least one signal.
-   */
-  const availableMethods = RESULT_METHODS.filter(
-    method =>
-      timeseries.MHWS?.Results?.[method] ||
-      timeseries.VEdge?.Results?.[method],
-  );
-
-  availableMethods.forEach(method => {
+  if (timeseries.MHWS) {
     const option = document.createElement("option");
-
-    option.value = method;
-    option.textContent =
-      timeseries.MHWS?.Results?.[method]?.Method ??
-      timeseries.VEdge?.Results?.[method]?.Method ??
-      method;
-
+    option.value = "MHWS";
+    option.textContent = "MHWS";
     select.appendChild(option);
-  });
+  }
 
-  /*
- * Select TWR initially so its regression line and results are shown
- * as soon as the popup opens.
- */
-  const preferredMethod = "TWR";
-
-  if (availableMethods.includes(preferredMethod)) {
-    select.value = preferredMethod;
-  } else if (availableMethods.length > 0) {
-    select.value = availableMethods[0];
+  if (timeseries.VEdge) {
+    const option = document.createElement("option");
+    option.value = "VEdge";
+    option.textContent = "Vegetation Edge";
+    select.appendChild(option);
   }
 
   label.appendChild(select);
@@ -577,7 +574,74 @@ function createResultSelector(timeseries) {
   return {
     wrapper,
     select,
-    availableMethods,
+  };
+}
+
+function updateResultSelector(
+  select,
+  timeseries,
+  selectedIndicator,
+) {
+  const signal = timeseries[selectedIndicator];
+  const results = signal?.Results ?? {};
+
+  const availableMethods = RESULT_METHODS.filter(
+    method => results[method],
+  );
+
+  // Remember currently selected method if possible
+  const previousMethod = select.value;
+
+  select.replaceChildren();
+
+  availableMethods.forEach(method => {
+    const option = document.createElement("option");
+
+    option.value = method;
+    option.textContent =
+      results[method]?.Method ?? method;
+
+    select.appendChild(option);
+  });
+
+  // Keep current method if it exists for the new indicator
+  if (availableMethods.includes(previousMethod)) {
+    select.value = previousMethod;
+
+  // Otherwise prefer TWR
+  } else if (availableMethods.includes("TWR")) {
+    select.value = "TWR";
+
+  // Otherwise use the first available method
+  } else if (availableMethods.length > 0) {
+    select.value = availableMethods[0];
+  }
+
+  return availableMethods;
+}
+
+// function to add a result selector for type of timeseries analysis
+function createResultSelector(timeseries, selectedIndicator) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "transect-result-selector";
+
+  const label = document.createElement("label");
+  label.textContent = "Analysis method";
+
+  const select = document.createElement("select");
+
+  updateResultSelector(
+    select,
+    timeseries,
+    selectedIndicator,
+  );
+
+  label.appendChild(select);
+  wrapper.appendChild(label);
+
+  return {
+    wrapper,
+    select,
   };
 }
 
@@ -635,15 +699,19 @@ export function createTransectPopupContent(properties) {
 
   container.appendChild(plotSelectorContainer);
 
-  // then add the timeseries selector below the plot
+  // then add the indicator and timeseries selector below the plot
   const timeseries = parseTimeseries(properties);
   const topography = parseTopography(properties);
 
   const {
+    wrapper: indicatorSelector,
+    select: indicatorSelect,
+  } = createIndicatorSelector(timeseries);
+
+  const {
     wrapper: selector,
     select,
-    availableMethods,
-  } = createResultSelector(timeseries);
+  } = createResultSelector(timeseries, indicatorSelect.value);
 
   // create the plot container
   const plot = document.createElement("div");
@@ -654,16 +722,23 @@ export function createTransectPopupContent(properties) {
     "transect-results-container";
 
 
+  const analysisControls = document.createElement("div");
+  analysisControls.className = "transect-analysis-controls";
+
+  analysisControls.appendChild(indicatorSelector);
+  analysisControls.appendChild(selector);
+
+  container.appendChild(analysisControls);
   container.appendChild(plot);
-  if (availableMethods.length > 0) {
-    container.appendChild(selector);
-  }
   container.appendChild(resultsContainer);
 
   const render = () => {
 
     const selectedPlot =
       plotSelector.value;
+
+    const selectedIndicator =
+      indicatorSelect.value || "MHWS";
 
     const selectedMethod =
       select.value || null;
@@ -676,7 +751,7 @@ export function createTransectPopupContent(properties) {
       );
 
       // Analysis controls/results do not apply
-      selector.style.display = "none";
+      analysisControls.style.display = "none";
       resultsContainer.style.display = "none";
 
     } else {
@@ -684,15 +759,17 @@ export function createTransectPopupContent(properties) {
       plotTransectTimeseries(
         plot,
         timeseries,
+        selectedIndicator,
         selectedMethod,
       );
 
-      selector.style.display = "";
-      resultsContainer.style.display = "";
+      analysisControls.style.display = "flex";
+      resultsContainer.style.display = "block";
 
       resultsContainer.replaceChildren(
         createTransectResults(
           timeseries,
+          selectedIndicator,
           selectedMethod,
         ),
       );
@@ -702,6 +779,19 @@ export function createTransectPopupContent(properties) {
   plotSelector.addEventListener(
     "change",
     render,
+  );
+
+  indicatorSelect.addEventListener(
+    "change",
+    () => {
+      updateResultSelector(
+        select,
+        timeseries,
+        indicatorSelect.value,
+      );
+
+      render();
+    },
   );
 
   select.addEventListener(

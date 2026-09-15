@@ -143,6 +143,18 @@
   font: inherit;
 }
 
+.transect-analysis-controls {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.transect-analysis-controls .transect-result-selector {
+  flex: 1;
+  min-width: 140px;
+}
+
 .tide-gauge-popup {
   box-sizing: border-box;
   width: 420px;
