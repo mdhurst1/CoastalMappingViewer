@@ -11,7 +11,7 @@ import { MapConfig } from "../config/MapConfig.js";
 import { Basemaps } from "../config/BasemapConfig.js";
 import { LAYER_GROUPS } from "../config/LayerGroups.js";
 import { LEGEND_ITEMS } from "../config/LegendConfig.js";
-import { TIDE_GAUGE_DATASET, MHWS_DATASETS, VEDGE_DATASETS, TRANSECTS_DATASETS, FUTURE_DATASETS, FUTURE_UNCERTAINTY_DATASETS, FUTURE_SCENARIO_FILE_CODES, getFutureShorelineDataset, getFutureUncertaintyDataset} from "../config/DatasetConfig.js";
+import { TIDE_GAUGE_DATASET, EXEMPLAR_SITES_DATASET, MHWS_DATASETS, VEDGE_DATASETS, TRANSECTS_DATASETS, FUTURE_DATASETS, FUTURE_UNCERTAINTY_DATASETS, FUTURE_SCENARIO_FILE_CODES, getFutureShorelineDataset, getFutureUncertaintyDataset} from "../config/DatasetConfig.js";
 import { LOCAL_RASTER_LAYERS } from "../config/RasterConfig.js";
 
 // import state management functions
@@ -22,7 +22,6 @@ import {DrawingControl,} from "./DrawingControl";
 import MapOptionsControl from "./MapOptionsControl";
 import LegendControl from "./LegendControl.js";
 import { ZoomSliderControl } from "./ZoomSliderControl.js";
-import AOIControl from "./AOIControl.js";
 
 // import layer tools
 import {applyAssetVisibility} from "../layers/Assets.js";
@@ -205,6 +204,7 @@ export function addMapControls(map, onPolygonFinished) {
     Basemaps,
     MapConfig.basemap,
     LAYER_GROUPS,
+    EXEMPLAR_SITES_DATASET,
     getAssetState(),
     getMarineState(),
     getRasterState(),
@@ -221,9 +221,6 @@ export function addMapControls(map, onPolygonFinished) {
     "top-left",
   );
 
-  // add exemplar location selector
-  map.addControl(
-    new AOIControl("/data/AOI_Exemplars.geojson",),"top-left");
 
   // create the legend control and add it to the map
   const legendControl = new LegendControl(LEGEND_ITEMS);

@@ -54,6 +54,7 @@ export default class MapOptionsControl {
     basemaps,
     initialBasemap,
     layerGroups,
+    exemplarSitesDataset,
     initialAssetState,
     initialMarineState,
     initialRasterState,
@@ -68,6 +69,8 @@ export default class MapOptionsControl {
     this.basemaps = basemaps;
     this.activeBasemap = initialBasemap;
     this.layerGroups = layerGroups;
+    this.exemplarSitesDataset = exemplarSitesDataset;
+    this.exemplarFeatures = [];
 
     // Application callbacks
     this.onAssetVisibilityChanged =
@@ -169,12 +172,22 @@ export default class MapOptionsControl {
         () => this.showFuturePanel(),
       );
 
+    // Exemplar-location button
+    const exemplarSitesButton =
+      this.createButton(
+        "Go to exemplar location",
+        MAP_OPTIONS_ICONS.exemplars,
+        () => this.showExemplarPanel(),
+      );
+
     buttonRow.appendChild(basemapButton);
+    buttonRow.appendChild(exemplarSitesButton);
     buttonRow.appendChild(assetButton);
     buttonRow.appendChild(marineButton);
     buttonRow.appendChild(rasterButton);
     buttonRow.appendChild(coastalLayerButton);
     buttonRow.appendChild(futureShorelinesButton);
+    
 
     // Dropdown panel displayed beneath the icon buttons
     this.panel = document.createElement("div");
@@ -796,6 +809,218 @@ export default class MapOptionsControl {
     this.panel.appendChild(tickContainer);
 
     this.panel.hidden = false;
+  }
+
+
+  /*
+   * Exemplar-location panel
+   * ------------------------------------------------------------------------
+   */
+
+  async showExemplarPanel() {
+    const isAlreadyOpen =
+      !this.panel.hidden &&
+      this.panel.dataset.panel === "exemplars";
+
+    if (isAlreadyOpen) {
+      this.panel.hidden = true;
+      return;
+    }
+
+    this.panel.dataset.panel = "exemplars";
+    this.panel.replaceChildren();
+
+    const title = document.createElement("div");
+    title.className = "map-options-title";
+    title.textContent = "Exemplar locations";
+
+    const label = document.createElement("label");
+    label.className = "exemplar-control-label";
+    label.htmlFor = "exemplar-location-select";
+    label.textContent = "Location";
+
+    const select = document.createElement("select");
+    select.id = "exemplar-location-select";
+    select.className = "exemplar-control-select";
+    select.disabled = true;
+
+    const loadingOption = document.createElement("option");
+    loadingOption.value = "";
+    loadingOption.textContent = "Loading locations…";
+    select.appendChild(loadingOption);
+
+    this.panel.appendChild(title);
+    this.panel.appendChild(label);
+    this.panel.appendChild(select);
+    this.panel.hidden = false;
+
+    try {
+      const features =
+        await this.loadExemplarFeatures();
+
+      // The user may have opened another panel while the data were loading.
+      if (
+        this.panel.dataset.panel !== "exemplars" ||
+        this.panel.hidden
+      ) {
+        return;
+      }
+
+      select.replaceChildren();
+
+      const promptOption =
+        document.createElement("option");
+
+      promptOption.value = "";
+      promptOption.textContent =
+        "Select location…";
+
+      select.appendChild(promptOption);
+
+      features.forEach((feature, index) => {
+        const option =
+          document.createElement("option");
+
+        option.value = String(index);
+        option.textContent =
+          feature.properties.Name;
+
+        select.appendChild(option);
+      });
+
+      select.disabled = features.length === 0;
+
+      if (features.length === 0) {
+        promptOption.textContent =
+          "No exemplar locations found";
+      }
+
+      select.addEventListener("change", () => {
+        if (select.value === "") {
+          return;
+        }
+
+        const feature =
+          features[Number(select.value)];
+
+        this.zoomToExemplar(feature);
+        this.panel.hidden = true;
+      });
+
+    } catch (error) {
+      console.error(
+        "MapOptionsControl: Could not load exemplar locations.",
+        error,
+      );
+
+      if (this.panel.dataset.panel !== "exemplars") {
+        return;
+      }
+
+      select.replaceChildren();
+
+      const errorOption =
+        document.createElement("option");
+
+      errorOption.value = "";
+      errorOption.textContent =
+        "Locations unavailable";
+
+      select.appendChild(errorOption);
+      select.disabled = true;
+    }
+  }
+
+
+  async loadExemplarFeatures() {
+    if (this.exemplarFeatures.length > 0) {
+      return this.exemplarFeatures;
+    }
+
+    const response = await fetch(
+      this.exemplarSitesDataset.file,
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        `HTTP ${response.status}`,
+      );
+    }
+
+    const geojson = await response.json();
+
+    this.exemplarFeatures =
+      (geojson.features ?? [])
+        .filter(
+          feature =>
+            feature.geometry &&
+            feature.properties?.Name,
+        )
+        .sort((a, b) =>
+          a.properties.Name.localeCompare(
+            b.properties.Name,
+          ),
+        );
+
+    return this.exemplarFeatures;
+  }
+
+
+  zoomToExemplar(feature) {
+    const bounds =
+      this.getGeometryBounds(feature?.geometry);
+
+    if (!bounds) {
+      return;
+    }
+
+    this.map.fitBounds(
+      bounds,
+      {
+        padding: 50,
+        duration: 900,
+        maxZoom: 14,
+      },
+    );
+  }
+
+
+  getGeometryBounds(geometry) {
+    if (!geometry?.coordinates) {
+      return null;
+    }
+
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+
+    const visitCoordinates = coordinates => {
+      if (
+        Array.isArray(coordinates) &&
+        typeof coordinates[0] === "number" &&
+        typeof coordinates[1] === "number"
+      ) {
+        minX = Math.min(minX, coordinates[0]);
+        minY = Math.min(minY, coordinates[1]);
+        maxX = Math.max(maxX, coordinates[0]);
+        maxY = Math.max(maxY, coordinates[1]);
+        return;
+      }
+
+      coordinates.forEach(visitCoordinates);
+    };
+
+    visitCoordinates(geometry.coordinates);
+
+    if (!Number.isFinite(minX)) {
+      return null;
+    }
+
+    return [
+      [minX, minY],
+      [maxX, maxY],
+    ];
   }
 
 

@@ -24,24 +24,18 @@ import { MapConfig } from "./config/MapConfig.js";
 import { Basemaps } from "./config/BasemapConfig.js";
 import { TIDE_GAUGE_DATASET, MHWS_DATASETS, VEDGE_DATASETS, TRANSECTS_DATASETS, FUTURE_DATASETS, FUTURE_UNCERTAINTY_DATASETS, FUTURE_SCENARIO_FILE_CODES, getFutureShorelineDataset, getFutureUncertaintyDataset} from "./config/DatasetConfig.js";
 
-import { LEGEND_ITEMS } from "./config/LegendConfig.js";
 import { LAYER_GROUPS } from "./config/LayerGroups.js";
 
 // import control tools
-import MapOptionsControl from "./controls/MapOptionsControl.js";
-import LegendControl from "./controls/LegendControl.js";
 import {addMapControls} from "./controls/MapControls.js";
 import {getIntersectingTransects, summariseTransects,} from "./analysis/TransectsAnalysis.js";
 import {createSelectionPopupContent, showSelectionPopup,} from "./popups/SelectionPopup.js";
-import AOIControl from "./controls/AOIControl.js";
+
 
 // import layer tools
 import {addAssetLayers, applyAssetVisibility} from "./layers/Assets.js";
 import {addTideGaugeLayer,registerTideGaugeInteractions,setTideGaugeVisibility,} from "./layers/Marine.js";
 import { addRasterLayers, applyRasterVisibility } from "./layers/Raster.js";
-import {addMHWSLayers, registerMHWSInteractions} from "./layers/MHWS.js";
-import {addVEdgeLayers, registerVEdgeInteractions} from "./layers/VEdge.js";
-import {addTransectLayers, registerTransectInteractions} from "./layers/Transects.js";
 import {addFutureShorelineLayer, updateFutureShoreline, updateFutureShorelineStyle, setFutureShorelineVisibility} from "./layers/FutureShorelines.js";
 import {addFutureUncertaintyLayer, updateFutureUncertainty, updateFutureUncertaintyStyle, setFutureUncertaintyVisibility,} from "./layers/FutureShorelinesUncertainty.js";
 
