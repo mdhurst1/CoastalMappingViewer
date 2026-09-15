@@ -24,18 +24,23 @@ import { MapConfig } from "./config/MapConfig.js";
 import { Basemaps } from "./config/BasemapConfig.js";
 import { TIDE_GAUGE_DATASET, MHWS_DATASETS, VEDGE_DATASETS, TRANSECTS_DATASETS, FUTURE_DATASETS, FUTURE_UNCERTAINTY_DATASETS, FUTURE_SCENARIO_FILE_CODES, getFutureShorelineDataset, getFutureUncertaintyDataset} from "./config/DatasetConfig.js";
 
+import { LEGEND_ITEMS } from "./config/LegendConfig.js";
 import { LAYER_GROUPS } from "./config/LayerGroups.js";
 
 // import control tools
+import MapOptionsControl from "./controls/MapOptionsControl.js";
+import LegendControl from "./controls/LegendControl.js";
 import {addMapControls} from "./controls/MapControls.js";
 import {getIntersectingTransects, summariseTransects,} from "./analysis/TransectsAnalysis.js";
 import {createSelectionPopupContent, showSelectionPopup,} from "./popups/SelectionPopup.js";
-
 
 // import layer tools
 import {addAssetLayers, applyAssetVisibility} from "./layers/Assets.js";
 import {addTideGaugeLayer,registerTideGaugeInteractions,setTideGaugeVisibility,} from "./layers/Marine.js";
 import { addRasterLayers, applyRasterVisibility } from "./layers/Raster.js";
+import {addMHWSLayers, registerMHWSInteractions} from "./layers/MHWS.js";
+import {addVEdgeLayers, registerVEdgeInteractions} from "./layers/VEdge.js";
+import {addTransectLayers, registerTransectInteractions} from "./layers/Transects.js";
 import {addFutureShorelineLayer, updateFutureShoreline, updateFutureShorelineStyle, setFutureShorelineVisibility} from "./layers/FutureShorelines.js";
 import {addFutureUncertaintyLayer, updateFutureUncertainty, updateFutureUncertaintyStyle, setFutureUncertaintyVisibility,} from "./layers/FutureShorelinesUncertainty.js";
 
@@ -123,12 +128,28 @@ function registerMapEvents(map) {
  * --------------------------------------------------------------------------
  */
 
+let selectionPopup = null;
+
+function closeSelectionPopup() {
+  selectionPopup?.remove();
+  selectionPopup = null;
+}
+
 function initialiseApplication() {
   console.log("Initialising Coastal Mapping Viewer");
 
   const map = createMap();
 
-  addMapControls(map, (polygon) => handleSelectionPolygon(map, polygon),);
+  addMapControls(
+    map,
+    (polygon, drawingControl) =>
+      handleSelectionPolygon(
+        map,
+        polygon,
+        drawingControl,
+      ),
+    () => closeSelectionPopup(),
+  );
   registerMapEvents(map);
   Object.values(LAYER_GROUPS).forEach((group) => {
     group.registerInteractions(
@@ -143,6 +164,7 @@ function initialiseApplication() {
 function handleSelectionPolygon(
   map,
   polygon,
+  drawingControl,
 ) {
 
   const transects =
@@ -159,12 +181,35 @@ function handleSelectionPolygon(
       "TWR",
     );
 
-  showSelectionPopup(
+  /*
+   * There should only ever be one active selection popup.
+   */
+  closeSelectionPopup();
+
+  const popup = showSelectionPopup(
     map,
     polygon,
     summary,
     maplibregl.Popup,
   );
+
+  selectionPopup = popup;
+
+  /*
+   * Closing the summary popup ends the selection as well:
+   * remove the polygon, leave Terra Draw in static mode and
+   * ensure the draw button is no longer active.
+   */
+  popup.on("close", () => {
+    if (selectionPopup === popup) {
+      selectionPopup = null;
+    }
+
+    drawingControl.clearSelection(
+      polygon.id,
+      false,
+    );
+  });
 }
 /*
  * Start the application

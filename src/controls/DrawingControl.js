@@ -19,10 +19,14 @@ import {
 
 
 export class DrawingControl {
-  constructor(onPolygonFinished = null) {
+  constructor(
+    onPolygonFinished = null,
+    onSelectionCleared = null,
+  ) {
     this.draw = null;
     this.currentPolygon = null;
     this.onPolygonFinished = onPolygonFinished;
+    this.onSelectionCleared = onSelectionCleared;
   }
 
 
@@ -137,21 +141,18 @@ export class DrawingControl {
 
     if (isActive) {
       /*
-      * Cancel polygon drawing.
-      */
-      this.draw.setMode("static");
-
-      this.button.classList.remove("active");
-
+       * Cancel polygon drawing and remove any draft geometry.
+       */
+      this.clearSelection();
       return;
     }
 
     /*
-    * Starting a new polygon replaces the previous one.
-    */
+     * Starting a new polygon replaces the previous selection.
+     * Clearing it also allows the application to close its popup.
+     */
     if (this.currentPolygon) {
-      this.draw.clear();
-      this.currentPolygon = null;
+      this.clearSelection();
     }
 
     this.draw.setMode("polygon");
@@ -192,8 +193,46 @@ export class DrawingControl {
   /*
    * Pass the completed polygon back to the application.
    */
-  this.onPolygonFinished?.(polygon);
+  this.onPolygonFinished?.(polygon, this);
 }
+
+  clearSelection(
+    polygonId = null,
+    notify = true,
+  ) {
+    if (!this.draw) {
+      return false;
+    }
+
+    /*
+     * When a popup closes, only clear the polygon that belongs to
+     * that popup. This prevents an old popup from clearing a newer
+     * selection.
+     */
+    if (
+      polygonId !== null &&
+      this.currentPolygon?.id !== polygonId
+    ) {
+      return false;
+    }
+
+    const clearedPolygon = this.currentPolygon;
+
+    this.draw.setMode("static");
+    this.draw.clear();
+    this.currentPolygon = null;
+
+    this.button?.classList.remove("active");
+
+    if (notify && clearedPolygon) {
+      this.onSelectionCleared?.(
+        clearedPolygon,
+        this,
+      );
+    }
+
+    return true;
+  }
 
   onRemove() {
     this.button.removeEventListener(

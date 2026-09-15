@@ -100,7 +100,11 @@ async function checkRasterServer() {
   }
 }
 
-export function addMapControls(map, onPolygonFinished) {
+export function addMapControls(
+  map,
+  onPolygonFinished,
+  onSelectionCleared,
+) {
   
   // first add the map control buttons using maplibres built in controls
   map.addControl(
@@ -125,7 +129,10 @@ export function addMapControls(map, onPolygonFinished) {
 
   // add the custom drawing control to the map
   map.addControl(
-    new DrawingControl(onPolygonFinished),
+    new DrawingControl(
+      onPolygonFinished,
+      onSelectionCleared,
+    ),
     "top-right",
   );
 
