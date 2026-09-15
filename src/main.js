@@ -33,6 +33,7 @@ import LegendControl from "./controls/LegendControl.js";
 import {addMapControls} from "./controls/MapControls.js";
 import {getIntersectingTransects, summariseTransects,} from "./analysis/TransectsAnalysis.js";
 import {createSelectionPopupContent, showSelectionPopup,} from "./popups/SelectionPopup.js";
+import AOIControl from "./controls/AOIControl.js";
 
 // import layer tools
 import {addAssetLayers, applyAssetVisibility} from "./layers/Assets.js";

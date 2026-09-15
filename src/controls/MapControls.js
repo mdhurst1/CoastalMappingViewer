@@ -22,6 +22,7 @@ import {DrawingControl,} from "./DrawingControl";
 import MapOptionsControl from "./MapOptionsControl";
 import LegendControl from "./LegendControl.js";
 import { ZoomSliderControl } from "./ZoomSliderControl.js";
+import AOIControl from "./AOIControl.js";
 
 // import layer tools
 import {applyAssetVisibility} from "../layers/Assets.js";
@@ -219,6 +220,10 @@ export function addMapControls(map, onPolygonFinished) {
     mapOptionsControl,
     "top-left",
   );
+
+  // add exemplar location selector
+  map.addControl(
+    new AOIControl("/data/AOI_Exemplars.geojson",),"top-left");
 
   // create the legend control and add it to the map
   const legendControl = new LegendControl(LEGEND_ITEMS);
