@@ -75,7 +75,7 @@ function createTimeseriesTrace(signal, name) {
     ),
 
     y: observations.map(
-      observation => observation.Distance,
+      observation => -Number(observation.Distance),
     ),
 
     error_y: {
@@ -136,8 +136,8 @@ function createRegressionTrace(
       ],
 
       y: [
-        result.StartValue,
-        result.EndValue,
+        -Number(result.StartValue),
+        -Number(result.EndValue),
       ],
 
       mode: "lines",
@@ -176,7 +176,9 @@ function createRegressionTrace(
       observation => observation.Date,
     ),
 
-    y: fitted,
+    y: fitted.map(
+      value => -Number(value),
+    ),
 
     mode: "lines",
 
@@ -490,8 +492,11 @@ function createTransectResults(timeseries, selectedIndicator,selectedMethod) {
         result.Method ?? methodName;
 
       const rateCell = document.createElement("td");
+
+      // multiply rate by -1 to convert from distance change to shoreline change (positive = accretion, negative = erosion)
+      const displayRate = -Number(result.Rate);
       rateCell.textContent =
-        `${formatResultValue(result.Rate)} m/yr`;
+        `${formatResultValue(displayRate)} m/yr`;
 
       const uncertaintyCell =
         document.createElement("td");
@@ -501,14 +506,18 @@ function createTransectResults(timeseries, selectedIndicator,selectedMethod) {
           `±${formatResultValue(
             result.RateUncertainty,
           )} m/yr`;
-      } else if (result.RateCI95?.length === 2) {
+      } 
+      else if (result.RateCI95?.length === 2) {
+
+        // reverse signs here
+        const lower = -Number(result.RateCI95[1]);
+        const upper = -Number(result.RateCI95[0]);
+
         uncertaintyCell.textContent =
-          `${formatResultValue(
-            result.RateCI95[0],
-          )} to ${formatResultValue(
-            result.RateCI95[1],
-          )} m/yr`;
-      } else {
+          `${formatResultValue(lower)} to ` +
+          `${formatResultValue(upper)} m/yr`;
+      } 
+      else {
         uncertaintyCell.textContent = "—";
       }
 
