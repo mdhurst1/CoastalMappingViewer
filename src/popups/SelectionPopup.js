@@ -47,14 +47,14 @@ export function createSelectionPopupContent(
   appendPopupField(
     container,
     "Minimum rate",
-    summary.min?.toFixed(2),
+    summary.max?.toFixed(2),
     { suffix: " m/yr" },
   );
 
   appendPopupField(
     container,
     "Maximum rate",
-    summary.max?.toFixed(2),
+    summary.min?.toFixed(2),
     { suffix: " m/yr" },
   );
 
