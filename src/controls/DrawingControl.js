@@ -82,21 +82,58 @@ export class DrawingControl {
 
     this.container.appendChild(this.button);
 
+    /*
+     * Terra Draw's MapLibre layers belong to the current map style.
+     * A basemap switch via map.setStyle() removes those layers, so listen
+     * for every style.load and create a fresh Terra Draw instance when
+     * required.
+     */
+    this.handleStyleLoad =
+      this.handleStyleLoad.bind(this);
+
+    this.map.on(
+      "style.load",
+      this.handleStyleLoad,
+    );
+
     if (this.map.isStyleLoaded()) {
       this.initialiseDrawing();
-    } 
-    else {
-      this.handleStyleLoad =
-        this.initialiseDrawing.bind(this);
-
-      this.map.once(
-        "style.load",
-        this.handleStyleLoad,
-      );
     }
 
 
     return this.container;
+  }
+
+
+  handleStyleLoad() {
+    /*
+     * initialiseDrawing() is intentionally idempotent. During a normal
+     * initial load this creates Terra Draw once; after prepareForStyleChange()
+     * has discarded the old instance, it creates the replacement against the
+     * newly loaded style.
+     */
+    this.initialiseDrawing();
+  }
+
+
+  prepareForStyleChange() {
+    /*
+     * map.setStyle() removes Terra Draw's MapLibre sources and layers.
+     * Clean up while those sources still exist, then let the next style.load
+     * create a fresh Terra Draw adapter.
+     */
+    if (!this.draw) {
+      this.currentPolygon = null;
+      this.button?.classList.remove("active");
+      return;
+    }
+
+    // Clear any current/draft selection while the old style is still valid.
+    this.clearSelection(null, true);
+
+    // Detach Terra Draw's listeners from the old style before it disappears.
+    this.draw.stop();
+    this.draw = null;
   }
 
 
@@ -240,12 +277,10 @@ export class DrawingControl {
       this.handleClick,
     );
 
-    if (this.handleStyleLoad) {
-      this.map.off(
-        "style.load",
-        this.handleStyleLoad,
-      );
-    }
+    this.map.off(
+      "style.load",
+      this.handleStyleLoad,
+    );
 
     this.draw?.stop();
 

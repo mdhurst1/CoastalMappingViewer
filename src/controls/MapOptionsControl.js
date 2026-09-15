@@ -64,6 +64,7 @@ export default class MapOptionsControl {
     onRasterVisibilityChanged,
     onLayerVisibilityChanged,
     onFutureShorelineChanged,
+    onBasemapChanged = null,
   ) {
     // Configuration
     this.basemaps = basemaps;
@@ -87,6 +88,9 @@ export default class MapOptionsControl {
 
     this.onFutureShorelineChanged =
       onFutureShorelineChanged;
+
+    this.onBasemapChanged =
+      onBasemapChanged;
 
     // Local copies of application state
     this.assetLayerState = {
@@ -320,7 +324,13 @@ export default class MapOptionsControl {
           }
 
           this.activeBasemap = basemapId;
-          this.map.setStyle(basemap.style);
+
+          if (this.onBasemapChanged) {
+            this.onBasemapChanged(basemap);
+          }
+          else {
+            this.map.setStyle(basemap.style);
+          }
         });
 
         const text =

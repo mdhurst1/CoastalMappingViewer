@@ -128,11 +128,13 @@ export function addMapControls(
   );
 
   // add the custom drawing control to the map
+  const drawingControl = new DrawingControl(
+    onPolygonFinished,
+    onSelectionCleared,
+  );
+
   map.addControl(
-    new DrawingControl(
-      onPolygonFinished,
-      onSelectionCleared,
-    ),
+    drawingControl,
     "top-right",
   );
 
@@ -206,6 +208,13 @@ export function addMapControls(
     legendControl.updateFuture(futureState);
   };
 
+  // basemap changes replace the entire MapLibre style. Terra Draw must be
+  // stopped before that happens and rebuilt once the new style has loaded.
+  const handleBasemapChanged = (basemap) => {
+    drawingControl.prepareForStyleChange();
+    map.setStyle(basemap.style);
+  };
+
   // enable the map options control and add it to the map
   const mapOptionsControl = new MapOptionsControl(
     Basemaps,
@@ -221,6 +230,7 @@ export function addMapControls(
     handleRasterVisibilityChanged,
     handleCoastalLayerVisibilityChanged,
     handleFutureShorelineChanged,
+    handleBasemapChanged,
   );
 
   map.addControl(
