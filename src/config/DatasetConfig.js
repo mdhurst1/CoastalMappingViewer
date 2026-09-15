@@ -34,6 +34,12 @@ export const TIDE_GAUGE_DATASET = {
   file: `${import.meta.env.BASE_URL}/data/TideGauges.geojson`,
 };
 
+export const EXEMPLAR_SITES_DATASET = {
+  id: "exemplar-sites",
+  name: "Exemplar locations",
+  file: `${import.meta.env.BASE_URL}/data/UKRI_Policy_Fellowship_Exemplar_Sites.geojson`,
+};
+
 export const VEDGE_DATASETS = [
   {
     id: "VEdge Combined",

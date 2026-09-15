@@ -258,4 +258,28 @@ export const MAP_OPTIONS_ICONS = {
       />
     ${SVG_END}
   `,
+
+/*
+   * Exemplar locations
+   * ------------------------------------------------------------------------
+   * Map pin used to navigate to policy-fellowship exemplar AOIs.
+   */
+  exemplars: `
+    ${SVG_START}
+      <path
+        d="M12 21C12 21 18 15.4 18 9.5C18 6.2 15.3 3.5 12 3.5C8.7 3.5 6 6.2 6 9.5C6 15.4 12 21 12 21Z"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+      <circle
+        cx="12"
+        cy="9.5"
+        r="2.2"
+        stroke="currentColor"
+        stroke-width="1.8"
+      />
+    ${SVG_END}
+  `,
 };

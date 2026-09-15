@@ -128,12 +128,28 @@ function registerMapEvents(map) {
  * --------------------------------------------------------------------------
  */
 
+let selectionPopup = null;
+
+function closeSelectionPopup() {
+  selectionPopup?.remove();
+  selectionPopup = null;
+}
+
 function initialiseApplication() {
   console.log("Initialising Coastal Mapping Viewer");
 
   const map = createMap();
 
-  addMapControls(map, (polygon) => handleSelectionPolygon(map, polygon),);
+  addMapControls(
+    map,
+    (polygon, drawingControl) =>
+      handleSelectionPolygon(
+        map,
+        polygon,
+        drawingControl,
+      ),
+    () => closeSelectionPopup(),
+  );
   registerMapEvents(map);
   Object.values(LAYER_GROUPS).forEach((group) => {
     group.registerInteractions(
@@ -148,6 +164,7 @@ function initialiseApplication() {
 function handleSelectionPolygon(
   map,
   polygon,
+  drawingControl,
 ) {
 
   const transects =
@@ -164,12 +181,35 @@ function handleSelectionPolygon(
       "TWR",
     );
 
-  showSelectionPopup(
+  /*
+   * There should only ever be one active selection popup.
+   */
+  closeSelectionPopup();
+
+  const popup = showSelectionPopup(
     map,
     polygon,
     summary,
     maplibregl.Popup,
   );
+
+  selectionPopup = popup;
+
+  /*
+   * Closing the summary popup ends the selection as well:
+   * remove the polygon, leave Terra Draw in static mode and
+   * ensure the draw button is no longer active.
+   */
+  popup.on("close", () => {
+    if (selectionPopup === popup) {
+      selectionPopup = null;
+    }
+
+    drawingControl.clearSelection(
+      polygon.id,
+      false,
+    );
+  });
 }
 /*
  * Start the application

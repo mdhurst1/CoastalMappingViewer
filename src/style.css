@@ -81,3 +81,22 @@ body {
     transform: rotate(360deg);
   }
 }
+
+.aoi-control {
+  background: white;
+  border-radius: 4px;
+  padding: 6px;
+}
+
+.aoi-select {
+  min-width: 180px;
+  border: none;
+  background: white;
+  padding: 4px 6px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.aoi-select:focus {
+  outline: none;
+}

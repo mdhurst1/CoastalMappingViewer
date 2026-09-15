@@ -11,7 +11,7 @@ import { MapConfig } from "../config/MapConfig.js";
 import { Basemaps } from "../config/BasemapConfig.js";
 import { LAYER_GROUPS } from "../config/LayerGroups.js";
 import { LEGEND_ITEMS } from "../config/LegendConfig.js";
-import { TIDE_GAUGE_DATASET, MHWS_DATASETS, VEDGE_DATASETS, TRANSECTS_DATASETS, FUTURE_DATASETS, FUTURE_UNCERTAINTY_DATASETS, FUTURE_SCENARIO_FILE_CODES, getFutureShorelineDataset, getFutureUncertaintyDataset} from "../config/DatasetConfig.js";
+import { TIDE_GAUGE_DATASET, EXEMPLAR_SITES_DATASET, MHWS_DATASETS, VEDGE_DATASETS, TRANSECTS_DATASETS, FUTURE_DATASETS, FUTURE_UNCERTAINTY_DATASETS, FUTURE_SCENARIO_FILE_CODES, getFutureShorelineDataset, getFutureUncertaintyDataset} from "../config/DatasetConfig.js";
 import { LOCAL_RASTER_LAYERS } from "../config/RasterConfig.js";
 
 // import state management functions
@@ -100,7 +100,11 @@ async function checkRasterServer() {
   }
 }
 
-export function addMapControls(map, onPolygonFinished) {
+export function addMapControls(
+  map,
+  onPolygonFinished,
+  onSelectionCleared,
+) {
   
   // first add the map control buttons using maplibres built in controls
   map.addControl(
@@ -125,7 +129,10 @@ export function addMapControls(map, onPolygonFinished) {
 
   // add the custom drawing control to the map
   map.addControl(
-    new DrawingControl(onPolygonFinished),
+    new DrawingControl(
+      onPolygonFinished,
+      onSelectionCleared,
+    ),
     "top-right",
   );
 
@@ -204,6 +211,7 @@ export function addMapControls(map, onPolygonFinished) {
     Basemaps,
     MapConfig.basemap,
     LAYER_GROUPS,
+    EXEMPLAR_SITES_DATASET,
     getAssetState(),
     getMarineState(),
     getRasterState(),
@@ -219,6 +227,7 @@ export function addMapControls(map, onPolygonFinished) {
     mapOptionsControl,
     "top-left",
   );
+
 
   // create the legend control and add it to the map
   const legendControl = new LegendControl(LEGEND_ITEMS);
