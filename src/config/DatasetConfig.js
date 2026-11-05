@@ -27,6 +27,12 @@ export const MHWS_DATASETS = [
   }
 ];
 
+export const MSL_DATASETS = [
+  {
+    id: "DEA-MSL-Montrose",
+    file: `${import.meta.env.BASE_URL}/data/montrose_DEA_MSL_annual_shorelines_1988_2025.geojson`,
+  },
+];
 
 export const TIDE_GAUGE_DATASET = {
   id: "tide-gauges",
