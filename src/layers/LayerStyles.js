@@ -11,10 +11,15 @@ export const MHWS_COLOURS = [
 ];
 
 export const MSL_COLOURS = [
-  [1988, "#713f93"],
-  [2000, "#bd5d69"],
-  [2012, "#e59d43"],
-  [2025, "#f3d976"],
+  [1988, "#000004"],
+  [1993, "#210C4A"],
+  [1998, "#57106E"],
+  [2002, "#8A226A"],
+  [2007, "#BC3754"],
+  [2012, "#E45A31"],
+  [2016, "#F98E09"],
+  [2021, "#F9C932"],
+  [CURRENT_YEAR, "#FCFFA4"],
 ];
 
 export const VEDGE_COLOURS = [
