@@ -6,7 +6,7 @@
  */
 
 // import modulues
-import maplibregl from "maplibre-gl";
+import * as maplibregl from "maplibre-gl";
 import { MapConfig } from "../config/MapConfig.js";
 import { Basemaps } from "../config/BasemapConfig.js";
 import { LAYER_GROUPS } from "../config/LayerGroups.js";
