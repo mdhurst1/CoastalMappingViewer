@@ -12,6 +12,7 @@
 import * as maplibregl from "maplibre-gl";
 import { Protocol } from "pmtiles";
 import "maplibre-gl/dist/maplibre-gl.css";
+import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 
 // import application specific stylesheet
 import "./style.css";
@@ -52,6 +53,9 @@ import {setDatasetVisibility, applyLayerVisibility} from "./map/LayerFactory.js"
 // No server is needed for archives served from GitHub Pages or Azure.
 const pmtilesProtocol = new Protocol();
 maplibregl.addProtocol("pmtiles", pmtilesProtocol.tile);
+
+// Configure MapLibre 6 Web Worker for Vite
+maplibregl.setWorkerUrl(workerUrl);
 
 /*
  * Loading screen
