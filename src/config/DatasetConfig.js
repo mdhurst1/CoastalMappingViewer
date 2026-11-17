@@ -34,7 +34,7 @@ export const MHWS_DATASETS = [
 export const DEA_RATE_DATASETS = [
   {
     id: "dea-rates-5000m",
-    file: `${import.meta.env.BASE_URL}data/DEA_Scotland/Scotland_rates_5000m.geojson`,
+    file: `${import.meta.env.BASE_URL}/data/DEA_Scotland/Scotland_rates_5000m.geojson`,
     type: "geojson",
     spacing_m: 5000,
     minZoom: 0,
@@ -42,7 +42,7 @@ export const DEA_RATE_DATASETS = [
   },
   {
     id: "dea-rates-1000m",
-    file: `${import.meta.env.BASE_URL}data/DEA_Scotland/Scotland_rates_1000m.pmtiles`,
+    file: `${import.meta.env.BASE_URL}/data/DEA_Scotland/Scotland_rates_1000m.pmtiles`,
     type: "pmtiles",
     sourceLayer: "rates_1000m",
     spacing_m: 1000,
@@ -51,7 +51,7 @@ export const DEA_RATE_DATASETS = [
   },
   {
     id: "dea-rates-300m",
-    file: `${import.meta.env.BASE_URL}data/DEA_Scotland/Scotland_rates_300m.pmtiles`,
+    file: `${import.meta.env.BASE_URL}/data/DEA_Scotland/Scotland_rates_300m.pmtiles`,
     type: "pmtiles",
     sourceLayer: "rates_300m",
     spacing_m: 300,
