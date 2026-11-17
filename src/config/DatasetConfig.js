@@ -31,7 +31,7 @@ export const MHWS_DATASETS = [
 export const DEA_RATE_DATASETS = [
   {
     id: "dea-rates-5000m",
-    file: `${import.meta.env.BASE_URL}data/DEA_Scotland/Scotland_rates_5000m.geojson`,
+    file: `${import.meta.env.BASE_URL}/data/DEA_Scotland/Scotland_rates_5000m.geojson`,
     spacing_m: 5000,
   },
 ];

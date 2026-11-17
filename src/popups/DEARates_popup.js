@@ -9,9 +9,9 @@ import Plotly from "plotly.js-dist-min";
 import { createPopupContainer } from "./PopupContent.js";
 
 const PERIODS = [
-  ["1988_2025", "1988–2025"],
-  ["2000_2025", "2000–2025"],
-  ["2015_2025", "2015–2025"],
+  ["1988_2025", "1988-2025"],
+  ["2000_2025", "2000-2025"],
+  ["2015_2025", "2015-2025"],
 ];
 
 function numeric(value) {
@@ -99,7 +99,8 @@ export function createDEARatePopupContent(properties, dataset = {}) {
   const baseline = properties.baseline_year ?? 2024;
   addTextElement(
     container, "p", "dea-rate-popup-footnote",
-    `Distances are relative to the ${baseline} baseline (m). These are ${description.toLowerCase()}. Rates and p-values are supplied by the DEA dataset. Positive/negative direction should be checked against the extraction convention.`,
+    `Distances are relative to the ${baseline} baseline (m). These are ${description.toLowerCase()}. 
+    Rates and p-values derived from the DEA dataset.`,
   );
   return container;
 }

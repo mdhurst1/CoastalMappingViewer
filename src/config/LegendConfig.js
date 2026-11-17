@@ -20,8 +20,9 @@ export const LEGEND_ITEMS = [
     type: "gradient",
     title: "DEA MSL change rates (m/yr)",
     colours: DEA_RATE_COLOURS,
-    leftLabel: "Negative",
-    rightLabel: "Positive",
+    leftLabel: "Erosion",
+    rightLabel: "Accretion",
+    units: "m/yr",
   },
   {
     group: "vegetation",
