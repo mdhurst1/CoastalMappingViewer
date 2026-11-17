@@ -31,18 +31,31 @@ export function addDEARateLayers(map, datasets) {
     const layerId = `${dataset.id}-points`;
 
     if (!map.getSource(sourceId)) {
-      map.addSource(sourceId, {
-        type: "geojson",
-        data: dataset.file,
-        generateId: true,
-      });
+      if (dataset.type === "pmtiles") {
+        // Absolute URL works locally, on GitHub Pages and with a future
+        // Azure blob URL in DatasetConfig. PMTiles fetches byte ranges.
+        const archiveUrl = new URL(dataset.file, window.location.href).href;
+        map.addSource(sourceId, {
+          type: "vector",
+          url: `pmtiles://${archiveUrl}`,
+        });
+      } else {
+        map.addSource(sourceId, {
+          type: "geojson",
+          data: dataset.file,
+          generateId: true,
+        });
+      }
     }
 
     if (!map.getLayer(layerId)) {
-      map.addLayer({
+      const layer = {
         id: layerId,
         type: "circle",
         source: sourceId,
+        // Nonoverlapping display ranges automatically select the resolution.
+        minzoom: dataset.minZoom ?? 0,
+        maxzoom: dataset.maxZoom ?? 24,
         layout: { visibility: "none" },
         paint: {
           "circle-color": rateColour,
@@ -56,7 +69,9 @@ export function addDEARateLayers(map, datasets) {
           "circle-stroke-color": "#273747",
           "circle-stroke-width": 0.5,
         },
-      });
+      };
+      if (dataset.sourceLayer) layer["source-layer"] = dataset.sourceLayer;
+      map.addLayer(layer);
     }
   });
 }
