@@ -27,7 +27,7 @@ export const LAYER_GROUPS = {
   },
 
   dea_rates: {
-    name: "DEA MSL change rates (5 km)",
+    name: "DEA MSL change rates (multiscale)",
     visible: false,
     datasets: DEA_RATE_DATASETS,
     colours: DEA_RATE_COLOURS,
