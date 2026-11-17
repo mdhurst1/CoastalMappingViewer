@@ -6,7 +6,7 @@
  * Analysis of the polygon is deliberately handled elsewhere.
  */
 
-import maplibregl from "maplibre-gl";
+import * as maplibregl from "maplibre-gl";
 
 import {
   TerraDraw,

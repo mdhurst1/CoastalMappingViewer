@@ -77,9 +77,10 @@ export function addGeoJsonLineLayers(
 
 export function setDatasetVisibility(map, dataset, visible) {
   const { haloLayerId, lineLayerId } = getLayerIds(dataset);
+  const pointLayerId = `${dataset.id}-points`;
   const visibility = visible ? "visible" : "none";
 
-  [haloLayerId, lineLayerId].forEach((layerId) => {
+  [haloLayerId, lineLayerId, pointLayerId].forEach((layerId) => {
     if (map.getLayer(layerId)) {
       map.setLayoutProperty(layerId, "visibility", visibility);
     }

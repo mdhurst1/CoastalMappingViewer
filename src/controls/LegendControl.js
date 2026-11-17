@@ -44,6 +44,8 @@ export default class LegendControl {
   /*
    * Create positioned year labels for a gradient legend item.
    */
+  
+  
   createGradientLabels(colours) {
     const labels = document.createElement("div");
     labels.className = "legend-labels";
@@ -51,9 +53,15 @@ export default class LegendControl {
     const firstYear = colours[0][0];
     const lastYear = colours[colours.length - 1][0];
 
-    colours.forEach(([year], index) => {
-      const position =
-        ((year - firstYear) / (lastYear - firstYear)) * 100;
+    // Three evenly spaced labels
+    const labelYears = [
+      firstYear,
+      Math.round((firstYear + lastYear) / 2),
+      lastYear,
+    ];
+
+    labelYears.forEach((year, index) => {
+      const position = index * 50; // 0%, 50%, 100%
 
       const label = document.createElement("span");
       label.textContent = year;
@@ -61,7 +69,7 @@ export default class LegendControl {
 
       if (index === 0) {
         label.classList.add("legend-label-first");
-      } else if (index === colours.length - 1) {
+      } else if (index === labelYears.length - 1) {
         label.classList.add("legend-label-last");
       }
 
@@ -70,6 +78,8 @@ export default class LegendControl {
 
     return labels;
   }
+
+
 
   /*
    * Create one gradient legend item.

@@ -10,9 +10,30 @@ export const MHWS_COLOURS = [
   [CURRENT_YEAR, "#0011a8"],
 ];
 
+export const MSL_COLOURS = [
+  [1988, "#000004"],
+  [1993, "#210C4A"],
+  [1998, "#57106E"],
+  [2002, "#8A226A"],
+  [2007, "#BC3754"],
+  [2012, "#E45A31"],
+  [2016, "#F98E09"],
+  [2021, "#F9C932"],
+  [CURRENT_YEAR, "#FCFFA4"],
+];
+
 export const VEDGE_COLOURS = [
   [2000, "#eeffe9"],
   [CURRENT_YEAR, "#006622"],
+];
+
+// DEA MSL long-term rate colours (negative to positive), separate from CMT.
+export const DEA_RATE_COLOURS = [
+  [-2, "#b2182b"],
+  [-0.5, "#ef8a62"],
+  [0, "#f7f7f7"],
+  [0.5, "#67a9cf"],
+  [2, "#2166ac"],
 ];
 
 export const TRANSECT_COLOURS = [
