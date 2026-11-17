@@ -5,6 +5,7 @@ import {addVEdgeLayers, registerVEdgeInteractions} from "../layers/VEdge.js";
 import {addTransectLayers, registerTransectInteractions} from "../layers/Transects.js";
 import {addTideGaugeLayer, registerTideGaugeInteractions} from "../layers/Marine.js";
 import {addMSLLayers, registerMSLInteractions} from "../layers/MSL.js";
+import {addDEARateLayer, registerDEARateInteractions} from "./layers/DEARates.js";
 
 export const LAYER_GROUPS = {
   mhws: {
@@ -24,7 +25,16 @@ export const LAYER_GROUPS = {
     addLayers: addMSLLayers,
     registerInteractions: registerMSLInteractions,
   },
-  
+
+  dea_rates: {
+    name: "DEA Rates",
+    visible: false,
+    datasets: [],
+    colours: [],
+    addLayers: addDEARateLayer,
+    registerInteractions: registerDEARateInteractions,
+  },
+
   vegetation: {
     name: "Vegetation edge",
     visible: false,
