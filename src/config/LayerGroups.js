@@ -1,11 +1,11 @@
-import {MHWS_COLOURS, MSL_COLOURS, VEDGE_COLOURS, TRANSECT_COLOURS} from "../layers/LayerStyles.js";
-import {MHWS_DATASETS, MSL_DATASETS, VEDGE_DATASETS, TRANSECTS_DATASETS, TIDE_GAUGE_DATASET} from "./DatasetConfig.js";
+import {MHWS_COLOURS, MSL_COLOURS, VEDGE_COLOURS, TRANSECT_COLOURS, DEA_RATE_COLOURS} from "../layers/LayerStyles.js";
+import {MHWS_DATASETS, MSL_DATASETS, VEDGE_DATASETS, TRANSECTS_DATASETS, DEA_RATE_DATASETS} from "./DatasetConfig.js";
 import {addMHWSLayers, registerMHWSInteractions} from "../layers/MHWS.js";
 import {addVEdgeLayers, registerVEdgeInteractions} from "../layers/VEdge.js";
 import {addTransectLayers, registerTransectInteractions} from "../layers/Transects.js";
 import {addTideGaugeLayer, registerTideGaugeInteractions} from "../layers/Marine.js";
-import {addMSLLayers, registerMSLInteractions} from "../layers/MSL.js";
-import {addDEARateLayer, registerDEARateInteractions} from "./layers/DEARates.js";
+import {addMSLLayers, registerMSLInteractions} from "../layers/DEA_MSL.js";
+import {addDEARateLayers, registerDEARateInteractions} from "../layers/DEA_Rates.js";
 
 export const LAYER_GROUPS = {
   mhws: {
@@ -27,11 +27,11 @@ export const LAYER_GROUPS = {
   },
 
   dea_rates: {
-    name: "DEA Rates",
+    name: "DEA MSL change rates (5 km)",
     visible: false,
-    datasets: [],
-    colours: [],
-    addLayers: addDEARateLayer,
+    datasets: DEA_RATE_DATASETS,
+    colours: DEA_RATE_COLOURS,
+    addLayers: addDEARateLayers,
     registerInteractions: registerDEARateInteractions,
   },
 

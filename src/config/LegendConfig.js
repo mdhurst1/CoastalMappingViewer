@@ -1,5 +1,5 @@
 // import colours from layer styles file saved in layers folder
-import {MHWS_COLOURS, MSL_COLOURS, VEDGE_COLOURS, TRANSECT_COLOURS} from "../layers/LayerStyles.js";
+import {MHWS_COLOURS, MSL_COLOURS, VEDGE_COLOURS, TRANSECT_COLOURS, DEA_RATE_COLOURS} from "../layers/LayerStyles.js";
 
 // initiate legend items
 export const LEGEND_ITEMS = [
@@ -14,6 +14,14 @@ export const LEGEND_ITEMS = [
     type: "gradient",
     title: "Satellite-derived MSL shorelines",
     colours: MSL_COLOURS,
+  },
+  {
+    group: "dea_rates",
+    type: "gradient",
+    title: "DEA MSL change rates (m/yr)",
+    colours: DEA_RATE_COLOURS,
+    leftLabel: "Negative",
+    rightLabel: "Positive",
   },
   {
     group: "vegetation",

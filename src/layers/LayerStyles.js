@@ -27,6 +27,15 @@ export const VEDGE_COLOURS = [
   [CURRENT_YEAR, "#006622"],
 ];
 
+// DEA MSL long-term rate colours (negative to positive), separate from CMT.
+export const DEA_RATE_COLOURS = [
+  [-2, "#b2182b"],
+  [-0.5, "#ef8a62"],
+  [0, "#f7f7f7"],
+  [0.5, "#67a9cf"],
+  [2, "#2166ac"],
+];
+
 export const TRANSECT_COLOURS = [
   [-5, "#b2182b"],
   [-2.5, "#ef8a62"],
