@@ -27,12 +27,36 @@ export const MHWS_DATASETS = [
   }
 ];
 
-// First Scotland-wide DEA Coastlines rates layer (5 km aggregated hotspots).
+// Scotland-wide DEA MSL change rates. One resolution is drawn at a time.
+// Zoom thresholds match the minzoom of the PMTiles produced by
+// build_dea_pmtiles.sh. The final 300 m tiles overzoom past zoom 13 until
+// the 30 m archive can be hosted separately.
 export const DEA_RATE_DATASETS = [
   {
     id: "dea-rates-5000m",
-    file: `${import.meta.env.BASE_URL}/data/DEA_Scotland/Scotland_rates_5000m.geojson`,
+    file: `${import.meta.env.BASE_URL}data/DEA_Scotland/Scotland_rates_5000m.geojson`,
+    type: "geojson",
     spacing_m: 5000,
+    minZoom: 0,
+    maxZoom: 8,
+  },
+  {
+    id: "dea-rates-1000m",
+    file: `${import.meta.env.BASE_URL}data/DEA_Scotland/Scotland_rates_1000m.pmtiles`,
+    type: "pmtiles",
+    sourceLayer: "rates_1000m",
+    spacing_m: 1000,
+    minZoom: 8,
+    maxZoom: 11,
+  },
+  {
+    id: "dea-rates-300m",
+    file: `${import.meta.env.BASE_URL}data/DEA_Scotland/Scotland_rates_300m.pmtiles`,
+    type: "pmtiles",
+    sourceLayer: "rates_300m",
+    spacing_m: 300,
+    minZoom: 11,
+    maxZoom: 24,
   },
 ];
 
