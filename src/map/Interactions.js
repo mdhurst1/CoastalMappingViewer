@@ -24,6 +24,7 @@ export function registerPointInteractions(
   layerId,
   PopupClass,
   createPopupContent,
+  { popupOptions = {}, onOpen = null, onClose = null } = {},
 ) {
   let activePopup = null;
 
@@ -56,14 +57,17 @@ export function registerPointInteractions(
     const popup = new PopupClass({
       offset: 12,
       maxWidth: "450px",
+      ...popupOptions,
     })
       .setLngLat(coordinates)
       .setDOMContent(popupContent)
       .addTo(map);
 
     activePopup = popup;
+    onOpen?.(popupContent, feature.properties ?? {}, popup);
 
     popup.on("close", () => {
+      onClose?.(popupContent, feature.properties ?? {}, popup);
       if (activePopup === popup) {
         activePopup = null;
       }
