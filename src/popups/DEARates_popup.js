@@ -45,7 +45,7 @@ export function createDEARatePopupContent(properties, dataset = {}) {
     `DEA MSL shoreline change · ${dataset.spacing_m ? `${dataset.spacing_m / 1000} km` : "rate point"}`,
   );
 
-  const rate = numeric(properties.rate_1988_2025);
+  const rate = numeric(properties.rate_2000_2025);
   addTextElement(
     container, "div", "dea-rate-popup-headline",
     rate === null ? "Rate unavailable" : `${rate > 0 ? "+" : ""}${rate.toFixed(3)} m/yr`,

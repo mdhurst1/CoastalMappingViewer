@@ -16,11 +16,11 @@ import "../styles/Popup.css";
 
 const rateColour = [
   "case",
-  ["==", ["get", "rate_1988_2025"], null],
+  ["==", ["get", "rate_2000_2025"], null],
   "#999999",
   [
     "interpolate", ["linear"],
-    ["to-number", ["get", "rate_1988_2025"]],
+    ["to-number", ["get", "rate_2000_2025"]],
     ...DEA_RATE_COLOURS.flat(),
   ],
 ];

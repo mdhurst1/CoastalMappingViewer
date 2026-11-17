@@ -18,7 +18,7 @@ export const LEGEND_ITEMS = [
   {
     group: "dea_rates",
     type: "gradient",
-    title: "DEA MSL change rates (m/yr)",
+    title: "DEA MSL change rates, 2000-2025 (m/yr)",
     colours: DEA_RATE_COLOURS,
     leftLabel: "Erosion",
     rightLabel: "Accretion",
