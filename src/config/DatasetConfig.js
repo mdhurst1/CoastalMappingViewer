@@ -27,6 +27,15 @@ export const MHWS_DATASETS = [
   }
 ];
 
+// First Scotland-wide DEA Coastlines rates layer (5 km aggregated hotspots).
+export const DEA_RATE_DATASETS = [
+  {
+    id: "dea-rates-5000m",
+    file: `${import.meta.env.BASE_URL}data/DEA_Scotland/Scotland_rates_5000m.geojson`,
+    spacing_m: 5000,
+  },
+];
+
 export const MSL_DATASETS = [
   {
     id: "DEA-MSL-Montrose",
