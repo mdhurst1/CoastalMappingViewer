@@ -7,9 +7,10 @@
   "dependencies": {
     "@turf/boolean-intersects": "^7.4.0",
     "@turf/center": "^7.4.0",
-    "maplibre-gl": "^5.24.0",
-    "plotly.js": "^3.7.0",
+    "maplibre-gl": "^6.18.0",
+    "plotly.js": "^4.3.0",
     "plotly.js-dist-min": "^3.7.0",
+    "pmtiles": "^4.5.0",
     "terra-draw": "^1.32.2",
     "terra-draw-maplibre-gl-adapter": "^1.4.1"
   },
